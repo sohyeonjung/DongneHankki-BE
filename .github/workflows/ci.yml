@@ -27,5 +27,5 @@ jobs:
       - name: Build with Gradle Wrapper
         run: |
           chmod +x ./gradlew
-          ./gradlew test -Dspring.profiles.active=test
+          ./gradlew clean test -Dspring.profiles.active=test
           
