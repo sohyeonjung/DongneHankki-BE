@@ -21,6 +21,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: make application-local.yml
+        run: |
+          mkdir -p src/main/resources
+          cd src/main/resources
+          touch ./application-local.yml
+          echo "${{secrets.LOCAL_YML}}" > ./application-local.yml
+        shell: bash
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
