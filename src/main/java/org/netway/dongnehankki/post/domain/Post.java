@@ -3,7 +3,7 @@ package org.netway.dongnehankki.post.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.netway.dongnehankki.config.domain.BaseEntity;
+import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.user.domain.User;
 

@@ -3,17 +3,15 @@ package org.netway.dongnehankki.store.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.netway.dongnehankki.config.domain.BaseEntity;
+import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.follow.domain.Follow;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.user.domain.User;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;

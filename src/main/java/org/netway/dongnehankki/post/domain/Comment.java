@@ -1,6 +1,6 @@
 package org.netway.dongnehankki.post.domain;
 
-import org.netway.dongnehankki.config.domain.BaseEntity;
+import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.user.domain.User;
 
 import jakarta.persistence.Entity;

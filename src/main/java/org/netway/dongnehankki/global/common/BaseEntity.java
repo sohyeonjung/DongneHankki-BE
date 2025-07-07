@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.config.domain;
+package org.netway.dongnehankki.global.common;
 
 import java.time.LocalDateTime;
 

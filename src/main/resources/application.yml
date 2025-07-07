@@ -18,6 +18,9 @@ logging:
   level:
     org.hibernate.sql: debug
 
+server:
+  url: ${SERVER_URL}
+
 ---
 spring:
   config:
