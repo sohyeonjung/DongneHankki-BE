@@ -3,7 +3,6 @@ package org.netway.dongnehankki.store.application;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,40 +30,33 @@ public class MapServiceTest {
 	private static final double CENTER_LAT = 37.5665;
 	private static final double CENTER_LON = 126.9780;
 
-	private Store storeWithin500m;
-	private Store storeWithin2km;
-	private Store storeWithin5km;
-	private Store storeWithin7km;
-	private Store storeWithin10km;
-	private Store storeBeyond10km;
-
 	@BeforeEach
 	void setUp() {
 		reset(storeRepository);
 
 		double lat_0_2km = CENTER_LAT + (0.2 / KM_PER_LATITUDE_DEGREE);
 		double lon_0_2km = CENTER_LON + (0.2 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin500m = Store.createStore("500m내 가게", lat_0_2km, lon_0_2km, "주소1", "음식점", "F1", "10-111-2222");
+		Store.createStore("500m내 가게", lat_0_2km, lon_0_2km, "주소1", "음식점", "F1", "10-111-2222");
 
 		double lat_1_5km = CENTER_LAT + (1.5 / KM_PER_LATITUDE_DEGREE);
 		double lon_1_5km = CENTER_LON + (1.5 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin2km = Store.createStore("2km내 가게", lat_1_5km, lon_1_5km, "주소2", "카페", "F2", "10-333-4444");
+		Store.createStore("2km내 가게", lat_1_5km, lon_1_5km, "주소2", "카페", "F2", "10-333-4444");
 
 		double lat_4km = CENTER_LAT + (4.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_4km = CENTER_LON + (4.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin5km = Store.createStore("5km내 가게", lat_4km, lon_4km, "주소3", "마트", "F3", "10-555-6666");
+		Store.createStore("5km내 가게", lat_4km, lon_4km, "주소3", "마트", "F3", "10-555-6666");
 
 		double lat_6km = CENTER_LAT + (6.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_6km = CENTER_LON + (6.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin7km = Store.createStore("7km내 가게", lat_6km, lon_6km, "주소4", "병원", "F4", "10-777-8888");
+		Store.createStore("7km내 가게", lat_6km, lon_6km, "주소4", "병원", "F4", "10-777-8888");
 
 		double lat_9km = CENTER_LAT + (9.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_9km = CENTER_LON + (9.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin10km = Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "약국", "F5", "10-999-0000");
+		Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "약국", "F5", "10-999-0000");
 
 		double lat_12km = CENTER_LAT + (12.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_12km = CENTER_LON + (12.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeBeyond10km = Store.createStore("10km밖 가게", lat_12km, lon_12km, "주소6", "미분류", "F6", "10-123-5678");
+		Store storeBeyond10km = Store.createStore("10km밖 가게", lat_12km, lon_12km, "주소6", "미분류", "F6", "10-123-5678");
 	}
 
 	@DisplayName("범위 내에 가게가 없을 경우, 빈 리스트 반환")
