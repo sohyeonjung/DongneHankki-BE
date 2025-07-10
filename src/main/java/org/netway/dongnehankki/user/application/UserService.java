@@ -7,7 +7,7 @@ import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
 import org.netway.dongnehankki.user.exception.DuplicateUserNameException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
-import org.netway.dongnehankki.global.exception.store.UnregisteredStoreException;
+import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
