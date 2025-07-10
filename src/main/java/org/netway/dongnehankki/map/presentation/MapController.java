@@ -1,11 +1,11 @@
-package org.netway.dongnehankki.store.presentation;
+package org.netway.dongnehankki.map.presentation;
 
 import java.util.List;
 
 import org.netway.dongnehankki.global.common.ApiResponse;
-import org.netway.dongnehankki.store.application.MapService;
-import org.netway.dongnehankki.store.dto.request.MapRequest;
-import org.netway.dongnehankki.store.dto.response.MapResponse;
+import org.netway.dongnehankki.map.application.MapService;
+import org.netway.dongnehankki.map.dto.request.MapRequest;
+import org.netway.dongnehankki.map.dto.response.MapResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.dto.request;
+package org.netway.dongnehankki.map.dto.request;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.application;
+package org.netway.dongnehankki.map.application;
 
 import lombok.Builder;
 import lombok.Getter;

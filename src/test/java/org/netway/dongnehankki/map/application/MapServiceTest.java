@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.application;
+package org.netway.dongnehankki.map.application;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -15,8 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.domain.Store;
-import org.netway.dongnehankki.store.dto.request.MapRequest;
-import org.netway.dongnehankki.store.dto.response.MapResponse;
+import org.netway.dongnehankki.map.dto.request.MapRequest;
+import org.netway.dongnehankki.map.dto.response.MapResponse;
 import org.netway.dongnehankki.store.infrastructure.StoreRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +42,6 @@ public class MapServiceTest {
 	private Store storeWithin5km;
 	private Store storeWithin7km;
 	private Store storeWithin10km;
-	private Store storeBeyond10km;
 
 	@BeforeEach
 	void setUp() {
@@ -68,9 +67,6 @@ public class MapServiceTest {
 		double lon_9km = CENTER_LON + (9.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
 		storeWithin10km = Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "약국", "F5", "10-999-0000");
 
-		double lat_12km = CENTER_LAT + (12.0 / KM_PER_LATITUDE_DEGREE);
-		double lon_12km = CENTER_LON + (12.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeBeyond10km = Store.createStore("10km밖 가게", lat_12km, lon_12km, "주소6", "미분류", "F6", "10-123-5678");
 	}
 
 	@DisplayName("범위 내에 가게가 없을 경우, 빈 리스트 반환")

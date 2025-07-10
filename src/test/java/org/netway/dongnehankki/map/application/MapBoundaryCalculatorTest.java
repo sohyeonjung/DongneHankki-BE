@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.application;
+package org.netway.dongnehankki.map.application;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -12,7 +12,6 @@ public class MapBoundaryCalculatorTest {
 
 	private static final double KM_PER_LATITUDE_DEGREE = 111.0;
 	private static final double KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE = 111.0 * Math.cos(Math.toRadians(37.5));
-	private static final double TOLERANCE = 0.0001; // 부동 소수점 비교를 위한 허용 오차
 
 	private static final double TEST_CENTER_LAT = 37.5665;
 	private static final double TEST_CENTER_LON = 126.9780;

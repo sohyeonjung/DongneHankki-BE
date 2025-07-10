@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.presentation;
+package org.netway.dongnehankki.map.presentation;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -14,9 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.netway.dongnehankki.store.application.MapService;
-import org.netway.dongnehankki.store.dto.request.MapRequest;
-import org.netway.dongnehankki.store.dto.response.MapResponse;
+import org.netway.dongnehankki.map.application.MapService;
+import org.netway.dongnehankki.map.presentation.MapController;
+import org.netway.dongnehankki.map.dto.request.MapRequest;
+import org.netway.dongnehankki.map.dto.response.MapResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;

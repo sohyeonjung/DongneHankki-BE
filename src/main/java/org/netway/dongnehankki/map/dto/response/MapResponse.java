@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.dto.response;
+package org.netway.dongnehankki.map.dto.response;
 
 import org.netway.dongnehankki.store.domain.Store;
 
