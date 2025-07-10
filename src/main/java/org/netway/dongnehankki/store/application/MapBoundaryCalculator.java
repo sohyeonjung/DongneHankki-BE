@@ -12,9 +12,6 @@ public class MapBoundaryCalculator {
 		double radiusKm;
 
 		switch (zoomLevel) {
-			case 1:
-				radiusKm = 10.0;
-				break;
 			case 2:
 				radiusKm = 7.0;
 				break;
