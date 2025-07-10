@@ -3,7 +3,9 @@ package org.netway.dongnehankki.store.application;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.domain.Store;
+import org.netway.dongnehankki.store.dto.request.MapRequest;
+import org.netway.dongnehankki.store.dto.response.MapResponse;
 import org.netway.dongnehankki.store.infrastructure.StoreRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,39 +34,46 @@ public class MapServiceTest {
 	private static final double CENTER_LAT = 37.5665;
 	private static final double CENTER_LON = 126.9780;
 
+	private Store storeWithin500m;
+	private Store storeWithin2km;
+	private Store storeWithin5km;
+	private Store storeWithin7km;
+	private Store storeWithin10km;
+	private Store storeBeyond10km;
+
 	@BeforeEach
 	void setUp() {
 		reset(storeRepository);
 
 		double lat_0_2km = CENTER_LAT + (0.2 / KM_PER_LATITUDE_DEGREE);
 		double lon_0_2km = CENTER_LON + (0.2 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		Store.createStore("500m내 가게", lat_0_2km, lon_0_2km, "주소1", "음식점", "F1", "10-111-2222");
+		storeWithin500m = Store.createStore("500m내 가게", lat_0_2km, lon_0_2km, "주소1", "음식점", "F1", "10-111-2222");
 
 		double lat_1_5km = CENTER_LAT + (1.5 / KM_PER_LATITUDE_DEGREE);
 		double lon_1_5km = CENTER_LON + (1.5 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		Store.createStore("2km내 가게", lat_1_5km, lon_1_5km, "주소2", "카페", "F2", "10-333-4444");
+		storeWithin2km = Store.createStore("2km내 가게", lat_1_5km, lon_1_5km, "주소2", "카페", "F2", "10-333-4444");
 
 		double lat_4km = CENTER_LAT + (4.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_4km = CENTER_LON + (4.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		Store.createStore("5km내 가게", lat_4km, lon_4km, "주소3", "마트", "F3", "10-555-6666");
+		storeWithin5km = Store.createStore("5km내 가게", lat_4km, lon_4km, "주소3", "마트", "F3", "10-555-6666");
 
 		double lat_6km = CENTER_LAT + (6.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_6km = CENTER_LON + (6.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		Store.createStore("7km내 가게", lat_6km, lon_6km, "주소4", "병원", "F4", "10-777-8888");
+		storeWithin7km = Store.createStore("7km내 가게", lat_6km, lon_6km, "주소4", "병원", "F4", "10-777-8888");
 
 		double lat_9km = CENTER_LAT + (9.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_9km = CENTER_LON + (9.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "약국", "F5", "10-999-0000");
+		storeWithin10km = Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "약국", "F5", "10-999-0000");
 
 		double lat_12km = CENTER_LAT + (12.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_12km = CENTER_LON + (12.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		Store storeBeyond10km = Store.createStore("10km밖 가게", lat_12km, lon_12km, "주소6", "미분류", "F6", "10-123-5678");
+		storeBeyond10km = Store.createStore("10km밖 가게", lat_12km, lon_12km, "주소6", "미분류", "F6", "10-123-5678");
 	}
 
 	@DisplayName("범위 내에 가게가 없을 경우, 빈 리스트 반환")
 	@Test
 	void getLocalCurrencyStores_noStoresFound() {
-		MapRequest request = MapRequest.builder().latitude(37.0).longitude(127.0).zoomLevel(5).build();
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(5).build();
 
 		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
 			anyDouble(), anyDouble(), anyDouble(), anyDouble()))
@@ -73,20 +84,50 @@ public class MapServiceTest {
 		assertThat(result).isEmpty();
 	}
 
-	@DisplayName("유효하지 않은 줌 레벨이 들어오면, 빈 리스트 반환")
+	@DisplayName("유효하지 않은 줌 레벨이 들어오면, 기본값(10km) 범위의 가게 반환")
 	@Test
 	void getStoresOnMap_invalidZoomLevel_usesDefaultBounds() {
-		MapRequest request = MapRequest.builder().latitude(37.0).longitude(127.0).zoomLevel(0).build();
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(0).build();
+
+		double radiusKm = 10.0;
+		double expectedDeltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double expectedDeltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		double expectedMinLat = CENTER_LAT - expectedDeltaLatDegree;
+		double expectedMaxLat = CENTER_LAT + expectedDeltaLatDegree;
+		double expectedMinLon = CENTER_LON - expectedDeltaLonDegree;
+		double expectedMaxLon = CENTER_LON + expectedDeltaLonDegree;
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			expectedMinLat, expectedMaxLat,
+			expectedMinLon, expectedMaxLon))
+			.thenReturn(Arrays.asList(storeWithin500m, storeWithin2km, storeWithin5km, storeWithin7km, storeWithin10km));
 
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
-		assertThat(result).isEmpty();
+		assertThat(result).hasSize(5);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactlyInAnyOrder("500m내 가게", "2km내 가게", "5km내 가게", "7km내 가게", "10km내 가게");
 	}
 
 	@DisplayName("줌 레벨 5 (0.5km 반경)일 때, 500m 내 가게 반환")
 	@Test
 	void getStoresByMap_zoomLevel5_returnsOnlyWithin500m() {
 		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(5).build();
+
+		double radiusKm = 0.5;
+		double expectedDeltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double expectedDeltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		double expectedMinLat = CENTER_LAT - expectedDeltaLatDegree;
+		double expectedMaxLat = CENTER_LAT + expectedDeltaLatDegree;
+		double expectedMinLon = CENTER_LON - expectedDeltaLonDegree;
+		double expectedMaxLon = CENTER_LON + expectedDeltaLonDegree;
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			expectedMinLat, expectedMaxLat,
+			expectedMinLon, expectedMaxLon))
+			.thenReturn(Collections.singletonList(storeWithin500m));
 
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
@@ -100,6 +141,20 @@ public class MapServiceTest {
 	void getStoresOnMap_zoomLevel4_returnsWithin2km() {
 		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(4).build();
 
+		double radiusKm = 2.0;
+		double expectedDeltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double expectedDeltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		double expectedMinLat = CENTER_LAT - expectedDeltaLatDegree;
+		double expectedMaxLat = CENTER_LAT + expectedDeltaLatDegree;
+		double expectedMinLon = CENTER_LON - expectedDeltaLonDegree;
+		double expectedMaxLon = CENTER_LON + expectedDeltaLonDegree;
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			expectedMinLat, expectedMaxLat,
+			expectedMinLon, expectedMaxLon))
+			.thenReturn(Arrays.asList(storeWithin500m, storeWithin2km));
+
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
 		assertThat(result).hasSize(2);
@@ -111,6 +166,20 @@ public class MapServiceTest {
 	@Test
 	void getStoresOnMap_zoomLevel3_returnsWithin5km() {
 		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(3).build();
+
+		double radiusKm = 5.0;
+		double expectedDeltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double expectedDeltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		double expectedMinLat = CENTER_LAT - expectedDeltaLatDegree;
+		double expectedMaxLat = CENTER_LAT + expectedDeltaLatDegree;
+		double expectedMinLon = CENTER_LON - expectedDeltaLonDegree;
+		double expectedMaxLon = CENTER_LON + expectedDeltaLonDegree;
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			expectedMinLat, expectedMaxLat,
+			expectedMinLon, expectedMaxLon))
+			.thenReturn(Arrays.asList(storeWithin500m, storeWithin2km, storeWithin5km));
 
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
@@ -124,6 +193,20 @@ public class MapServiceTest {
 	void getStoresOnMap_zoomLevel2_returnsWithin7km() {
 		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(2).build();
 
+		double radiusKm = 7.0;
+		double expectedDeltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double expectedDeltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		double expectedMinLat = CENTER_LAT - expectedDeltaLatDegree;
+		double expectedMaxLat = CENTER_LAT + expectedDeltaLatDegree;
+		double expectedMinLon = CENTER_LON - expectedDeltaLonDegree;
+		double expectedMaxLon = CENTER_LON + expectedDeltaLonDegree;
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			expectedMinLat, expectedMaxLat,
+			expectedMinLon, expectedMaxLon))
+			.thenReturn(Arrays.asList(storeWithin500m, storeWithin2km, storeWithin5km, storeWithin7km));
+
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
 		assertThat(result).hasSize(4);
@@ -135,6 +218,20 @@ public class MapServiceTest {
 	@Test
 	void getStoresOnMap_zoomLevel1_returnsWithin10km() {
 		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(1).build();
+
+		double radiusKm = 10.0;
+		double expectedDeltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double expectedDeltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		double expectedMinLat = CENTER_LAT - expectedDeltaLatDegree;
+		double expectedMaxLat = CENTER_LAT + expectedDeltaLatDegree;
+		double expectedMinLon = CENTER_LON - expectedDeltaLonDegree;
+		double expectedMaxLon = CENTER_LON + expectedDeltaLonDegree;
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			expectedMinLat, expectedMaxLat,
+			expectedMinLon, expectedMaxLon))
+			.thenReturn(Arrays.asList(storeWithin500m, storeWithin2km, storeWithin5km, storeWithin7km, storeWithin10km));
 
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
