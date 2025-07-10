@@ -35,6 +35,12 @@ public class Store extends BaseEntity {
 
 	private String address;
 
+	private String industryName;
+
+	private String industryCode;
+
+	private String businessRegistrationNumber;
+
 	@OneToOne(mappedBy = "store")
 	private User user;
 
