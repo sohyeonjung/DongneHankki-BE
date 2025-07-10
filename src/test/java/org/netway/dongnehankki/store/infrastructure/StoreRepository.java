@@ -27,11 +27,11 @@ class StoreRepositoryTest {
 
 
 		storeRepository.save(
-			Store.createStore("가게 B", 37.5670, 126.9785,
+			Store.createStore("가게B", 37.5670, 126.9785,
 				"서울", "카페", "F2", "098-76-54321"));
 
 		storeRepository.save(
-			Store.createStore("가게 C", 37.6000, 126.9800,
+			Store.createStore("가게C", 37.6000, 126.9800,
 				"서울", "상점", "R1", "111-22-33333"));
 	}
 
@@ -48,7 +48,7 @@ class StoreRepositoryTest {
 
 		assertThat(stores).hasSize(2);
 		assertThat(stores).extracting(Store::getName)
-			.containsExactlyInAnyOrder("가게 A", "가게 B");
+			.containsExactlyInAnyOrder("가게A", "가게B");
 	}
 
 	@DisplayName("범위 내에 가게가 없을 경우 빈 리스트를 반환")
