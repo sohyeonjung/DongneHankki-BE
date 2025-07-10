@@ -76,7 +76,7 @@ public class MapServiceTest {
 	@DisplayName("유효하지 않은 줌 레벨이 들어오면, 빈 리스트 반환")
 	@Test
 	void getStoresOnMap_invalidZoomLevel_usesDefaultBounds() {
-		MapRequest request = new MapRequest(CENTER_LAT, CENTER_LON, 0);
+		MapRequest request = MapRequest.builder().latitude(37.0).longitude(127.0).zoomLevel(0).build();
 
 		List<MapResponse> result = mapService.getStoresOnMap(request);
 
