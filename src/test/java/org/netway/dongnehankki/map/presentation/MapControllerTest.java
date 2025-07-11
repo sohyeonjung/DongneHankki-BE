@@ -1,8 +1,7 @@
 package org.netway.dongnehankki.map.presentation;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -10,12 +9,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.netway.dongnehankki.map.application.MapService;
-import org.netway.dongnehankki.map.presentation.MapController;
 import org.netway.dongnehankki.map.dto.request.MapRequest;
 import org.netway.dongnehankki.map.dto.response.MapResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +29,16 @@ public class MapControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-	@Autowired
-	private ObjectMapper objectMapper;
-
 	@MockitoBean
 	private MapService mapService;
 
-	@DisplayName("POST /api/maps 요청 시, MapRequest body 없으면 400 Bad Request를 반환")
+	@DisplayName("GET /api/maps 요청 시, 필수 파라미터 누락 시 400 Bad Request를 반환")
 	@Test
-	void getStoresOnMap_noRequestBody_returnsBadRequest() throws Exception {
-		mockMvc.perform(post("/api/maps")
-				.contentType(MediaType.APPLICATION_JSON)
-				.with(csrf())
+	void getStoresOnMap_missingRequiredParameters_returnsBadRequest() throws Exception {
+		mockMvc.perform(get("/api/maps")
+					.param("longitude", "126.9780")
+					.param("zoomLevel", "3")
+					.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andDo(print())
 			.andExpect(status().isBadRequest())
@@ -52,10 +47,11 @@ public class MapControllerTest {
 			.andExpect(jsonPath("$.message").exists());
 	}
 
-	@DisplayName("POST /api/maps 요청 시, MapService를 호출하고 결과를 반환")
+
+	@DisplayName("GET /api/maps 요청 시, MapService를 호출하고 결과를 반환")
 	@Test
 	void getStoresOnMap_callsMapServiceAndReturnsResult() throws Exception {
-		MapRequest requestBody = MapRequest.builder().latitude(37.5665).longitude(126.9780).zoomLevel(3).build();
+		MapRequest requestParams = MapRequest.builder().latitude(37.5665).longitude(126.9780).zoomLevel(3).build();
 
 		MapResponse store1 = MapResponse.builder().storeId(1L).name("Store 1").latitude(37.5).longitude(126.9).build();
 		MapResponse store2 = MapResponse.builder().storeId(2L).name("Store 2").latitude(37.6).longitude(127.0).build();
@@ -64,10 +60,11 @@ public class MapControllerTest {
 		when(mapService.getStoresOnMap(ArgumentMatchers.any(MapRequest.class)))
 			.thenReturn(expectedResponse);
 
-		mockMvc.perform(post("/api/maps")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(requestBody))
-				.with(csrf())
+		mockMvc.perform(get("/api/maps")
+					.param("latitude", String.valueOf(requestParams.getLatitude()))
+					.param("longitude", String.valueOf(requestParams.getLongitude()))
+					.param("zoomLevel", String.valueOf(requestParams.getZoomLevel()))
+					.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andDo(print())
 			.andExpect(status().isOk())
@@ -82,28 +79,31 @@ public class MapControllerTest {
 			.andExpect(jsonPath("$.data.[1].storeId").value(2))
 			.andExpect(jsonPath("$.data.[1].name").value("Store 2"));
 
-		verify(mapService, times(1)).getStoresOnMap(eq(requestBody));
+		verify(mapService, times(1)).getStoresOnMap(eq(requestParams));
 	}
 
-	@DisplayName("POST /api/map 요청 시, MapRequest에 줌 레벨 범위가 다를 때 성공")
+	@DisplayName("GET /api/maps 요청 시, , MapRequest에 줌 레벨 범위가 다를 때 성공")
 	@Test
 	void getStoresOnMap_requestBodyNoZoomLevel_usesDefaultValue() throws Exception {
-		MapRequest requestBody = MapRequest.builder().latitude(37.5665).longitude(126.9780).zoomLevel(0).build();
+		MapRequest requestParams = MapRequest.builder().latitude(37.5665).longitude(126.9780).zoomLevel(0).build();
 
 		List<MapResponse> expectedStores = Collections.emptyList();
 
 		when(mapService.getStoresOnMap(any(MapRequest.class)))
 			.thenReturn(expectedStores);
 
-		mockMvc.perform(post("/api/maps")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(requestBody))
-				.with(csrf())
+		mockMvc.perform(get("/api/maps")
+					.param("latitude", String.valueOf(requestParams.getLatitude()))
+					.param("longitude", String.valueOf(requestParams.getLongitude()))
+					.param("zoomLevel", String.valueOf(requestParams.getZoomLevel()))
+					.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data").isEmpty());
+
+		verify(mapService, times(1)).getStoresOnMap(eq(requestParams));
 	}
 }
