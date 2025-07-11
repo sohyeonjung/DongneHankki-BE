@@ -38,10 +38,10 @@ public class MapControllerTest {
 	@MockitoBean
 	private MapService mapService;
 
-	@DisplayName("POST /api/map 요청 시, MapRequest body 없으면 400 Bad Request를 반환")
+	@DisplayName("POST /api/maps 요청 시, MapRequest body 없으면 400 Bad Request를 반환")
 	@Test
 	void getStoresOnMap_noRequestBody_returnsBadRequest() throws Exception {
-		mockMvc.perform(post("/api/map")
+		mockMvc.perform(post("/api/maps")
 				.contentType(MediaType.APPLICATION_JSON)
 				.with(csrf())
 			)
@@ -52,7 +52,7 @@ public class MapControllerTest {
 			.andExpect(jsonPath("$.message").exists());
 	}
 
-	@DisplayName("POST /api/map 요청 시, MapService를 호출하고 결과를 반환")
+	@DisplayName("POST /api/maps 요청 시, MapService를 호출하고 결과를 반환")
 	@Test
 	void getStoresOnMap_callsMapServiceAndReturnsResult() throws Exception {
 		MapRequest requestBody = MapRequest.builder().latitude(37.5665).longitude(126.9780).zoomLevel(3).build();
@@ -64,7 +64,7 @@ public class MapControllerTest {
 		when(mapService.getStoresOnMap(ArgumentMatchers.any(MapRequest.class)))
 			.thenReturn(expectedResponse);
 
-		mockMvc.perform(post("/api/map")
+		mockMvc.perform(post("/api/maps")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(requestBody))
 				.with(csrf())
@@ -95,7 +95,7 @@ public class MapControllerTest {
 		when(mapService.getStoresOnMap(any(MapRequest.class)))
 			.thenReturn(expectedStores);
 
-		mockMvc.perform(post("/api/map")
+		mockMvc.perform(post("/api/maps")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(requestBody))
 				.with(csrf())
