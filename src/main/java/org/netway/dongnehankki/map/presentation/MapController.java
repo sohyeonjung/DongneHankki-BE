@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,7 +24,7 @@ public class MapController {
 
 	@GetMapping("/maps")
 	public ResponseEntity<ApiResponse<List<MapResponse>>> getStoresOnMap(
-		@ModelAttribute MapRequest mapRequest
+		@ModelAttribute @Valid MapRequest mapRequest
 	){
 		List<MapResponse> stores = mapService.getStoresOnMap(mapRequest);
 		return ResponseEntity.ok(ApiResponse.success(stores));
