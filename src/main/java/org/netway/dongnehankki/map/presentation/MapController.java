@@ -21,7 +21,7 @@ public class MapController {
 
 	private final MapService mapService;
 
-	@PostMapping("/map")
+	@PostMapping("/maps")
 	public ResponseEntity<ApiResponse<List<MapResponse>>> getStoresOnMap(
 		@RequestBody MapRequest mapRequest
 	){
