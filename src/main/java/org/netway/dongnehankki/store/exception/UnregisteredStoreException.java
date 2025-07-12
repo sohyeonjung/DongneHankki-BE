@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.global.exception.store;
+package org.netway.dongnehankki.store.exception;
 
 import org.netway.dongnehankki.global.exception.CustomException;
 import org.springframework.http.HttpStatus;
