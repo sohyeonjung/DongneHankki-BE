@@ -61,7 +61,7 @@ jobs:
           script: |
             # Define repository path and branch
             REPO_DIR="/home/${{ secrets.SERVER_USER }}/DongneHankki-BE" # Adjust path as needed
-            BRANCH="develop" # Or whatever branch is being deployed
+            BRANCH="feat/15-cicd " # Or whatever branch is being deployed
 
             # 1. Clone or pull the latest code
             if [ -d "$REPO_DIR" ]; then
