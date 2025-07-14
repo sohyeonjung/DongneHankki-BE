@@ -1,7 +1,6 @@
 package org.netway.dongnehankki.user.dto.response;
 
 import lombok.AllArgsConstructor;
-// import lombok.Getter;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
