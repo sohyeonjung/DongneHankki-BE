@@ -100,6 +100,6 @@ jobs:
             --label traefik.http.services.dongnehankki.loadbalancer.server.port=8083 \
             -e TZ=Asia/Seoul \
             -e SPRING_PROFILES_ACTIVE=prod \
-            -p 8083:8083
+            -p 8083:8083 \
             dongnehankki:latest
 
