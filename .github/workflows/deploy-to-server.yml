@@ -79,10 +79,14 @@ jobs:
             mkdir -p src/main/resources
             echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
 
-            # 3. Build Docker Image on the server
+            # 3. Build the application on the server to create the JAR
+            chmod +x gradlew
+            ./gradlew build -x test
+
+            # 4. Build Docker Image on the server
             docker build -t dongnehankki:latest .
 
-            # 4. Stop, remove, and run the Docker container
+            # 5. Stop, remove, and run the Docker container
             docker stop dongnehankki || true
             docker rm dongnehankki || true
             docker run -d \
