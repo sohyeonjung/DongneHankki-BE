@@ -128,4 +128,8 @@ public class UserService {
     }
 
 
+    public UserResponse findByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+        return UserResponse.fromEntity(user);
+    }
 }
