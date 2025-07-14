@@ -156,8 +156,11 @@ public class UserControllerTest {
     public void 단일_점주_회원_조회() throws Exception{
 
         Long userId = 1L;
-        UserResponse.StoreInfo mockStoreInfo = new UserResponse.StoreInfo(100L, "테스트 가게");
-        UserResponse mockUserResponse = new UserResponse(userId, "testId", "testNickname", Role.OWNER, mockStoreInfo);
+        String id = "ownerId";
+        String nickname = "점주닉네임";
+        Long storeId = 100L;
+
+        UserResponse mockUserResponse = new UserResponse(userId, id, nickname, Role.OWNER, storeId);
         when(userService.findByUserId(any(Long.class))).thenReturn(mockUserResponse);
 
         mockMvc.perform(get("/api/users/{userId}", userId)
