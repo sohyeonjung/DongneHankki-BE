@@ -247,8 +247,6 @@ public class UserServiceTest {
         given(passwordEncoder.encode("newPass")).willReturn("newPass");
 
         UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
-        assertThat(req.getPassword()).isEqualTo("newPass");
-        assertThat(req.getNickname()).isEqualTo("newNick");
 
         // when
         UserResponse resp = userService.updateUser(999L, req);
@@ -257,5 +255,89 @@ public class UserServiceTest {
         assertThat(existingUser.getPassword()).isEqualTo("newPass");
         assertThat(existingUser.getNickname()).isEqualTo("newNick");
         assertThat(resp.getNickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    void 점주_회원_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        Store mockStore = mock(Store.class);
+        User existingUser = User.ofOwner("loginId", "oldPass", "oldNick", mockStore);
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("newNick");
+        assertThat(existingUser.getStore()).isEqualTo(mockStore);
+        assertThat(resp.getNickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    void 다른_유저가_사용중인_닉네임을_사용하는_경우() {
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        User anotherUser = User.ofCustomer("anotherId", "pass", "newNick");
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(existingUser));
+        given(userRepository.findByNickname("newNick")).willReturn(Optional.of(anotherUser));
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+
+        // when & then
+        Assertions.assertThrows(DuplicateNickNameException.class, () -> userService.updateUser(999L, req));
+    }
+
+    @Test
+    void 고객_회원_닉네임만_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateUserRequest req = new UpdateUserRequest(null, "newNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("oldPass");
+        assertThat(existingUser.getNickname()).isEqualTo("newNick");
+        assertThat(resp.getNickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    void 고객_회원_패스워드만_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", null);
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("oldNick");
+        assertThat(resp.getNickname()).isEqualTo("oldNick");
     }
 }
