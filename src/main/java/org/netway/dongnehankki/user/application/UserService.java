@@ -135,7 +135,18 @@ public class UserService {
     }
 
     public UserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest) {
-        //TODO : Implementation
-        return new UserResponse(userId, "updatedId", updateUserRequest.getNickname(), User.Role.CUSTOMER, null);
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+
+        if(updateUserRequest.getNickname() != null){
+            user.updateNickname(updateUserRequest.getNickname());
+        }
+
+        if(updateUserRequest.getPassword() != null){
+            user.updatePassword(passwordEncoder.encode(updateUserRequest.getPassword()));
+        }
+
+        User savedUser = userRepository.save(user);
+
+        return UserResponse.fromEntity(savedUser);
     }
 }

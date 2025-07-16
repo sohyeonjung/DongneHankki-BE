@@ -1,7 +1,12 @@
 package org.netway.dongnehankki.user.application;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -10,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
+import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
+import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
@@ -225,5 +232,30 @@ public class UserServiceTest {
         when(jwtTokenProvider.getUserIdFromToken(mismatchedRefreshToken)).thenReturn(1L);
         when(refreshTokenRepository.findById(1L)).thenReturn(Optional.of(storedRefreshToken));
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> userService.reissueTokens(mismatchedRefreshToken));
+    }
+
+    @Test
+    void 고객_회원_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+        assertThat(req.getPassword()).isEqualTo("newPass");
+        assertThat(req.getNickname()).isEqualTo("newNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("newNick");
+        assertThat(resp.getNickname()).isEqualTo("newNick");
     }
 }

@@ -18,7 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -67,5 +66,13 @@ public class User extends BaseEntity {
 
 	public static User ofOwner(String id, String password, String nickname, Store store){
 		return new User(id, password, nickname, Role.OWNER, store);
+	}
+
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
 	}
 }
