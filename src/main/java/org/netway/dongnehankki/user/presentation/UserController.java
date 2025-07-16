@@ -3,14 +3,16 @@ package org.netway.dongnehankki.user.presentation;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.user.application.UserService;
-import org.netway.dongnehankki.user.dto.login.LoginRequest;
-import org.netway.dongnehankki.user.dto.login.LoginResponse;
-import org.netway.dongnehankki.user.dto.login.RefreshTokenRequest;
+import org.netway.dongnehankki.user.dto.request.LoginRequest;
+import org.netway.dongnehankki.user.dto.request.LoginResponse;
+import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
+import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
-import org.netway.dongnehankki.user.dto.signUp.CustomerSignUpRequest;
-import org.netway.dongnehankki.user.dto.signUp.OwnerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +54,12 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable Long userId){
         UserResponse userResponse = userService.findByUserId(userId);
         return ResponseEntity.ok(ApiResponse.success(userResponse));
+    }
+
+    @PatchMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<Void>> updateUser(@PathVariable Long userId, @RequestBody
+        UpdateUserRequest updateUserRequest){
+        return null;
     }
 
 }

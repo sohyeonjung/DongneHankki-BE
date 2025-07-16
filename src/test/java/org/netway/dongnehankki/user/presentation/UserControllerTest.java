@@ -4,7 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,15 +15,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
+import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateUserNameException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.application.UserService;
-import org.netway.dongnehankki.user.dto.login.LoginResponse;
+import org.netway.dongnehankki.user.dto.request.LoginResponse;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
-import org.netway.dongnehankki.user.dto.login.LoginRequest;
-import org.netway.dongnehankki.user.dto.signUp.CustomerSignUpRequest;
-import org.netway.dongnehankki.user.dto.signUp.OwnerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.LoginRequest;
+import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -180,6 +184,26 @@ public class UserControllerTest {
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void 고객_회원_수정() throws Exception{
+
+        Long userId = 1L;
+        String updatedNickname = "새로운닉네임";
+        String newPassword = "newPassword";
+        UpdateUserRequest userUpdateRequest = new UpdateUserRequest(newPassword, updatedNickname);
+
+        UserResponse mockUpdatedUserResponse = new UserResponse(userId, "testId", updatedNickname, User.Role.CUSTOMER, null);
+        when(userService.updateUser(any(Long.class), any(UpdateUserRequest.class))).thenReturn(mockUpdatedUserResponse);
+
+        mockMvc.perform(patch("/api/users/{userId}", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(userUpdateRequest))
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk());
     }
 
 

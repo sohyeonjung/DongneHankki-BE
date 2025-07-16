@@ -1,11 +1,12 @@
-package org.netway.dongnehankki.user.dto.login;
+package org.netway.dongnehankki.user.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class LoginRequest {
+public class CustomerSignUpRequest {
     private String id;
     private String password;
+    private String nickname;
 }
