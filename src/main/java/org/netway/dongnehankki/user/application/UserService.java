@@ -6,7 +6,7 @@ import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
-import org.netway.dongnehankki.user.exception.DuplicateUserNameException;
+import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.global.exception.store.UnregisteredStoreException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
@@ -42,7 +42,7 @@ public class UserService {
 
     public UserResponse customerSignUp(CustomerSignUpRequest customerSignUpRequest){
         userRepository.findById(customerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateUserNameException();
+            throw new DuplicateNickNameException();
         });
 
         String encodedPassword = passwordEncoder.encode(customerSignUpRequest.getPassword());
@@ -53,7 +53,7 @@ public class UserService {
 
     public UserResponse ownerSignUp(OwnerSignUpRequest ownerSignUpRequest) {
         userRepository.findById(ownerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateUserNameException();
+            throw new DuplicateNickNameException();
         });
 
         Store store = storeRepository.findByStoreId(ownerSignUpRequest.getStoreId())

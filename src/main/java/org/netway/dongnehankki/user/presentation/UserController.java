@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.user.presentation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.user.application.UserService;
@@ -57,9 +58,11 @@ public class UserController {
     }
 
     @PatchMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse<Void>> updateUser(@PathVariable Long userId, @RequestBody
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Long userId, @Valid @RequestBody
         UpdateUserRequest updateUserRequest){
-        return null;
+
+        UserResponse userResponse = userService.updateUser(userId, updateUserRequest);
+        return ResponseEntity.ok(ApiResponse.success(userResponse));
     }
 
 }

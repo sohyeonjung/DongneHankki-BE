@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
-import org.netway.dongnehankki.user.exception.DuplicateUserNameException;
+import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
@@ -98,7 +98,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(id)).thenReturn(Optional.of(fixture));
 
-        Assertions.assertThrows(DuplicateUserNameException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(id,password,nickname)));
+        Assertions.assertThrows(DuplicateNickNameException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(id,password,nickname)));
     }
 
     @Test
@@ -117,7 +117,7 @@ public class UserServiceTest {
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
-        Assertions.assertThrows(DuplicateUserNameException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(id,password,nickname,storeId)));
+        Assertions.assertThrows(DuplicateNickNameException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(id,password,nickname,storeId)));
     }
 
     @Test

@@ -3,10 +3,10 @@ package org.netway.dongnehankki.user.exception;
 import org.netway.dongnehankki.global.exception.CustomException;
 import org.springframework.http.HttpStatus;
 
-public class DuplicateUserNameException extends CustomException {
-    private static final String MESSAGE = "이미 사용 중인 유저 이름입니다.";
+public class EmptyNickNameException extends CustomException {
+    private static final String MESSAGE = "닉네임은 비어있을 수 없습니다.";
 
-    public DuplicateUserNameException() {
+    public EmptyNickNameException() {
         super(MESSAGE, HttpStatus.BAD_REQUEST);
     }
 }
