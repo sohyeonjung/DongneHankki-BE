@@ -1,7 +1,12 @@
 package org.netway.dongnehankki.user.application;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -10,16 +15,19 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
-import org.netway.dongnehankki.user.exception.DuplicateUserNameException;
+import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
+import org.netway.dongnehankki.user.dto.response.UserResponse;
+import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
+import org.netway.dongnehankki.user.exception.DuplicateUserIdException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.StoreRepository;
-import org.netway.dongnehankki.user.dto.login.LoginRequest;
-import org.netway.dongnehankki.user.dto.login.LoginResponse;
-import org.netway.dongnehankki.user.dto.signUp.CustomerSignUpRequest;
-import org.netway.dongnehankki.user.dto.signUp.OwnerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.LoginRequest;
+import org.netway.dongnehankki.user.dto.request.LoginResponse;
+import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.fixture.CustomerUserFixture;
 import org.netway.dongnehankki.user.fixture.OwnerUserFixture;
@@ -98,7 +106,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(id)).thenReturn(Optional.of(fixture));
 
-        Assertions.assertThrows(DuplicateUserNameException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(id,password,nickname)));
+        Assertions.assertThrows(DuplicateUserIdException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(id,password,nickname)));
     }
 
     @Test
@@ -117,7 +125,7 @@ public class UserServiceTest {
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
-        Assertions.assertThrows(DuplicateUserNameException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(id,password,nickname,storeId)));
+        Assertions.assertThrows(DuplicateUserIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(id,password,nickname,storeId)));
     }
 
     @Test
@@ -225,5 +233,112 @@ public class UserServiceTest {
         when(jwtTokenProvider.getUserIdFromToken(mismatchedRefreshToken)).thenReturn(1L);
         when(refreshTokenRepository.findById(1L)).thenReturn(Optional.of(storedRefreshToken));
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> userService.reissueTokens(mismatchedRefreshToken));
+    }
+
+    @Test
+    void 고객_회원_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("newNick");
+        assertThat(resp.getNickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    void 점주_회원_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        Store mockStore = mock(Store.class);
+        User existingUser = User.ofOwner("loginId", "oldPass", "oldNick", mockStore);
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("newNick");
+        assertThat(existingUser.getStore()).isEqualTo(mockStore);
+        assertThat(resp.getNickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    void 다른_유저가_사용중인_닉네임을_사용하는_경우() {
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        User anotherUser = User.ofCustomer("anotherId", "pass", "newNick");
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(existingUser));
+        given(userRepository.findByNickname("newNick")).willReturn(Optional.of(anotherUser));
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+
+        // when & then
+        Assertions.assertThrows(DuplicateNickNameException.class, () -> userService.updateUser(999L, req));
+    }
+
+    @Test
+    void 고객_회원_닉네임만_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateUserRequest req = new UpdateUserRequest(null, "newNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("oldPass");
+        assertThat(existingUser.getNickname()).isEqualTo("newNick");
+        assertThat(resp.getNickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    void 고객_회원_패스워드만_수정이_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", null);
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("oldNick");
+        assertThat(resp.getNickname()).isEqualTo("oldNick");
     }
 }

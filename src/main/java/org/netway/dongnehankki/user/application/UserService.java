@@ -5,16 +5,18 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
-import org.netway.dongnehankki.user.exception.DuplicateUserNameException;
+import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
+import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
+import org.netway.dongnehankki.user.exception.DuplicateUserIdException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
-import org.netway.dongnehankki.user.dto.login.LoginRequest;
-import org.netway.dongnehankki.user.dto.login.LoginResponse;
-import org.netway.dongnehankki.user.dto.signUp.CustomerSignUpRequest;
-import org.netway.dongnehankki.user.dto.signUp.OwnerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.LoginRequest;
+import org.netway.dongnehankki.user.dto.request.LoginResponse;
+import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
+import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -41,7 +43,7 @@ public class UserService {
 
     public UserResponse customerSignUp(CustomerSignUpRequest customerSignUpRequest){
         userRepository.findById(customerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateUserNameException();
+            throw new DuplicateUserIdException();
         });
 
         String encodedPassword = passwordEncoder.encode(customerSignUpRequest.getPassword());
@@ -52,7 +54,7 @@ public class UserService {
 
     public UserResponse ownerSignUp(OwnerSignUpRequest ownerSignUpRequest) {
         userRepository.findById(ownerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateUserNameException();
+            throw new DuplicateNickNameException();
         });
 
         Store store = storeRepository.findByStoreId(ownerSignUpRequest.getStoreId())
@@ -131,5 +133,24 @@ public class UserService {
     public UserResponse findByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
         return UserResponse.fromEntity(user);
+    }
+
+    public UserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+
+        if(updateUserRequest.getNickname() != null){
+            userRepository.findByNickname(updateUserRequest.getNickname()).ifPresent(it -> {
+                throw new DuplicateNickNameException();
+            });
+            user.updateNickname(updateUserRequest.getNickname());
+        }
+
+        if(updateUserRequest.getPassword() != null){
+            user.updatePassword(passwordEncoder.encode(updateUserRequest.getPassword()));
+        }
+
+        User savedUser = userRepository.save(user);
+
+        return UserResponse.fromEntity(savedUser);
     }
 }
