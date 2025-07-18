@@ -30,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -258,9 +259,9 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser
-    public void 등록되지_않은_회원_수정시__에러반환() throws Exception {
+    public void 등록되지_않은_회원_수정시_에러반환() throws Exception {
         Long userId = 1L;
-        String updatedNickname = "";
+        String updatedNickname = "nickname";
         UpdateUserRequest userUpdateRequest = new UpdateUserRequest(null, updatedNickname);
 
         when(userService.updateUser(any(Long.class), any(UpdateUserRequest.class))).thenThrow(new UnregisteredUserException());
