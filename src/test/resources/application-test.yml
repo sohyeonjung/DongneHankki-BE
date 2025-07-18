@@ -10,7 +10,9 @@ spring:
     username: sa
     password:
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect # H2 DB 방언 설정
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect # H2 DB 방언 설정
     hibernate:
       ddl-auto: create-drop
     show-sql: true
