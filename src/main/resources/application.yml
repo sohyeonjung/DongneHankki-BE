@@ -36,4 +36,4 @@ spring:
   config:
     activate:
       on-profile: local
-    import: application-local.yml
+    import: optional:application-local.yml
