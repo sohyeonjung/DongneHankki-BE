@@ -40,9 +40,16 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @GetMapping("/users/check/{loginId}")
-    public ResponseEntity<ApiResponse<Boolean>> checkDuplicateLoginId(@PathVariable String loginId){
+    @GetMapping("/users/check/loginId")
+    public ResponseEntity<ApiResponse<Boolean>> checkDuplicateLoginId(@RequestParam String loginId){
         Boolean isAvailable = userService.checkLoginId(loginId);
+        String message = isAvailable ? "사용 가능합니다." : "이미 사용 중입니다.";
+        return ResponseEntity.ok(ApiResponse.success(isAvailable, message));
+    }
+
+    @GetMapping("/users/check/nickname")
+    public ResponseEntity<ApiResponse<Boolean>> checkDuplicateNickname(@RequestParam String nickname){
+        Boolean isAvailable = userService.checkNickname(nickname);
         String message = isAvailable ? "사용 가능합니다." : "이미 사용 중입니다.";
         return ResponseEntity.ok(ApiResponse.success(isAvailable, message));
     }

@@ -103,7 +103,8 @@ public class UserControllerTest {
         when(userService.checkLoginId(any(String.class))).thenReturn(true);
 
         //then
-        mockMvc.perform(get("/api/users/check/{loginId}", loginId)
+        mockMvc.perform(get("/api/users/check/loginId")
+                .param("loginId", loginId)
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isOk())
@@ -122,7 +123,8 @@ public class UserControllerTest {
         when(userService.checkLoginId(any(String.class))).thenReturn(false);
 
         //then
-        mockMvc.perform(get("/api/users/check/{loginId}", loginId)
+        mockMvc.perform(get("/api/users/check/loginId")
+                .param("loginId", loginId)
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isOk())
@@ -135,32 +137,14 @@ public class UserControllerTest {
     @Test
     public void 회원가입시_nickName_중복체크_중복없을경우() throws Exception {
         //given
-        String nickName = "nickName";
+        String nickname = "nickname";
 
         //when
-        when(userService.checkLoginId(any(String.class))).thenReturn(true);
+        when(userService.checkNickname(any(String.class))).thenReturn(true);
 
         //then
-        mockMvc.perform(get("/api/users/check/{nickName}", nickName)
-                .with(csrf())
-            ).andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("success"))
-            .andExpect(jsonPath("$.code").value("200"))
-            .andExpect(jsonPath("$.message").value("이미 사용 중입니다."))
-            .andExpect(jsonPath("$.data").value(false));
-    }
-
-    @Test
-    public void 회원가입시_nickName_중복체크_중복있을경우() throws Exception {
-        //given
-        String nickName = "nickName";
-
-        //when
-        when(userService.checkLoginId(any(String.class))).thenReturn(false);
-
-        //then
-        mockMvc.perform(get("/api/users/check/{nickName}", nickName)
+        mockMvc.perform(get("/api/users/check/nickname", nickname)
+                .param("nickname", nickname)
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isOk())
@@ -168,6 +152,26 @@ public class UserControllerTest {
             .andExpect(jsonPath("$.code").value("200"))
             .andExpect(jsonPath("$.message").value("사용 가능합니다."))
             .andExpect(jsonPath("$.data").value(true));
+    }
+
+    @Test
+    public void 회원가입시_nickName_중복체크_중복있을경우() throws Exception {
+        //given
+        String nickname = "nickname";
+
+        //when
+        when(userService.checkNickname(any(String.class))).thenReturn(false);
+
+        //then
+        mockMvc.perform(get("/api/users/check/nickname", nickname)
+                .param("nickname", nickname)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.code").value("200"))
+            .andExpect(jsonPath("$.message").value("이미 사용 중입니다."))
+            .andExpect(jsonPath("$.data").value(false));
     }
 
     @Test

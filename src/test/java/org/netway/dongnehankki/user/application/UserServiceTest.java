@@ -77,7 +77,7 @@ public class UserServiceTest {
         String phoneNumber = "010-1234-5678";
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(loginId, password, name, phoneNumber));
+        when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
 
         // when & then
@@ -123,12 +123,41 @@ public class UserServiceTest {
     void 회원가입시_loginId_중복체크에서_중복이_있을경우() {
         // given
         String loginId = "existingId";
-        User existingUser = CustomerUserFixture.get(loginId, "password", "name", "010-1111-1111");
+        User existingUser = CustomerUserFixture.get(loginId, "password", "nickname", "name", "010-1111-1111");
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(existingUser));
 
         // when
         boolean isAvailable = userService.checkLoginId(loginId);
+
+        // then
+        assertThat(isAvailable).isFalse();
+    }
+
+    @Test
+    void 회원가입시_nickname_중복체크에서_중복이_없을경우() {
+        // given
+        String nickname = "nickname";
+
+        when(userRepository.findByNickname(nickname)).thenReturn(Optional.empty());
+
+        // when
+        boolean isAvailable = userService.checkNickname(nickname);
+
+        // then
+        assertThat(isAvailable).isTrue();
+    }
+
+    @Test
+    void 회원가입시_nickname_중복체크에서_중복이_있을경우() {
+        // given
+        String nickname = "nickname";
+        User existingUser = CustomerUserFixture.get("loginId", "password", nickname, "name", "010-1111-1111");
+
+        when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(existingUser));
+
+        // when
+        boolean isAvailable = userService.checkNickname(nickname);
 
         // then
         assertThat(isAvailable).isFalse();
@@ -143,7 +172,7 @@ public class UserServiceTest {
         String name = "홍길동";
         String phoneNumber = "010-1234-5678";
 
-        User fixture = CustomerUserFixture.get(loginId, password, name, phoneNumber);
+        User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
@@ -180,10 +209,11 @@ public class UserServiceTest {
         String loginId = "id";
         String password = "password";
         String name = "name";
+        String nickname = "nickname";
         String phoneNumber = "010-1111-1111";
         Long userId = 1L;
 
-        User fixture = CustomerUserFixture.get(loginId, password, name, phoneNumber);
+        User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber);
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
@@ -218,11 +248,12 @@ public class UserServiceTest {
         // given
         String loginId = "id";
         String password = "password";
+        String nickname = "nickname";
         String name = "name";
         String phoneNumber = "010-1111-1111";
         String wrongPassword = "wrong_password";
 
-        User fixture = CustomerUserFixture.get(loginId, password, name , phoneNumber);
+        User fixture = CustomerUserFixture.get(loginId, password, nickname, name, phoneNumber);
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
@@ -243,7 +274,7 @@ public class UserServiceTest {
         String newAccessToken = "new_access_token";
         String newRefreshToken = "new_refresh_token";
 
-        User userFixture = CustomerUserFixture.get("loginId", "password", "name", "010-1111-1111");
+        User userFixture = CustomerUserFixture.get("loginId", "password", "nickname", "name", "010-1111-1111");
 
         RefreshToken storedRefreshToken = RefreshToken.builder()
                 .userId(userId)

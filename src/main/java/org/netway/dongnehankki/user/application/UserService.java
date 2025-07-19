@@ -159,4 +159,8 @@ public class UserService {
     public boolean checkLoginId(String loginId) {
         return userRepository.findByLoginId(loginId).isEmpty();
     }
+
+    public Boolean checkNickname(String nickname) {
+        return userRepository.findByNickname(nickname).isEmpty();
+    }
 }
