@@ -454,7 +454,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void 고객_회원_패스워드만_수정하려고_할떄_닉네임은_기존_닉네임을_입력하는_경우_성공적으로_동작하는_경우() {
+    void 고객_회원_패스워드만_수정하려고_할때_닉네임은_기존_닉네임을_입력하는_경우_성공적으로_동작하는_경우() {
 
         // given
         User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");

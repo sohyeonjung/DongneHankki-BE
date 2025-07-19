@@ -29,7 +29,7 @@ public class User extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
 
-		private String loginId;
+	private String loginId;
 
 	private String password;
 
@@ -56,7 +56,7 @@ public class User extends BaseEntity {
 		OWNER, CUSTOMER, ADMIN
 	}
 
-		private User(String loginId, String password, String nickname, String name, String phoneNumber, Role role, Store store) {
+	private User(String loginId, String password, String nickname, String name, String phoneNumber, Role role, Store store) {
 		this.loginId = loginId;
 		this.password = password;
 		this.nickname = nickname;

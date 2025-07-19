@@ -143,7 +143,7 @@ public class UserControllerTest {
         when(userService.checkNickname(any(String.class))).thenReturn(true);
 
         //then
-        mockMvc.perform(get("/api/users/check/nickname", nickname)
+        mockMvc.perform(get("/api/users/check/nickname")
                 .param("nickname", nickname)
                 .with(csrf())
             ).andDo(print())
@@ -163,7 +163,7 @@ public class UserControllerTest {
         when(userService.checkNickname(any(String.class))).thenReturn(false);
 
         //then
-        mockMvc.perform(get("/api/users/check/nickname", nickname)
+        mockMvc.perform(get("/api/users/check/nickname")
                 .param("nickname", nickname)
                 .with(csrf())
             ).andDo(print())
