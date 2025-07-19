@@ -353,4 +353,27 @@ public class UserServiceTest {
         assertThat(existingUser.getNickname()).isEqualTo("oldNick");
         assertThat(resp.getNickname()).isEqualTo("oldNick");
     }
+
+    @Test
+    void 고객_회원_패스워드만_수정하려고_할떄_닉네임은_기존_닉네임을_입력하는_경우_성공적으로_동작하는_경우() {
+
+        // given
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        // anyLong() 사용
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class)))
+            .willAnswer(invocation -> invocation.getArgument(0));
+        given(passwordEncoder.encode("newPass")).willReturn("newPass");
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "oldNick");
+
+        // when
+        UserResponse resp = userService.updateUser(999L, req);
+
+        // then
+        assertThat(existingUser.getPassword()).isEqualTo("newPass");
+        assertThat(existingUser.getNickname()).isEqualTo("oldNick");
+        assertThat(resp.getNickname()).isEqualTo("oldNick");
+    }
 }

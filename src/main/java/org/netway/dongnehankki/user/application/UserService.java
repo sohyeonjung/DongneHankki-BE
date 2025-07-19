@@ -139,8 +139,10 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
 
         if(updateUserRequest.getNickname() != null){
-            userRepository.findByNickname(updateUserRequest.getNickname()).ifPresent(it -> {
-                throw new DuplicateNickNameException();
+            userRepository.findByNickname(updateUserRequest.getNickname()).ifPresent(foundUser -> {
+                if (!foundUser.getUserId().equals(user.getUserId())) {
+                    throw new DuplicateNickNameException();
+                }
             });
             user.updateNickname(updateUserRequest.getNickname());
         }
