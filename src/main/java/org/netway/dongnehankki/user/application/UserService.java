@@ -7,7 +7,7 @@ import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
-import org.netway.dongnehankki.user.exception.DuplicateUserIdException;
+import org.netway.dongnehankki.user.exception.DuplicateLoginIdException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
@@ -42,36 +42,36 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public UserResponse customerSignUp(CustomerSignUpRequest customerSignUpRequest){
-        userRepository.findById(customerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateUserIdException();
+        userRepository.findByLoginId(customerSignUpRequest.getLoginId()).ifPresent(it -> {
+            throw new DuplicateLoginIdException();
         });
 
         String encodedPassword = passwordEncoder.encode(customerSignUpRequest.getPassword());
-        User user = userRepository.save(User.ofCustomer(customerSignUpRequest.getId(), encodedPassword, customerSignUpRequest.getNickname()));
+        User user = userRepository.save(User.ofCustomer(customerSignUpRequest.getLoginId(), encodedPassword, customerSignUpRequest.getNickname()));
 
         return UserResponse.fromEntity(user);
     }
 
     public UserResponse ownerSignUp(OwnerSignUpRequest ownerSignUpRequest) {
-        userRepository.findById(ownerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateUserIdException();
+        userRepository.findByLoginId(ownerSignUpRequest.getLoginId()).ifPresent(it -> {
+            throw new DuplicateLoginIdException();
         });
 
         Store store = storeRepository.findByStoreId(ownerSignUpRequest.getStoreId())
                 .orElseThrow(() -> new UnregisteredStoreException());
 
         String encodedPassword = passwordEncoder.encode(ownerSignUpRequest.getPassword());
-        User user = userRepository.save(User.ofOwner(ownerSignUpRequest.getId(), encodedPassword, ownerSignUpRequest.getNickname(), store));
+        User user = userRepository.save(User.ofOwner(ownerSignUpRequest.getLoginId(), encodedPassword, ownerSignUpRequest.getNickname(), store));
 
         return UserResponse.fromEntity(user);
     }
 
 
     public LoginResponse login(LoginRequest loginRequest){
-        User user = userRepository.findById(loginRequest.getId())
+        User user = userRepository.findByLoginId(loginRequest.getLoginId())
                 .orElseThrow(UnregisteredUserException::new);
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getId(), loginRequest.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getLoginId(), loginRequest.getPassword());
 
         Authentication authentication;
         try {

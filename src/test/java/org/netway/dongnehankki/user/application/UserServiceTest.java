@@ -4,9 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -18,7 +16,7 @@ import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
-import org.netway.dongnehankki.user.exception.DuplicateUserIdException;
+import org.netway.dongnehankki.user.exception.DuplicateLoginIdException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
@@ -70,74 +68,74 @@ public class UserServiceTest {
 
     @Test
     void 일반회원_회원가입이_정상적으로_동작하는경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
         String nickname = "nickname";
 
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(id, password));
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
+        when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(loginId, password));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
 
-        Assertions.assertDoesNotThrow(() -> userService.customerSignUp(new CustomerSignUpRequest(id,password,nickname)));
+        Assertions.assertDoesNotThrow(() -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname)));
     }
 
     @Test
     void 사장회원_회원가입이_정상적으로_동작하는경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
         String nickname = "nickname";
         Long storeId = 1L;
         Store mockStore = mock(Store.class);
 
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(id, password,mockStore));
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
+        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password,mockStore));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
-        Assertions.assertDoesNotThrow(() -> userService.ownerSignUp(new OwnerSignUpRequest(id,password,nickname,storeId)));
+        Assertions.assertDoesNotThrow(() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,storeId)));
     }
 
     @Test
     void 일반회원_회원가입시_id가_이미_존재하는_경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
         String nickname = "nickname";
 
-        User fixture = CustomerUserFixture.get(id, password);
+        User fixture = CustomerUserFixture.get(loginId, password);
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(fixture));
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
-        Assertions.assertThrows(DuplicateUserIdException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(id,password,nickname)));
+        Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname)));
     }
 
     @Test
     void 사장회원_회원가입시_id가_이미_존재하는_경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
         String nickname = "nickname";
         Long storeId = 1L;
         Store mockStore = mock(Store.class);
 
-        User fixture = OwnerUserFixture.get(id, password,mockStore);
+        User fixture = OwnerUserFixture.get(loginId, password,mockStore);
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(fixture));
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(id, password,mockStore));
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
+        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password,mockStore));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
-        Assertions.assertThrows(DuplicateUserIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(id,password,nickname,storeId)));
+        Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,storeId)));
     }
 
     @Test
     void 로그인이_정상적으로_동작하는_경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
         Long userId = 1L;
 
-        User fixture = CustomerUserFixture.get(id, password);
-        when(userRepository.findById(id)).thenReturn(Optional.of(fixture));
+        User fixture = CustomerUserFixture.get(loginId, password);
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
         when(authenticationManagerBuilder.getObject()).thenReturn(authenticationManager);
@@ -149,28 +147,28 @@ public class UserServiceTest {
         when(jwtTokenProvider.generateRefreshToken(userId)).thenReturn("dummy_refresh_token");
         when(jwtTokenProvider.getRefreshTokenExpirationMinutes()).thenReturn(1440L); // 24시간
 
-        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest(id,password)));
+        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest(loginId,password)));
     }
 
     @Test
     void 회원가입하지_않은_정보로_로그인하는_경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
 
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(
-            UnregisteredUserException.class, () -> userService.login(new LoginRequest(id,password)));
+            UnregisteredUserException.class, () -> userService.login(new LoginRequest(loginId,password)));
     }
 
     @Test
     void 로그인시_비밀번호가_틀린_경우() {
-        String id = "id";
+        String loginId = "id";
         String password = "password";
         String wrongPassword = "wrong_password";
 
-        User fixture = CustomerUserFixture.get(id, password);
-        when(userRepository.findById(id)).thenReturn(Optional.of(fixture));
+        User fixture = CustomerUserFixture.get(loginId, password);
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
         when(authenticationManagerBuilder.getObject()).thenReturn(authenticationManager);
@@ -178,7 +176,7 @@ public class UserServiceTest {
             .thenThrow(new BadCredentialsException(""));
 
         Assertions.assertThrows(
-            InvalidPasswordException.class, () -> userService.login(new LoginRequest(id, wrongPassword)));
+            InvalidPasswordException.class, () -> userService.login(new LoginRequest(loginId, wrongPassword)));
     }
 
     @Test
@@ -188,7 +186,7 @@ public class UserServiceTest {
         String newAccessToken = "new_access_token";
         String newRefreshToken = "new_refresh_token";
 
-        User userFixture = CustomerUserFixture.get("id", "password");
+        User userFixture = CustomerUserFixture.get("loginId", "password");
 
         RefreshToken storedRefreshToken = RefreshToken.builder()
                 .userId(userId)
@@ -289,7 +287,7 @@ public class UserServiceTest {
     void 다른_유저가_사용중인_닉네임을_사용하는_경우() {
         // given
         User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick");
-        User anotherUser = User.ofCustomer("anotherId", "pass", "newNick");
+        User anotherUser = User.ofCustomer("anotherLoginId", "pass", "newNick");
         given(userRepository.findById(anyLong())).willReturn(Optional.of(existingUser));
         given(userRepository.findByNickname("newNick")).willReturn(Optional.of(anotherUser));
 

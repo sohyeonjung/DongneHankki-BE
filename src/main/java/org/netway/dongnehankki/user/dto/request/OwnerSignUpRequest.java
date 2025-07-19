@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class OwnerSignUpRequest {
-    private String id;
+    private String loginId;
     private String password;
     private String nickname;
     private Long storeId;

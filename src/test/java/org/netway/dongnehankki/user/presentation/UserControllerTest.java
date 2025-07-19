@@ -51,7 +51,7 @@ public class UserControllerTest {
 
     @Test
     public void 일반회원_회원가입() throws Exception{
-        String id = "username";
+        String loginId = "loginId";
         String password = "password";
         String nickname = "nickname";
 
@@ -60,7 +60,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/customers")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(id, password,nickname)))
+            .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(loginId, password,nickname)))
             .with(csrf())
         ).andDo(print())
             .andExpect(status().isOk());
@@ -68,22 +68,22 @@ public class UserControllerTest {
 
     @Test
     public void 사장회원_회원가입() throws Exception{
-        String id = "username";
+        String loginId = "loginId";
         String password = "password";
         String nickname = "nickname";
         Long storeId = 1L;
 
         mockMvc.perform(post("/api/owners")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new OwnerSignUpRequest(id,password,nickname,storeId)))
+                .content(objectMapper.writeValueAsBytes(new OwnerSignUpRequest(loginId,password,nickname,storeId)))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isOk());
     }
 
     @Test
-    public void 회원가입시_이미_회원가입된_userName으로_회원가입을_하는경우_에러반환() throws Exception{
-        String id = "username";
+    public void 회원가입시_이미_회원가입된_nickName으로_회원가입을_하는경우_에러반환() throws Exception{
+        String loginId = "loginId";
         String password = "password";
         String nickname = "nickname";
 
@@ -91,7 +91,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/customers")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(id, password,nickname)))
+                .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(loginId, password,nickname)))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isBadRequest());
@@ -99,14 +99,14 @@ public class UserControllerTest {
 
     @Test
     public void 로그인() throws Exception{
-        String id = "username";
+        String loginId = "loginId";
         String password = "password";
 
         when(userService.login(any(LoginRequest.class))).thenReturn(mock(LoginResponse.class));
 
         mockMvc.perform(post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LoginRequest(id, password)))
+                .content(objectMapper.writeValueAsBytes(new LoginRequest(loginId, password)))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isOk());
@@ -114,14 +114,14 @@ public class UserControllerTest {
 
     @Test
     public void 로그인시_회원가입이_안된_id를_입력할경우_에러반환() throws Exception{
-        String id = "username";
+        String loginId = "loginId";
         String password = "password";
 
         when(userService.login(any(LoginRequest.class))).thenThrow(new UnregisteredUserException());
 
         mockMvc.perform(post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LoginRequest(id, password)))
+                .content(objectMapper.writeValueAsBytes(new LoginRequest(loginId, password)))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isUnauthorized());
@@ -129,14 +129,14 @@ public class UserControllerTest {
 
     @Test
     public void 로그인시_틀린_PW를_입력할경우_에러반환() throws Exception{
-        String id = "username";
+        String loginId = "loginId";
         String password = "password";
 
         when(userService.login(any(LoginRequest.class))).thenThrow(new InvalidPasswordException());
 
         mockMvc.perform(post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LoginRequest(id, password)))
+                .content(objectMapper.writeValueAsBytes(new LoginRequest(loginId, password)))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isUnauthorized());
@@ -147,7 +147,7 @@ public class UserControllerTest {
     public void 단일_고객_회원_조회() throws Exception{
 
         Long userId = 1L;
-        UserResponse mockUserResponse = new UserResponse(userId, "testId", "testNickname", User.Role.CUSTOMER, null);
+        UserResponse mockUserResponse = new UserResponse(userId, "testLoginId", "testNickname", User.Role.CUSTOMER, null);
         when(userService.findByUserId(any(Long.class))).thenReturn(mockUserResponse);
 
         mockMvc.perform(get("/api/users/{userId}", userId)
@@ -161,11 +161,11 @@ public class UserControllerTest {
     public void 단일_점주_회원_조회() throws Exception{
 
         Long userId = 1L;
-        String id = "ownerId";
+        String loginId = "ownerId";
         String nickname = "점주닉네임";
         Long storeId = 100L;
 
-        UserResponse mockUserResponse = new UserResponse(userId, id, nickname, Role.OWNER, storeId);
+        UserResponse mockUserResponse = new UserResponse(userId, loginId, nickname, Role.OWNER, storeId);
         when(userService.findByUserId(any(Long.class))).thenReturn(mockUserResponse);
 
         mockMvc.perform(get("/api/users/{userId}", userId)
