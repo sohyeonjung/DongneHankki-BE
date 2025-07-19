@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,7 @@ public class UserServiceTest {
 
     @Test
     void 일반회원_회원가입이_정상적으로_동작하는경우() {
+        // given
         String loginId = "id";
         String password = "password";
         String nickname = "nickname";
@@ -78,11 +80,13 @@ public class UserServiceTest {
         when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(loginId, password, name, phoneNumber));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
 
+        // when & then
         Assertions.assertDoesNotThrow(() -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname,name,phoneNumber)));
     }
 
     @Test
     void 사장회원_회원가입이_정상적으로_동작하는경우() {
+        // given
         String loginId = "id";
         String password = "password";
         String nickname = "nickname";
@@ -97,34 +101,42 @@ public class UserServiceTest {
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
+        // when & then
         Assertions.assertDoesNotThrow(() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
     }
 
     @Test
     void 회원가입시_loginId_중복체크에서_중복이_없을경우() {
+        // given
         String loginId = "existingId";
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
 
+        // when
         boolean isAvailable = userService.checkLoginId(loginId);
 
+        // then
         assertThat(isAvailable).isTrue();
     }
 
     @Test
     void 회원가입시_loginId_중복체크에서_중복이_있을경우() {
+        // given
         String loginId = "existingId";
         User existingUser = CustomerUserFixture.get(loginId, "password", "name", "010-1111-1111");
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(existingUser));
 
+        // when
         boolean isAvailable = userService.checkLoginId(loginId);
 
+        // then
         assertThat(isAvailable).isFalse();
     }
 
     @Test
     void 일반회원_회원가입시_id가_이미_존재하는_경우() {
+        // given
         String loginId = "id";
         String password = "password";
         String nickname = "nickname";
@@ -135,11 +147,13 @@ public class UserServiceTest {
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
+        // when & then
         Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname,name,phoneNumber)));
     }
 
     @Test
     void 사장회원_회원가입시_id가_이미_존재하는_경우() {
+        // given
         String loginId = "id";
         String password = "password";
         String nickname = "nickname";
@@ -156,11 +170,13 @@ public class UserServiceTest {
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
+        // when & then
         Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
     }
 
     @Test
     void 로그인이_정상적으로_동작하는_경우() {
+        // given
         String loginId = "id";
         String password = "password";
         String name = "name";
@@ -180,22 +196,26 @@ public class UserServiceTest {
         when(jwtTokenProvider.generateRefreshToken(userId)).thenReturn("dummy_refresh_token");
         when(jwtTokenProvider.getRefreshTokenExpirationMinutes()).thenReturn(1440L); // 24시간
 
+        // when & then
         Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest(loginId,password)));
     }
 
     @Test
     void 회원가입하지_않은_정보로_로그인하는_경우() {
+        // given
         String loginId = "id";
         String password = "password";
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
 
+        // when & then
         Assertions.assertThrows(
             UnregisteredUserException.class, () -> userService.login(new LoginRequest(loginId,password)));
     }
 
     @Test
     void 로그인시_비밀번호가_틀린_경우() {
+        // given
         String loginId = "id";
         String password = "password";
         String name = "name";
@@ -210,12 +230,14 @@ public class UserServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenThrow(new BadCredentialsException(""));
 
+        // when & then
         Assertions.assertThrows(
             InvalidPasswordException.class, () -> userService.login(new LoginRequest(loginId, wrongPassword)));
     }
 
     @Test
     void 리프레시_토큰_재발급이_정상적으로_동작하는_경우() {
+        // given
         Long userId = 1L;
         String oldRefreshToken = "old_refresh_token";
         String newAccessToken = "new_access_token";
@@ -237,24 +259,29 @@ public class UserServiceTest {
         when(jwtTokenProvider.generateRefreshToken(userId)).thenReturn(newRefreshToken);
         when(jwtTokenProvider.getRefreshTokenExpirationMinutes()).thenReturn(1440L);
 
+        // when
         LoginResponse response = userService.reissueTokens(oldRefreshToken);
 
+        // then
         Assertions.assertEquals(newAccessToken, response.getAccessToken());
         Assertions.assertEquals(newRefreshToken, response.getRefreshToken());
     }
 
     @Test
     void 유효하지_않은_리프레시_토큰으로_재발급을_요청하는_경우() {
+        // given
         String invalidRefreshToken = "invalid_refresh_token";
 
         // 시나리오 1: 토큰 유효성 검증 실패
         when(jwtTokenProvider.validateToken(invalidRefreshToken)).thenReturn(false);
+        // when & then
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> userService.reissueTokens(invalidRefreshToken));
 
         // 시나리오 2: Redis에 토큰이 없는 경우
         when(jwtTokenProvider.validateToken(invalidRefreshToken)).thenReturn(true);
         when(jwtTokenProvider.getUserIdFromToken(invalidRefreshToken)).thenReturn(1L);
         when(refreshTokenRepository.findById(1L)).thenReturn(Optional.empty());
+        // when & then
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> userService.reissueTokens(invalidRefreshToken));
 
         // 시나리오 3: Redis에 저장된 토큰과 요청된 토큰이 일치하지 않는 경우
@@ -267,6 +294,7 @@ public class UserServiceTest {
         when(jwtTokenProvider.validateToken(mismatchedRefreshToken)).thenReturn(true);
         when(jwtTokenProvider.getUserIdFromToken(mismatchedRefreshToken)).thenReturn(1L);
         when(refreshTokenRepository.findById(1L)).thenReturn(Optional.of(storedRefreshToken));
+        // when & then
         Assertions.assertThrows(InvalidRefreshTokenException.class, () -> userService.reissueTokens(mismatchedRefreshToken));
     }
 
@@ -321,10 +349,27 @@ public class UserServiceTest {
     @Test
     void 다른_유저가_사용중인_닉네임을_사용하는_경우() {
         // given
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick" , "oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111");
+        try {
+            Field field = User.class.getDeclaredField("userId");
+            field.setAccessible(true);
+            field.set(existingUser, 999L);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         User anotherUser = User.ofCustomer("anotherLoginId", "pass", "newNick", "newName", "010-2222-2222");
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(existingUser));
+        try {
+            Field field = User.class.getDeclaredField("userId");
+            field.setAccessible(true);
+            field.set(anotherUser, 1000L);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        given(userRepository.findById(999L)).willReturn(Optional.of(existingUser));
         given(userRepository.findByNickname("newNick")).willReturn(Optional.of(anotherUser));
+        given(passwordEncoder.encode("newPass")).willReturn("encodedNewPass");
 
         UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
 
