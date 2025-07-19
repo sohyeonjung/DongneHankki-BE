@@ -9,4 +9,6 @@ public class CustomerSignUpRequest {
     private String loginId;
     private String password;
     private String nickname;
+    private String name;
+    private String phoneNumber;
 }

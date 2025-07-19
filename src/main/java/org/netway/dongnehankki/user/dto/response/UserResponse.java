@@ -10,12 +10,16 @@ public class UserResponse {
     private Long userId;
     private String loginId;
     private String nickname;
+    private String name;
+    private String phoneNumber;
     private Role role;
     private Long storeId;
 
     public Long getUserId() { return userId; }
     public String getLoginId() { return loginId; }
     public String getNickname() { return nickname; }
+    public String getName() { return name; }
+    public String getPhoneNumber() { return phoneNumber; }
     public Role getRole() { return role; }
     public Long getStoreId() { return storeId; }
 
@@ -31,6 +35,8 @@ public class UserResponse {
             user.getUserId(),
             user.getLoginId(),
             user.getNickname(),
+            user.getName(),
+            user.getPhoneNumber(),
             user.getRole(),
             userStoreId
         );

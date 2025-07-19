@@ -47,7 +47,7 @@ public class UserService {
         });
 
         String encodedPassword = passwordEncoder.encode(customerSignUpRequest.getPassword());
-        User user = userRepository.save(User.ofCustomer(customerSignUpRequest.getLoginId(), encodedPassword, customerSignUpRequest.getNickname()));
+        User user = userRepository.save(User.ofCustomer(customerSignUpRequest.getLoginId(), encodedPassword, customerSignUpRequest.getNickname(), customerSignUpRequest.getName(), customerSignUpRequest.getPhoneNumber()));
 
         return UserResponse.fromEntity(user);
     }
@@ -61,7 +61,7 @@ public class UserService {
                 .orElseThrow(() -> new UnregisteredStoreException());
 
         String encodedPassword = passwordEncoder.encode(ownerSignUpRequest.getPassword());
-        User user = userRepository.save(User.ofOwner(ownerSignUpRequest.getLoginId(), encodedPassword, ownerSignUpRequest.getNickname(), store));
+        User user = userRepository.save(User.ofOwner(ownerSignUpRequest.getLoginId(), encodedPassword, ownerSignUpRequest.getNickname(), ownerSignUpRequest.getName(), ownerSignUpRequest.getPhoneNumber(), store));
 
         return UserResponse.fromEntity(user);
     }
