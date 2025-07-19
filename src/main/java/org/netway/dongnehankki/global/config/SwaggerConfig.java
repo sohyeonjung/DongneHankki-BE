@@ -24,20 +24,18 @@ public class SwaggerConfig {
 		Server server = new Server();
 		server.setUrl(serverUrl);
 
-		// SecurityScheme 정의
 		SecurityScheme securityScheme = new SecurityScheme()
 			.type(SecurityScheme.Type.HTTP)
 			.scheme("bearer")
 			.bearerFormat("JWT");
 
-		// SecurityRequirement 정의 (전역 적용)
 		SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
 
 		return new OpenAPI()
 			.components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
 			.info(apiInfo())
 			.addServersItem(server)
-			.addSecurityItem(securityRequirement); // SecurityRequirement 추가
+			.addSecurityItem(securityRequirement);
 	}
 
 	private Info apiInfo(){
