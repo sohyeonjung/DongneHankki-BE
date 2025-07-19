@@ -15,7 +15,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UnregisteredUserException {
-        return userRepository.findById(username)
+        return userRepository.findByLoginId(username)
                 .map(CustomUserDetails::new)
                 .orElseThrow(UnregisteredUserException::new);
     }

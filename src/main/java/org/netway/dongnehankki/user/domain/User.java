@@ -29,11 +29,15 @@ public class User extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
 
-	private String id;
+	private String loginId;
 
 	private String password;
 
 	private String nickname;
+
+	private String name;
+
+	private String phoneNumber;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
@@ -52,20 +56,22 @@ public class User extends BaseEntity {
 		OWNER, CUSTOMER, ADMIN
 	}
 
-	private User(String id, String password, String nickname, Role role, Store store) {
-		this.id = id;
+	private User(String loginId, String password, String nickname, String name, String phoneNumber, Role role, Store store) {
+		this.loginId = loginId;
 		this.password = password;
 		this.nickname = nickname;
+		this.name = name;
+		this.phoneNumber = phoneNumber;
 		this.role = role;
 		this.store = store;
 	}
 
-	public static User ofCustomer(String id, String password, String nickname){
-		return new User(id, password, nickname, Role.CUSTOMER, null);
+	public static User ofCustomer(String loginId, String password, String nickname, String name, String phoneNumber){
+		return new User(loginId, password, nickname, name, phoneNumber, Role.CUSTOMER, null);
 	}
 
-	public static User ofOwner(String id, String password, String nickname, Store store){
-		return new User(id, password, nickname, Role.OWNER, store);
+	public static User ofOwner(String loginId, String password, String nickname, String name, String phoneNumber, Store store){
+		return new User(loginId, password, nickname, name, phoneNumber, Role.OWNER, store);
 	}
 
 	public void updateNickname(String nickname) {

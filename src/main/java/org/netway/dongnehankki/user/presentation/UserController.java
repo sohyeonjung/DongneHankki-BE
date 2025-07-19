@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,6 +38,20 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> signUpOwner(@RequestBody OwnerSignUpRequest ownerSignUpRequest) {
         userService.ownerSignUp(ownerSignUpRequest);
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @GetMapping("/users/check/loginId")
+    public ResponseEntity<ApiResponse<Boolean>> checkDuplicateLoginId(@RequestParam String loginId){
+        Boolean isAvailable = userService.checkLoginId(loginId);
+        String message = isAvailable ? "사용 가능합니다." : "이미 사용 중입니다.";
+        return ResponseEntity.ok(ApiResponse.success(isAvailable, message));
+    }
+
+    @GetMapping("/users/check/nickname")
+    public ResponseEntity<ApiResponse<Boolean>> checkDuplicateNickname(@RequestParam String nickname){
+        Boolean isAvailable = userService.checkNickname(nickname);
+        String message = isAvailable ? "사용 가능합니다." : "이미 사용 중입니다.";
+        return ResponseEntity.ok(ApiResponse.success(isAvailable, message));
     }
 
     @PostMapping("/login")
