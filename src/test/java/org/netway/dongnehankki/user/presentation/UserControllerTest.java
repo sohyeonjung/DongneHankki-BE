@@ -8,10 +8,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
@@ -84,6 +86,40 @@ public class UserControllerTest {
             ).andDo(print())
             .andExpect(status().isOk());
     }
+    @Test
+    public void 회원가입시_loginId_중복체크_중복없을경우() throws Exception {
+        String loginId = "loginId";
+
+        when(userService.checkLoginId(any(String.class))).thenReturn(true);
+
+        mockMvc.perform(get("/api/users/check/{loginId}", loginId)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.code").value("200"))
+            .andExpect(jsonPath("$.message").value("사용 가능합니다."))
+            .andExpect(jsonPath("$.data").value(true));
+    }
+
+    @Test
+    public void 회원가입시_loginId_중복체크_중복있을경우() throws Exception {
+        String loginId = "existingLoginId";
+
+        when(userService.checkLoginId(any(String.class))).thenReturn(false);
+
+        mockMvc.perform(get("/api/users/check/{loginId}", loginId)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.code").value("200"))
+            .andExpect(jsonPath("$.message").value("이미 사용 중입니다."))
+            .andExpect(jsonPath("$.data").value(false));
+    }
+
+
+
 
     @Test
     public void 회원가입시_이미_회원가입된_nickName으로_회원가입을_하는경우_에러반환() throws Exception{
@@ -283,6 +319,9 @@ public class UserControllerTest {
             ).andDo(print())
             .andExpect(status().isUnauthorized());
     }
+
+
+
 
 
 

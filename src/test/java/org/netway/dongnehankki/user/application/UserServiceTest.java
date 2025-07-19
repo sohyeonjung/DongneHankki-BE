@@ -101,6 +101,29 @@ public class UserServiceTest {
     }
 
     @Test
+    void 회원가입시_loginId_중복체크에서_중복이_없을경우() {
+        String loginId = "existingId";
+
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
+
+        boolean isAvailable = userService.checkLoginId(loginId);
+
+        assertThat(isAvailable).isTrue();
+    }
+
+    @Test
+    void 회원가입시_loginId_중복체크에서_중복이_있을경우() {
+        String loginId = "existingId";
+        User existingUser = CustomerUserFixture.get(loginId, "password", "name", "010-1111-1111");
+
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(existingUser));
+
+        boolean isAvailable = userService.checkLoginId(loginId);
+
+        assertThat(isAvailable).isFalse();
+    }
+
+    @Test
     void 일반회원_회원가입시_id가_이미_존재하는_경우() {
         String loginId = "id";
         String password = "password";

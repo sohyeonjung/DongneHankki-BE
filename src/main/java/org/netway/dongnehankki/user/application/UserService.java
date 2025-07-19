@@ -34,7 +34,7 @@ import org.netway.dongnehankki.store.infrastructure.StoreRepository;
 @RequiredArgsConstructor
 public class UserService {
 
-    private  final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -154,5 +154,9 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         return UserResponse.fromEntity(savedUser);
+    }
+
+    public boolean checkLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).isEmpty();
     }
 }
