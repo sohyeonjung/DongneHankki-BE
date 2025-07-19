@@ -54,7 +54,7 @@ public class UserService {
 
     public UserResponse ownerSignUp(OwnerSignUpRequest ownerSignUpRequest) {
         userRepository.findById(ownerSignUpRequest.getId()).ifPresent(it -> {
-            throw new DuplicateNickNameException();
+            throw new DuplicateUserIdException();
         });
 
         Store store = storeRepository.findByStoreId(ownerSignUpRequest.getStoreId())

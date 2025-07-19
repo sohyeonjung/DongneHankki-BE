@@ -3,6 +3,9 @@ name: KernelLabs CICD
 on:
   push:
     branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
 jobs:
   build:
     name: Build and Test
@@ -30,10 +33,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build -x test
-
-      #      - name: Run Tests
-      #        run: ./gradlew test
+        run: ./gradlew build --stacktrace
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -45,6 +45,7 @@ jobs:
     name: Deploy to Server
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'push'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

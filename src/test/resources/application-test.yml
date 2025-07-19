@@ -1,0 +1,23 @@
+# src/test/resources/application-test.yml
+spring:
+  data:
+    redis:
+      repositories:
+        enabled: false # 테스트 시 Redis 리포지토리 비활성화
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect # H2 DB 방언 설정
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+jwt:
+  secret: "dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi1pbi10ZXN0LWVudmlyb25tZW50"
+  access-token-expiration-minutes: 60
+  refresh-token-expiration-minutes: 1440
