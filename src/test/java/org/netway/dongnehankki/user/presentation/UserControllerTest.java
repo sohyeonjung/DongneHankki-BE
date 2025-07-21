@@ -2,6 +2,7 @@ package org.netway.dongnehankki.user.presentation;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -412,10 +413,7 @@ public class UserControllerTest {
         // given
         Long userId = 1L;
 
-        // when
-        when(userService.deleteUser(any(Long.class))).thenReturn(true);
-
-        //then
+        // when & then
         mockMvc.perform(delete("/api/users/{userId}", userId)
                 .with(csrf())
             ).andDo(print())
@@ -431,7 +429,7 @@ public class UserControllerTest {
         Long userId = 1L;
 
         // when
-        when(userService.deleteUser(any(Long.class))).thenThrow(new UnregisteredUserException());
+        doThrow(new UnregisteredUserException()).when(userService).deleteUser(any(Long.class));
 
         //then
         mockMvc.perform(delete("/api/users/{userId}", userId)
