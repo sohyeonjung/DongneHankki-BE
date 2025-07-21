@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.map.dto.request.MapRequest;
 import org.netway.dongnehankki.map.dto.response.MapResponse;
-import org.netway.dongnehankki.store.infrastructure.StoreRepository;
+import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class MapServiceTest {

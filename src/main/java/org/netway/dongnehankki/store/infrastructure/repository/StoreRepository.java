@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.infrastructure;
+package org.netway.dongnehankki.store.infrastructure.repository;
 
 import org.netway.dongnehankki.store.domain.Store;
 import org.springframework.data.jpa.repository.JpaRepository;

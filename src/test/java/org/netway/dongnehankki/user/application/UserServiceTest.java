@@ -22,7 +22,7 @@ import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.store.domain.Store;
-import org.netway.dongnehankki.store.infrastructure.StoreRepository;
+import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
 import org.netway.dongnehankki.user.dto.request.LoginResponse;
 import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
