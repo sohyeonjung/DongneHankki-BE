@@ -163,4 +163,9 @@ public class UserService {
     public Boolean checkNickname(String nickname) {
         return userRepository.findByNickname(nickname).isEmpty();
     }
+
+    public boolean deleteUser(Long userId) {
+        //TODO : Implementation
+        return true;
+    }
 }

@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -403,6 +404,26 @@ public class UserControllerTest {
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void 유저_softDelete_성공() throws Exception{
+        // given
+        Long userId = 1L;
+
+        // when
+        when(userService.deleteUser(any(Long.class))).thenReturn(true);
+
+        //then
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.code").value("200"))
+            .andExpect(jsonPath("$.message").value("회원 탈퇴가 성공적으로 처리되었습니다."));
+
     }
 
 
