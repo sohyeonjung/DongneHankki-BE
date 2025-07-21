@@ -33,9 +33,9 @@ public class Store extends BaseEntity {
 
 	private Integer likeCount;
 
-	private String address;
+	private String sigun;
 
-	private String industryName;
+	private String address;
 
 	private String industryCode;
 
@@ -56,22 +56,22 @@ public class Store extends BaseEntity {
 	@OneToMany(mappedBy = "store")
 	private List<Follow> follows = new ArrayList<>();
 
-	private Store(String name, Double latitude, Double longitude, String address, String industryName,
+	private Store(String name, Double latitude, Double longitude, String address, String sigun,
 		String industryCode,
 		String businessRegistrationNumber) {
 		this.name = name;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.address = address;
-		this.industryName = industryName;
+		this.sigun = sigun;
 		this.industryCode = industryCode;
 		this.businessRegistrationNumber = businessRegistrationNumber;
 	}
 
-	public static Store createStore(String name, Double latitude, Double longitude, String address, String industryName,
+	public static Store createStore(String name, Double latitude, Double longitude, String address, String sigun,
 	String industryCode,
 	String businessRegistrationNumber){
-		return new Store(name, latitude, longitude, address, industryName, industryCode, businessRegistrationNumber);
+		return new Store(name, latitude, longitude, address, sigun, industryCode, businessRegistrationNumber);
 	}
 
 }
