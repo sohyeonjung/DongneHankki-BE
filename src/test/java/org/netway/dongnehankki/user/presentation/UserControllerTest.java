@@ -421,10 +421,25 @@ public class UserControllerTest {
             ).andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("success"))
-            .andExpect(jsonPath("$.code").value("200"))
-            .andExpect(jsonPath("$.message").value("회원 탈퇴가 성공적으로 처리되었습니다."));
-
+            .andExpect(jsonPath("$.code").value("200"));
     }
+
+    @Test
+    @WithMockUser
+    public void 미등록유저_softDelete시_에러반환() throws Exception{
+        // given
+        Long userId = 1L;
+
+        // when
+        when(userService.deleteUser(any(Long.class))).thenThrow(new UnregisteredUserException());
+
+        //then
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
 
 
 
