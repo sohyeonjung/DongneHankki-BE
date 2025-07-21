@@ -24,16 +24,16 @@ class StoreRepositoryTest {
 
 		storeRepository.save(
 			Store.createStore("가게A", 37.5665, 126.9780, "경기도 광명시 A"
-			,"음식점", "F1", "123-45-6789a0"));
+			,"경기도 광명시", "F1", "123-45-6789a0"));
 
 
 		storeRepository.save(
 			Store.createStore("가게B", 37.5670, 126.9785,
-				"서울", "카페", "F2", "098-76-54321"));
+				"서울", "서울시", "F2", "098-76-54321"));
 
 		storeRepository.save(
 			Store.createStore("가게C", 37.6000, 126.9800,
-				"서울", "상점", "R1", "111-22-33333"));
+				"서울", "서울시", "R1", "111-22-33333"));
 	}
 
 	@DisplayName("위도와 경도 범위 내의 가게 목록 조회")
