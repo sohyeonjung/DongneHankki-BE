@@ -505,6 +505,32 @@ public class UserServiceTest {
 
         // when & then
         Assertions.assertThrows(UnregisteredUserException.class, () -> userService.deleteUser(1L));
+    }
 
+    @Test
+    void userId로_유저_정보_찾기_성공하는_경우(){
+        // given
+        long userId = 1L;
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        given(userRepository.findById(userId))
+            .willReturn(Optional.of(existingUser));
+
+        // when
+        UserResponse resp = userService.findByUserId(1L);
+
+        // then
+        assertThat(resp.getNickname()).isEqualTo("oldNick");
+    }
+
+    @Test
+    void 존재하지않는_userId로_유저_정보_찾기시_실패하는_경우(){
+        // given
+        long userId = 1L;
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        given(userRepository.findById(userId))
+            .willReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(UnregisteredUserException.class, () -> userService.findByUserId(1L));
     }
 }
