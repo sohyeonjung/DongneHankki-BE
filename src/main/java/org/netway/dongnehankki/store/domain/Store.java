@@ -74,4 +74,12 @@ public class Store extends BaseEntity {
 		return new Store(name, latitude, longitude, address, sigun, industryCode, businessRegistrationNumber);
 	}
 
+	public void updateStore(String cmpnmNm, Double latitude, Double longitude, String refineRoadnmAddr, String sigunNm, String indutypeCd) {
+		this.name = cmpnmNm;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.address = refineRoadnmAddr;
+		this.sigun = sigunNm;
+		this.industryCode = indutypeCd;
+	}
 }
