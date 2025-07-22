@@ -431,6 +431,30 @@ public class UserServiceTest {
     }
 
     @Test
+    void 유저가_자신의_닉네임으로_수정하는_경우_성공() {
+        // given
+        long userId = 999L;
+        String nickname = "myNick";
+        User existingUser = User.ofCustomer("loginId", "oldPass", nickname, "oldName", "010-1111-1111");
+        try {
+            Field field = User.class.getDeclaredField("userId");
+            field.setAccessible(true);
+            field.set(existingUser, userId);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(existingUser));
+        given(userRepository.findByNickname(nickname)).willReturn(Optional.of(existingUser));
+        given(userRepository.save(any(User.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateUserRequest req = new UpdateUserRequest("newPass", nickname);
+
+        // when & then
+        Assertions.assertDoesNotThrow(() -> userService.updateUser(userId, req));
+    }
+
+    @Test
     void 고객_회원_닉네임만_수정이_성공적으로_동작하는_경우() {
 
         // given
@@ -554,5 +578,42 @@ public class UserServiceTest {
 
         // when & then
         Assertions.assertThrows(UnregisteredUserException.class, () -> userService.findByUserId(1L));
+    }
+
+    @Test
+    void 존재하지_않는_유저_정보_수정시_실패하는_경우() {
+        // given
+        long userId = 1L;
+        UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
+
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(UnregisteredUserException.class, () -> {
+            userService.updateUser(userId, req);
+        });
+    }
+
+    @Test
+    void 리프레시_토큰_재발급시_존재하지_않는_유저인_경우_실패() {
+        // given
+        Long userId = 1L;
+        String refreshToken = "valid_refresh_token";
+
+        RefreshToken storedRefreshToken = RefreshToken.builder()
+                .userId(userId)
+                .token(refreshToken)
+                .expiration(1440L * 60)
+                .build();
+
+        when(jwtTokenProvider.validateToken(refreshToken)).thenReturn(true);
+        when(jwtTokenProvider.getUserIdFromToken(refreshToken)).thenReturn(userId);
+        when(refreshTokenRepository.findById(userId)).thenReturn(Optional.of(storedRefreshToken));
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(UnregisteredUserException.class, () -> {
+            userService.reissueTokens(refreshToken);
+        });
     }
 }
