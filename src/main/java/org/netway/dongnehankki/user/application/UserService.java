@@ -164,4 +164,10 @@ public class UserService {
     public Boolean checkNickname(String nickname) {
         return userRepository.findByNickname(nickname).isEmpty();
     }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+        user.markAsDeleted();
+    }
 }
