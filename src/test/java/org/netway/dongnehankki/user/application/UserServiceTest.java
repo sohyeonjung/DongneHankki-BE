@@ -120,7 +120,6 @@ public class UserServiceTest {
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
         when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-        when(mockStore.getStoreId()).thenReturn(null);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.empty());
 
         // when & then
@@ -572,7 +571,6 @@ public class UserServiceTest {
     void 존재하지않는_userId로_유저_정보_찾기시_실패하는_경우(){
         // given
         long userId = 1L;
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
         given(userRepository.findById(userId))
             .willReturn(Optional.empty());
 
