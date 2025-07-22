@@ -40,6 +40,32 @@ class StoreRepositoryTest {
 				"서울", "서울시", "R1", "111-22-33333"));
 	}
 
+	@DisplayName("findByStoreId - 존재하는 가게 ID로 조회 성공")
+	@Test
+	void findByStoreId_existingId() {
+		// When
+		Optional<Store> foundStoreOptional = storeRepository.findByStoreId(storeA.getStoreId());
+
+		// Then
+		assertThat(foundStoreOptional).isPresent();
+		assertThat(foundStoreOptional.get().getName()).isEqualTo("가게A");
+		assertThat(foundStoreOptional.get().getBusinessRegistrationNumber()).isEqualTo("123-45-6789a0");
+	}
+
+
+	@DisplayName("findByStoreId - 존재하지 않는 가게 ID로 조회 시 빈 Optional 반환")
+	@Test
+	void findByStoreId_nonExistingId() {
+		// Given
+		Long nonExistingId = 999L;
+
+		// When
+		Optional<Store> foundStoreOptional = storeRepository.findByStoreId(nonExistingId);
+
+		// Then
+		assertThat(foundStoreOptional).isEmpty();
+	}
+
 	@DisplayName("findByLatitudeBetweenAndLongitudeBetween - 위도와 경도 범위 내의 가게 목록 조회")
 	@Test
 	void findStoresWithinCoordinates() {
@@ -69,6 +95,7 @@ class StoreRepositoryTest {
 
 		assertThat(stores).isEmpty();
 	}
+
 
 	@DisplayName("findByBusinessRegistrationNumber - 존재하는 사업자등록번호로 조회 성공")
 	@Test
