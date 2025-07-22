@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.infrastructure;
+package org.netway.dongnehankki.store.infrastructure.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.domain.Store;
-import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
