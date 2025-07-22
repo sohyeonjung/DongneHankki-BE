@@ -17,10 +17,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
+import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.EmptyNickNameException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
+import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.application.UserService;
 import org.netway.dongnehankki.user.dto.request.LoginResponse;
@@ -250,6 +252,61 @@ public class UserControllerTest {
             ).andDo(print())
             .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @WithMockUser
+    public void refreshToken을_통한_Token_재발급_성공() throws Exception{
+        //given
+        String refreshToken = "refreshTokenTestSecret";
+
+        //when
+        when(userService.reissueTokens(refreshToken)).thenReturn(mock(LoginResponse.class));
+
+        //then
+        mockMvc.perform(post("/api/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new RefreshTokenRequest(refreshToken)))
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    public void refreshToken을_통한_Token_재발급_실패_유효하지_않은_토큰() throws Exception{
+        //given
+        String refreshToken = "refreshTokenTestSecret";
+
+        //when
+        when(userService.reissueTokens(refreshToken)).thenThrow(new InvalidRefreshTokenException());
+
+        //then
+        mockMvc.perform(post("/api/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new RefreshTokenRequest(refreshToken)))
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void refreshToken을_통한_Token_재발급_실패_저장된_refreshToken과_일치하지_않음() throws Exception{
+        //given
+        String refreshToken = "refreshTokenTestSecret";
+
+        //when
+        when(userService.reissueTokens(refreshToken)).thenThrow(new InvalidRefreshTokenException());
+
+        //then
+        mockMvc.perform(post("/api/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new RefreshTokenRequest(refreshToken)))
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     @WithMockUser
