@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
+import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
@@ -103,6 +104,27 @@ public class UserServiceTest {
 
         // when & then
         Assertions.assertDoesNotThrow(() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
+    }
+
+    @Test
+    void 사장회원_회원가입이_등록되지않은_storeId로_가입하는경우_익셉션() {
+        // given
+        String loginId = "id";
+        String password = "password";
+        String nickname = "nickname";
+        String name = "김사장";
+        String phoneNumber = "010-9876-5432";
+        Long storeId = 1L;
+        Store mockStore = mock(Store.class);
+
+        when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
+        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore));
+        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+        when(mockStore.getStoreId()).thenReturn(null);
+        when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(UnregisteredStoreException.class,() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
     }
 
     @Test
