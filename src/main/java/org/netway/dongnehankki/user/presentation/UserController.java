@@ -12,6 +12,7 @@ import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
 import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,6 +79,12 @@ public class UserController {
 
         UserResponse userResponse = userService.updateUser(userId, updateUserRequest);
         return ResponseEntity.ok(ApiResponse.success(userResponse));
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId){
+        userService.deleteUser(userId);
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
 }

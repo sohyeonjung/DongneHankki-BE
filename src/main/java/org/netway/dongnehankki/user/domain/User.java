@@ -1,8 +1,10 @@
 package org.netway.dongnehankki.user.domain;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Where;
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.follow.domain.Follow;
 import org.netway.dongnehankki.post.domain.Post;
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Where(clause = "deleted_at is NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 	@Id
