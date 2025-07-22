@@ -2,8 +2,10 @@ package org.netway.dongnehankki.user.presentation;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -404,6 +406,38 @@ public class UserControllerTest {
             ).andDo(print())
             .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @WithMockUser
+    public void 유저_softDelete_성공() throws Exception{
+        // given
+        Long userId = 1L;
+
+        // when & then
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.code").value("200"));
+    }
+
+    @Test
+    @WithMockUser
+    public void 미등록유저_softDelete시_에러반환() throws Exception{
+        // given
+        Long userId = 1L;
+
+        // when
+        doThrow(new UnregisteredUserException()).when(userService).deleteUser(any(Long.class));
+
+        //then
+        mockMvc.perform(delete("/api/users/{userId}", userId)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
 
 
 

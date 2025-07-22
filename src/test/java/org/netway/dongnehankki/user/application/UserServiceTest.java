@@ -475,4 +475,36 @@ public class UserServiceTest {
         assertThat(existingUser.getNickname()).isEqualTo("oldNick");
         assertThat(resp.getNickname()).isEqualTo("oldNick");
     }
+
+    @Test
+    void 유저_softDelete가_성공적으로_동작하는_경우(){
+        // given
+        long userId = 1L;
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(existingUser));
+
+        // when
+        userService.deleteUser(userId);
+
+        // then
+        assertThat(existingUser.getDeletedAt()).isNotNull();
+
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        Assertions.assertThrows(UnregisteredUserException.class, () -> {
+            userService.findByUserId(userId);
+        });
+    }
+
+    @Test
+    void 가입하지않은유저_softDelete시_실패하는_경우(){
+        // given
+        given(userRepository.findById(anyLong()))
+            .willReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(UnregisteredUserException.class, () -> userService.deleteUser(1L));
+
+    }
 }

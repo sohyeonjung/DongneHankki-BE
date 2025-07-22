@@ -29,6 +29,7 @@ import org.springframework.security.core.Authentication;
 
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.StoreRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -162,5 +163,11 @@ public class UserService {
 
     public Boolean checkNickname(String nickname) {
         return userRepository.findByNickname(nickname).isEmpty();
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+        user.markAsDeleted();
     }
 }
