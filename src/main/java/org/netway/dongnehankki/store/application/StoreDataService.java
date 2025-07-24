@@ -55,7 +55,7 @@ public class StoreDataService {
 
 			// 음식점만
 			String indutypeCd = row.getIndutypeCd();
-			if (indutypeCd == null || indutypeCd.isBlank() || !VALID_INDU_TYPE_CODES.contains(indutypeCd)) {
+			if (indutypeCd.isBlank() || !VALID_INDU_TYPE_CODES.contains(indutypeCd)) {
 				continue;
 			}
 
