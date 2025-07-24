@@ -34,10 +34,13 @@ class StoreDataServiceTest {
 	private StoreOpenApiResponse.Row invalidClosedRow;
 	private StoreOpenApiResponse.Row invalidInduTypeRow;
 	private StoreOpenApiResponse.Row invalidBlankInduTypeRow;
+	private StoreOpenApiResponse.Row fullyNullRow;
 	private Store existingStore;
 
 	@BeforeEach
 	void setUp() {
+		fullyNullRow = new StoreOpenApiResponse.Row();
+
 		validRow = new StoreOpenApiResponse.Row();
 		validRow.setLeadTaxManStateCd("01");
 		validRow.setCmpnmNm("Valid Store");
@@ -108,6 +111,7 @@ class StoreDataServiceTest {
 		verifyNoInteractions(storeRepository);
 	}
 
+
 	@Test
 	@DisplayName("processAndSaveStores - 빈 리스트 처리 시 아무 작업도 수행 안함")
 	void testProcessAndSaveStores_emptyList() {
@@ -116,6 +120,45 @@ class StoreDataServiceTest {
 
 		// Then
 		verifyNoInteractions(storeRepository);
+	}
+
+
+	@Test
+	@DisplayName("processAndSaveStores - 필수 필드 누락 Row 건너뛰기")
+	void testProcessAndSaveStores_skipNullFieldRow() {
+		// Given
+		List<StoreOpenApiResponse.Row> rows = Arrays.asList(fullyNullRow, invalidNullFieldRow, validRow);
+
+		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
+
+		// When
+		storeDataService.processAndSaveStores(rows);
+
+		// Then
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).save(any(Store.class));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidNullFieldRow.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(fullyNullRow.getBizregno());
+	}
+
+
+	@Test
+	@DisplayName("processAndSaveStores - 휴폐업 상태 Row 건너뛰기")
+	void testProcessAndSaveStores_skipClosedRow() {
+		// Given
+		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidClosedRow, validRow);
+
+		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
+
+		// When
+		storeDataService.processAndSaveStores(rows);
+
+		// Then
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).save(any(Store.class));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidClosedRow.getBizregno());
 	}
 
 	@Test
@@ -137,17 +180,21 @@ class StoreDataServiceTest {
 	}
 
 	@Test
-	@DisplayName("processAndSaveStores - 새로운 Store 저장 성공")
-	void testProcessAndSaveStores_addNewStore() {
+	@DisplayName("processAndSaveStores - 유효하지 않은 업종 코드 Row 건너뛰기")
+	void testProcessAndSaveStores_skipInvalidInduTypeRow() {
 		// Given
+		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidInduTypeRow, validRow);
+
 		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
-		storeDataService.processAndSaveStores(Collections.singletonList(validRow));
+		storeDataService.processAndSaveStores(rows);
 
 		// Then
 		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
 		verify(storeRepository, times(1)).save(any(Store.class));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidInduTypeRow.getBizregno());
 	}
 
 	@Test
@@ -169,57 +216,17 @@ class StoreDataServiceTest {
 
 
 	@Test
-	@DisplayName("processAndSaveStores - 필수 필드 누락 Row 건너뛰기")
-	void testProcessAndSaveStores_skipNullFieldRow() {
+	@DisplayName("processAndSaveStores - 새로운 Store 저장 성공")
+	void testProcessAndSaveStores_addNewStore() {
 		// Given
-		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidNullFieldRow, validRow);
-
 		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
-		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
-		storeDataService.processAndSaveStores(rows);
+		storeDataService.processAndSaveStores(Collections.singletonList(validRow));
 
 		// Then
 		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
 		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidNullFieldRow.getBizregno());
-	}
-
-	@Test
-	@DisplayName("processAndSaveStores - 휴폐업 상태 Row 건너뛰기")
-	void testProcessAndSaveStores_skipClosedRow() {
-		// Given
-		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidClosedRow, validRow);
-
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
-		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
-
-		// When
-		storeDataService.processAndSaveStores(rows);
-
-		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
-		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidClosedRow.getBizregno());
-	}
-
-	@Test
-	@DisplayName("processAndSaveStores - 유효하지 않은 업종 코드 Row 건너뛰기")
-	void testProcessAndSaveStores_skipInvalidInduTypeRow() {
-		// Given
-		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidInduTypeRow, validRow);
-
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
-		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
-
-		// When
-		storeDataService.processAndSaveStores(rows);
-
-		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
-		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidInduTypeRow.getBizregno());
 	}
 
 

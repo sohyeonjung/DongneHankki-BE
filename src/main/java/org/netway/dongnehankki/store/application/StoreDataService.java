@@ -45,6 +45,7 @@ public class StoreDataService {
 			if(row.getLeadTaxManStateCd()==null || row.getCmpnmNm()==null|| row.getRefineWgs84Lat()==null ||
 				row.getRefineWgs84Logt()==null || row.getRefineRoadnmAddr()==null || row.getSigunNm()==null ||
 				row.getIndutypeCd()==null || row.getBizregno()==null){
+				log.debug("Skipping row: {}", row);
 				continue;
 			}
 
