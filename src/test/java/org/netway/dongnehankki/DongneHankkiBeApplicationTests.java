@@ -1,6 +1,7 @@
 package org.netway.dongnehankki;
 
 import org.junit.jupiter.api.Test;
+import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -12,6 +13,9 @@ class DongneHankkiBeApplicationTests {
 
 	@MockitoBean
 	private RefreshTokenRepository refreshTokenRepository;
+
+	@MockitoBean
+	private StoreSyncService storeSyncService;
 
 	@Test
 	void contextLoads() {
