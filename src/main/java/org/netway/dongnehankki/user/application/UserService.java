@@ -28,7 +28,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 
 import org.netway.dongnehankki.store.domain.Store;
-import org.netway.dongnehankki.store.infrastructure.StoreRepository;
+import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service

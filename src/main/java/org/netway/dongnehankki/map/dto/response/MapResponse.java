@@ -13,8 +13,9 @@ public class MapResponse {
 	private Double latitude;
 	private Double longitude;
 	private Integer likeCount;
+	private String sigun;
 	private String address;
-	private String industryName;
+	private String industryCode;
 
 	public static MapResponse fromEntity(Store store) {
 		return MapResponse.builder()
@@ -23,8 +24,9 @@ public class MapResponse {
 			.latitude(store.getLatitude())
 			.longitude(store.getLongitude())
 			.likeCount(store.getLikeCount())
+			.sigun(store.getSigun())
 			.address(store.getAddress())
-			.industryName(store.getIndustryName())
+			.industryCode(store.getIndustryCode())
 			.build();
 	}
 }

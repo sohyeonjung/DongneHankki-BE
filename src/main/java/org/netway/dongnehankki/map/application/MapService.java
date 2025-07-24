@@ -5,7 +5,7 @@ import java.util.List;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.map.dto.request.MapRequest;
 import org.netway.dongnehankki.map.dto.response.MapResponse;
-import org.netway.dongnehankki.store.infrastructure.StoreRepository;
+import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;

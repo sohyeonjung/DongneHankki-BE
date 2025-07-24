@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.map.dto.request.MapRequest;
 import org.netway.dongnehankki.map.dto.response.MapResponse;
-import org.netway.dongnehankki.store.infrastructure.StoreRepository;
+import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class MapServiceTest {
@@ -49,23 +49,23 @@ public class MapServiceTest {
 		reset(mapBoundaryCalculator);
 		double lat_0_2km = CENTER_LAT + (0.2 / KM_PER_LATITUDE_DEGREE);
 		double lon_0_2km = CENTER_LON + (0.2 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin500m = Store.createStore("500m내 가게", lat_0_2km, lon_0_2km, "주소1", "음식점", "F1", "10-111-2222");
+		storeWithin500m = Store.createStore("500m내 가게", lat_0_2km, lon_0_2km, "주소1", "경기도 광명시", "F1", "10-111-2222");
 
 		double lat_1_5km = CENTER_LAT + (1.5 / KM_PER_LATITUDE_DEGREE);
 		double lon_1_5km = CENTER_LON + (1.5 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin2km = Store.createStore("2km내 가게", lat_1_5km, lon_1_5km, "주소2", "카페", "F2", "10-333-4444");
+		storeWithin2km = Store.createStore("2km내 가게", lat_1_5km, lon_1_5km, "주소2", "경기도 광명시", "F2", "10-333-4444");
 
 		double lat_4km = CENTER_LAT + (4.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_4km = CENTER_LON + (4.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin5km = Store.createStore("5km내 가게", lat_4km, lon_4km, "주소3", "마트", "F3", "10-555-6666");
+		storeWithin5km = Store.createStore("5km내 가게", lat_4km, lon_4km, "주소3", "경기도 광명시", "F3", "10-555-6666");
 
 		double lat_6km = CENTER_LAT + (6.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_6km = CENTER_LON + (6.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin7km = Store.createStore("7km내 가게", lat_6km, lon_6km, "주소4", "병원", "F4", "10-777-8888");
+		storeWithin7km = Store.createStore("7km내 가게", lat_6km, lon_6km, "주소4", "경기도 광명시", "F4", "10-777-8888");
 
 		double lat_9km = CENTER_LAT + (9.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_9km = CENTER_LON + (9.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
-		storeWithin10km = Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "약국", "F5", "10-999-0000");
+		storeWithin10km = Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "경기도 광명시", "F5", "10-999-0000");
 
 	}
 
