@@ -3,17 +3,15 @@ package org.netway.dongnehankki.store.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.netway.dongnehankki.config.domain.BaseEntity;
+import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.follow.domain.Follow;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.user.domain.User;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -37,6 +35,12 @@ public class Store extends BaseEntity {
 
 	private String address;
 
+	private String industryName;
+
+	private String industryCode;
+
+	private String businessRegistrationNumber;
+
 	@OneToOne(mappedBy = "store")
 	private User user;
 
@@ -51,4 +55,23 @@ public class Store extends BaseEntity {
 
 	@OneToMany(mappedBy = "store")
 	private List<Follow> follows = new ArrayList<>();
+
+	private Store(String name, Double latitude, Double longitude, String address, String industryName,
+		String industryCode,
+		String businessRegistrationNumber) {
+		this.name = name;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.address = address;
+		this.industryName = industryName;
+		this.industryCode = industryCode;
+		this.businessRegistrationNumber = businessRegistrationNumber;
+	}
+
+	public static Store createStore(String name, Double latitude, Double longitude, String address, String industryName,
+	String industryCode,
+	String businessRegistrationNumber){
+		return new Store(name, latitude, longitude, address, industryName, industryCode, businessRegistrationNumber);
+	}
+
 }

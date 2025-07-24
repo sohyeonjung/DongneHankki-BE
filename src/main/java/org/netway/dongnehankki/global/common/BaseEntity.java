@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.config.domain;
+package org.netway.dongnehankki.global.common;
 
 import java.time.LocalDateTime;
 
@@ -24,4 +24,8 @@ public abstract class BaseEntity {
 	private LocalDateTime updatedAt;
 
 	private LocalDateTime deletedAt;
+
+	public void markAsDeleted() {
+		this.deletedAt = LocalDateTime.now();
+	}
 }

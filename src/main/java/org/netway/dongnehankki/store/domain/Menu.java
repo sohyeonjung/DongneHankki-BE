@@ -1,6 +1,6 @@
 package org.netway.dongnehankki.store.domain;
 
-import org.netway.dongnehankki.config.domain.BaseEntity;
+import org.netway.dongnehankki.global.common.BaseEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

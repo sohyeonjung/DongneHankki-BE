@@ -7,6 +7,11 @@ spring:
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   jpa:
     open-in-view: false
     hibernate:
@@ -18,9 +23,17 @@ logging:
   level:
     org.hibernate.sql: debug
 
+server:
+  url: ${SERVER_URL}
+
+jwt:
+  secret : ${SERVER_SECRET}
+  access-token-expiration-minutes: ${SERVER_EXPIRATION}
+  refresh-token-expiration-minutes: ${REFRESH_TOKEN_EXPIRATION}
+
 ---
 spring:
   config:
     activate:
       on-profile: local
-    import: application-local.yml
+    import: optional:application-local.yml

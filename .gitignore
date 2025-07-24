@@ -38,3 +38,4 @@ out/
 
 ### env file ###
 application-local.yml
+application-prod.yml
