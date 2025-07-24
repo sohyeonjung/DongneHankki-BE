@@ -33,6 +33,7 @@ class StoreDataServiceTest {
 	private StoreOpenApiResponse.Row invalidNullFieldRow;
 	private StoreOpenApiResponse.Row invalidClosedRow;
 	private StoreOpenApiResponse.Row invalidInduTypeRow;
+	private StoreOpenApiResponse.Row invalidBlankInduTypeRow;
 	private Store existingStore;
 
 	@BeforeEach
@@ -80,6 +81,16 @@ class StoreDataServiceTest {
 		invalidInduTypeRow.setIndutypeCd("9999");
 		invalidInduTypeRow.setBizregno("0000000003");
 
+		invalidBlankInduTypeRow = new StoreOpenApiResponse.Row();
+		invalidBlankInduTypeRow.setLeadTaxManStateCd("01");
+		invalidBlankInduTypeRow.setCmpnmNm("Blank InduType Store");
+		invalidBlankInduTypeRow.setRefineWgs84Lat("37.123");
+		invalidBlankInduTypeRow.setRefineWgs84Logt("127.456");
+		invalidBlankInduTypeRow.setRefineRoadnmAddr("Blank InduType Road Address");
+		invalidBlankInduTypeRow.setSigunNm("수원시");
+		invalidBlankInduTypeRow.setIndutypeCd(""); // 또는 " " 또는 null
+		invalidBlankInduTypeRow.setBizregno("0000000004");
+
 		existingStore = Store.createStore(
 			"Existing Store", 37.0, 127.0,
 			"Old Address", "Old Sigun", "2102", "1234567890" // validRow와 동일한 사업자등록번호
@@ -105,6 +116,24 @@ class StoreDataServiceTest {
 
 		// Then
 		verifyNoInteractions(storeRepository);
+	}
+
+	@Test
+	@DisplayName("processAndSaveStores - 빈 업종 코드 Row 건너뛰기")
+	void testProcessAndSaveStores_skipBlankInduTypeRow() {
+		// Given
+		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidBlankInduTypeRow, validRow);
+
+		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
+
+		// When
+		storeDataService.processAndSaveStores(rows);
+
+		// Then
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).save(any(Store.class));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidBlankInduTypeRow.getBizregno());
 	}
 
 	@Test
