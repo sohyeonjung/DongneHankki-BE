@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
 import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
@@ -52,6 +53,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private StoreSyncService storeSyncService;
 
 
     @Test
