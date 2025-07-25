@@ -144,6 +144,125 @@ class StoreDataServiceTest {
 
 
 	@Test
+	@DisplayName("processAndSaveStores - 다양한 필수 필드 null 케이스 Row 건너뛰기")
+	void testProcessAndSaveStores_skipRowsWithAnyNullField() {
+		// Given
+		StoreOpenApiResponse.Row rowWithNullLeadTaxManStateCd = new StoreOpenApiResponse.Row();
+		rowWithNullLeadTaxManStateCd.setLeadTaxManStateCd(null);
+		rowWithNullLeadTaxManStateCd.setCmpnmNm("Test Store");
+		rowWithNullLeadTaxManStateCd.setRefineWgs84Lat("37.123");
+		rowWithNullLeadTaxManStateCd.setRefineWgs84Logt("127.456");
+		rowWithNullLeadTaxManStateCd.setRefineRoadnmAddr("Test Address");
+		rowWithNullLeadTaxManStateCd.setSigunNm("수원시");
+		rowWithNullLeadTaxManStateCd.setIndutypeCd("2102");
+		rowWithNullLeadTaxManStateCd.setBizregno("1111111111");
+
+		StoreOpenApiResponse.Row rowWithNullCmpnmNm = new StoreOpenApiResponse.Row();
+		rowWithNullCmpnmNm.setLeadTaxManStateCd("01");
+		rowWithNullCmpnmNm.setCmpnmNm(null);
+		rowWithNullCmpnmNm.setRefineWgs84Lat("37.123");
+		rowWithNullCmpnmNm.setRefineWgs84Logt("127.456");
+		rowWithNullCmpnmNm.setRefineRoadnmAddr("Test Address");
+		rowWithNullCmpnmNm.setSigunNm("수원시");
+		rowWithNullCmpnmNm.setIndutypeCd("2102");
+		rowWithNullCmpnmNm.setBizregno("2222222222");
+
+		StoreOpenApiResponse.Row rowWithNullLat = new StoreOpenApiResponse.Row();
+		rowWithNullLat.setLeadTaxManStateCd("01");
+		rowWithNullLat.setCmpnmNm("Test Store");
+		rowWithNullLat.setRefineWgs84Lat(null);
+		rowWithNullLat.setRefineWgs84Logt("127.456");
+		rowWithNullLat.setRefineRoadnmAddr("Test Address");
+		rowWithNullLat.setSigunNm("수원시");
+		rowWithNullLat.setIndutypeCd("2102");
+		rowWithNullLat.setBizregno("3333333333");
+
+		StoreOpenApiResponse.Row rowWithNullLogt = new StoreOpenApiResponse.Row();
+		rowWithNullLogt.setLeadTaxManStateCd("01");
+		rowWithNullLogt.setCmpnmNm("Test Store");
+		rowWithNullLogt.setRefineWgs84Lat("37.123");
+		rowWithNullLogt.setRefineWgs84Logt(null);
+		rowWithNullLogt.setRefineRoadnmAddr("Test Address");
+		rowWithNullLogt.setSigunNm("수원시");
+		rowWithNullLogt.setIndutypeCd("2102");
+		rowWithNullLogt.setBizregno("4444444444");
+
+		StoreOpenApiResponse.Row rowWithNullAddr = new StoreOpenApiResponse.Row();
+		rowWithNullAddr.setLeadTaxManStateCd("01");
+		rowWithNullAddr.setCmpnmNm("Test Store");
+		rowWithNullAddr.setRefineWgs84Lat("37.123");
+		rowWithNullAddr.setRefineWgs84Logt("127.456");
+		rowWithNullAddr.setRefineRoadnmAddr(null);
+		rowWithNullAddr.setSigunNm("수원시");
+		rowWithNullAddr.setIndutypeCd("2102");
+		rowWithNullAddr.setBizregno("5555555555");
+
+		StoreOpenApiResponse.Row rowWithNullSigun = new StoreOpenApiResponse.Row();
+		rowWithNullSigun.setLeadTaxManStateCd("01");
+		rowWithNullSigun.setCmpnmNm("Test Store");
+		rowWithNullSigun.setRefineWgs84Lat("37.123");
+		rowWithNullSigun.setRefineWgs84Logt("127.456");
+		rowWithNullSigun.setRefineRoadnmAddr("Test Address");
+		rowWithNullSigun.setSigunNm(null);
+		rowWithNullSigun.setIndutypeCd("2102");
+		rowWithNullSigun.setBizregno("6666666666");
+
+		StoreOpenApiResponse.Row rowWithNullIndu = new StoreOpenApiResponse.Row();
+		rowWithNullIndu.setLeadTaxManStateCd("01");
+		rowWithNullIndu.setCmpnmNm("Test Store");
+		rowWithNullIndu.setRefineWgs84Lat("37.123");
+		rowWithNullIndu.setRefineWgs84Logt("127.456");
+		rowWithNullIndu.setRefineRoadnmAddr("Test Address");
+		rowWithNullIndu.setSigunNm("수원시");
+		rowWithNullIndu.setIndutypeCd(null);
+		rowWithNullIndu.setBizregno("7777777777");
+
+		StoreOpenApiResponse.Row rowWithNullBiz = new StoreOpenApiResponse.Row();
+		rowWithNullBiz.setLeadTaxManStateCd("01");
+		rowWithNullBiz.setCmpnmNm("Test Store");
+		rowWithNullBiz.setRefineWgs84Lat("37.123");
+		rowWithNullBiz.setRefineWgs84Logt("127.456");
+		rowWithNullBiz.setRefineRoadnmAddr("Test Address");
+		rowWithNullBiz.setSigunNm("수원시");
+		rowWithNullBiz.setIndutypeCd("2102");
+		rowWithNullBiz.setBizregno(null);
+
+
+		List<StoreOpenApiResponse.Row> rows = Arrays.asList(
+			rowWithNullLeadTaxManStateCd,
+			rowWithNullCmpnmNm,
+			rowWithNullLat,
+			rowWithNullLogt,
+			rowWithNullAddr,
+			rowWithNullSigun,
+			rowWithNullIndu,
+			rowWithNullBiz,
+			validRow
+		);
+
+		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
+
+		// When
+		storeDataService.processAndSaveStores(rows);
+
+		// Then
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).save(any(Store.class));
+
+		// Verify that the repository was not called for any of the invalid rows
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullLeadTaxManStateCd.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullCmpnmNm.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullLat.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullLogt.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullAddr.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullSigun.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullIndu.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullBiz.getBizregno());
+	}
+
+
+	@Test
 	@DisplayName("processAndSaveStores - 휴폐업 상태 Row 건너뛰기")
 	void testProcessAndSaveStores_skipClosedRow() {
 		// Given
