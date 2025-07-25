@@ -60,18 +60,18 @@ public class StoreDataService {
 			}
 
 			// 사업자등록번호로 존재하는 가게 확인
-			String businessRegistrationNumber = row.getBizregno();
+			Long businessRegistrationNumber = Long.valueOf(row.getBizregno());
 			Optional<Store> existingStore = storeRepository.findByBusinessRegistrationNumber(businessRegistrationNumber);
 
 			Store store;
 			if (existingStore.isPresent()) {
 				store = existingStore.get();
 				store.updateStore(row.getCmpnmNm(), parseToDouble(row.getRefineWgs84Lat()), parseToDouble(row.getRefineWgs84Logt()),
-					row.getRefineRoadnmAddr(), row.getSigunNm(), row.getIndutypeCd());
+					row.getRefineRoadnmAddr(), row.getSigunNm(), Integer.valueOf(row.getIndutypeCd()));
 				updatedStoresCount++;
 			} else {
 				store = Store.createStore(row.getCmpnmNm(), parseToDouble(row.getRefineWgs84Lat()), parseToDouble(row.getRefineWgs84Logt()),
-					row.getRefineRoadnmAddr(), row.getSigunNm(), row.getIndutypeCd(), row.getBizregno());
+					row.getRefineRoadnmAddr(), row.getSigunNm(), Integer.valueOf(row.getIndutypeCd()), businessRegistrationNumber);
 				newStoresCount++;
 			}
 			storeRepository.save(store);

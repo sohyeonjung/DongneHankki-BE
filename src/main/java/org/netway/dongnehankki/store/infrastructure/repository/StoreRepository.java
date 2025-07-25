@@ -16,5 +16,5 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
         Double minLongitude, Double maxLongitude
     );
 
-	Optional<Store> findByBusinessRegistrationNumber(String businessRegistrationNumber);
+	Optional<Store> findByBusinessRegistrationNumber(Long businessRegistrationNumber);
 }
