@@ -28,16 +28,16 @@ class StoreRepositoryTest {
 
 		storeA = storeRepository.save(
 			Store.createStore("가게A", 37.5665, 126.9780, "경기도 광명시 A"
-			,"경기도 광명시", "F1", "123-45-6789a0"));
+			,"경기도 광명시", 1234, 123456789L));
 
 
 		storeB = storeRepository.save(
 			Store.createStore("가게B", 37.5670, 126.9785,
-				"서울", "서울시", "F2", "098-76-54321"));
+				"서울", "서울시", 1234, 98765421L));
 
 		storeC = storeRepository.save(
 			Store.createStore("가게C", 37.6000, 126.9800,
-				"서울", "서울시", "R1", "111-22-33333"));
+				"서울", "서울시", 1244, 1112233333L));
 	}
 
 	@DisplayName("findByStoreId - 존재하는 가게 ID로 조회 성공")
@@ -49,7 +49,7 @@ class StoreRepositoryTest {
 		// Then
 		assertThat(foundStoreOptional).isPresent();
 		assertThat(foundStoreOptional.get().getName()).isEqualTo("가게A");
-		assertThat(foundStoreOptional.get().getBusinessRegistrationNumber()).isEqualTo("123-45-6789a0");
+		assertThat(foundStoreOptional.get().getBusinessRegistrationNumber()).isEqualTo(123456789L);
 	}
 
 
@@ -101,7 +101,7 @@ class StoreRepositoryTest {
 	@Test
 	void findByBusinessRegistrationNumber_existingNumber() {
 		// When
-		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber("098-76-54321");
+		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber(98765421L);
 
 		// Then
 		assertThat(foundStoreOptional).isPresent();
@@ -113,10 +113,10 @@ class StoreRepositoryTest {
 	@Test
 	void findByBusinessRegistrationNumber_nonExistingNumber() {
 		// Given
-		String nonExistingNumber = "999-99-99999";
+		Long nonExistingNumber = 9999999999L;
 
 		// When
-		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber(nonExistingNumber);
+		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber(Long.valueOf(nonExistingNumber));
 
 		// Then
 		assertThat(foundStoreOptional).isEmpty();
