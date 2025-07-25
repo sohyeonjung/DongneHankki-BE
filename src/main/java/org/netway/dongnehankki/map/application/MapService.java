@@ -22,10 +22,22 @@ public class MapService {
 			mapRequest.getLatitude(), mapRequest.getLongitude(), mapRequest.getZoomLevel()
 		);
 
-		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetween(
-			boundingBox.getMinLat(), boundingBox.getMaxLat(),
-			boundingBox.getMinLon(), boundingBox.getMaxLon()
-		);
+		List<Store> stores;
+
+		Integer industryCode = mapRequest.getIndustryCode();
+		if (industryCode == null) {
+			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+				boundingBox.getMinLat(), boundingBox.getMaxLat(),
+				boundingBox.getMinLon(), boundingBox.getMaxLon()
+			);
+		}
+		else{
+			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCode(
+				boundingBox.getMinLat(), boundingBox.getMaxLat(),
+				boundingBox.getMinLon(), boundingBox.getMaxLon(),
+				mapRequest.getIndustryCode()
+			);
+		}
 
 		return stores.stream().map(MapResponse::fromEntity).toList();
 	}
