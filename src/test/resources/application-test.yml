@@ -17,7 +17,16 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
+
 jwt:
   secret: "dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi1pbi10ZXN0LWVudmlyb25tZW50"
   access-token-expiration-minutes: 60
   refresh-token-expiration-minutes: 1440
+
+openapi:
+  gg:
+    key: testKey
+    url: https://openapi.gg.go.kr/RegionMnyFacltStus
+    sigun-nm: 광명시
+
+

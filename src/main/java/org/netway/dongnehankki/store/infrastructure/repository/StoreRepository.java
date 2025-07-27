@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.infrastructure;
+package org.netway.dongnehankki.store.infrastructure.repository;
 
 import org.netway.dongnehankki.store.domain.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +15,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
         Double minLatitude, Double maxLatitude,
         Double minLongitude, Double maxLongitude
     );
+
+	Optional<Store> findByBusinessRegistrationNumber(String businessRegistrationNumber);
 }
