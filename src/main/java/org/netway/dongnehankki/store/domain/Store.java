@@ -37,9 +37,9 @@ public class Store extends BaseEntity {
 
 	private String address;
 
-	private String industryCode;
+	private Integer industryCode;
 
-	private String businessRegistrationNumber;
+	private Long businessRegistrationNumber;
 
 	@OneToOne(mappedBy = "store")
 	private User user;
@@ -57,8 +57,7 @@ public class Store extends BaseEntity {
 	private List<Follow> follows = new ArrayList<>();
 
 	private Store(String name, Double latitude, Double longitude, String address, String sigun,
-		String industryCode,
-		String businessRegistrationNumber) {
+		Integer industryCode, Long businessRegistrationNumber) {
 		this.name = name;
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -69,12 +68,11 @@ public class Store extends BaseEntity {
 	}
 
 	public static Store createStore(String name, Double latitude, Double longitude, String address, String sigun,
-	String industryCode,
-	String businessRegistrationNumber){
+	Integer industryCode, Long businessRegistrationNumber){
 		return new Store(name, latitude, longitude, address, sigun, industryCode, businessRegistrationNumber);
 	}
 
-	public void updateStore(String cmpnmNm, Double latitude, Double longitude, String refineRoadnmAddr, String sigunNm, String indutypeCd) {
+	public void updateStore(String cmpnmNm, Double latitude, Double longitude, String refineRoadnmAddr, String sigunNm, Integer indutypeCd) {
 		this.name = cmpnmNm;
 		this.latitude = latitude;
 		this.longitude = longitude;
