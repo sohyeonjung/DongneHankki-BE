@@ -10,10 +10,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @EnableScheduling
-@Configuration
+//@Configuration
+@Component
 @RequiredArgsConstructor
 public class ScheduleConfig {
 
