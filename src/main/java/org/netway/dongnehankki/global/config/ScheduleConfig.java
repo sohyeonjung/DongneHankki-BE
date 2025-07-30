@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.global.config;
 
+import jakarta.annotation.PostConstruct;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,12 @@ public class ScheduleConfig {
 	private static final String TIME_ZONE = "Asia/Seoul";
 
 	private final StoreSyncService storeSyncService;
+
+	@PostConstruct
+	public void checkScheduleConfigLoaded() {
+		log.info("ScheduleConfig 빈으로 로딩됨");
+		log.info("storeSyncService 주입 상태: {}", storeSyncService != null);
+	}
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void onApplicationReady() {
