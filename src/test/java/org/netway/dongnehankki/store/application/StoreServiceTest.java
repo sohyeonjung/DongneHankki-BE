@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.domain.Store;
+import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 
