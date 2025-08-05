@@ -8,6 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PostCreateRequest {
 
+    private Long storeId;
+
     private String content;
 
     private List<String> imageUrls;
