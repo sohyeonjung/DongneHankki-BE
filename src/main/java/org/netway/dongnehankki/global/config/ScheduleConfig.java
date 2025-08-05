@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.global.config;
 
+import jakarta.annotation.PostConstruct;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @EnableScheduling

@@ -66,6 +66,10 @@ jobs:
             if [ -d "$REPO_DIR" ]; then
               echo "Repository already exists. Pulling latest changes..."
               cd "$REPO_DIR"
+              git reset --hard
+              git clean -fd
+              git fetch origin
+              git checkout "$BRANCH"
               git pull origin "$BRANCH"
             else
               echo "Cloning repository..."

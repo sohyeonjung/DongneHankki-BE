@@ -30,4 +30,6 @@ public class MapRequest {
 
 	@NotNull(message = "줌 레벨은 필수 값입니다.")
 	private Integer zoomLevel;
+
+	private Integer industryCode;
 }

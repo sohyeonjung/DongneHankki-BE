@@ -15,7 +15,7 @@ public class MapResponse {
 	private Integer likeCount;
 	private String sigun;
 	private String address;
-	private String industryCode;
+	private Integer industryCode;
 
 	public static MapResponse fromEntity(Store store) {
 		return MapResponse.builder()

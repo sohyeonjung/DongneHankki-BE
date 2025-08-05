@@ -21,6 +21,7 @@ class StoreRepositoryTest {
 	private Store storeA;
 	private Store storeB;
 	private Store storeC;
+	private Store storeD;
 
 	@BeforeEach
 	void setUp() {
@@ -28,16 +29,20 @@ class StoreRepositoryTest {
 
 		storeA = storeRepository.save(
 			Store.createStore("가게A", 37.5665, 126.9780, "경기도 광명시 A"
-			,"경기도 광명시", "F1", "123-45-6789a0"));
+			,"경기도 광명시", 1234, 123456789L));
 
 
 		storeB = storeRepository.save(
 			Store.createStore("가게B", 37.5670, 126.9785,
-				"서울", "서울시", "F2", "098-76-54321"));
+				"서울", "서울시", 1234, 98765421L));
 
 		storeC = storeRepository.save(
 			Store.createStore("가게C", 37.6000, 126.9800,
-				"서울", "서울시", "R1", "111-22-33333"));
+				"서울", "서울시", 1244, 1112233333L));
+
+		storeD = storeRepository.save(
+			Store.createStore("가게D", 37.4000, 127.0000,
+				"강원도", "강원시", 1234, 444555666L));
 	}
 
 	@DisplayName("findByStoreId - 존재하는 가게 ID로 조회 성공")
@@ -49,7 +54,7 @@ class StoreRepositoryTest {
 		// Then
 		assertThat(foundStoreOptional).isPresent();
 		assertThat(foundStoreOptional.get().getName()).isEqualTo("가게A");
-		assertThat(foundStoreOptional.get().getBusinessRegistrationNumber()).isEqualTo("123-45-6789a0");
+		assertThat(foundStoreOptional.get().getBusinessRegistrationNumber()).isEqualTo(123456789L);
 	}
 
 
@@ -101,7 +106,7 @@ class StoreRepositoryTest {
 	@Test
 	void findByBusinessRegistrationNumber_existingNumber() {
 		// When
-		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber("098-76-54321");
+		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber(98765421L);
 
 		// Then
 		assertThat(foundStoreOptional).isPresent();
@@ -113,13 +118,93 @@ class StoreRepositoryTest {
 	@Test
 	void findByBusinessRegistrationNumber_nonExistingNumber() {
 		// Given
-		String nonExistingNumber = "999-99-99999";
+		Long nonExistingNumber = 9999999999L;
 
 		// When
-		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber(nonExistingNumber);
+		Optional<Store> foundStoreOptional = storeRepository.findByBusinessRegistrationNumber(Long.valueOf(nonExistingNumber));
 
 		// Then
 		assertThat(foundStoreOptional).isEmpty();
+	}
+
+	@DisplayName("findByLatitudeBetweenAndLongitudeBetweenAndIndutypeCd - 범위 내 특정 업종의 가게만 조회")
+	@Test
+	void findStoresWithinCoordinatesAndIndustryCode() {
+		// Given
+		double minLat = 37.5660;
+		double maxLat = 37.5675;
+		double minLon = 126.9775;
+		double maxLon = 126.9790;
+		Integer targetIndustryCode = 1234;
+
+		// When
+		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCode(
+			minLat, maxLat, minLon, maxLon, targetIndustryCode);
+
+		// Then
+		assertThat(stores).hasSize(2);
+		assertThat(stores).extracting(Store::getName).containsExactlyInAnyOrder("가게A", "가게B");
+		assertThat(stores).allMatch(store -> store.getIndustryCode().equals(targetIndustryCode));
+	}
+
+	@DisplayName("findByLatitudeBetweenAndLongitudeBetweenAndIndutypeCd - 범위 내에 있지만 업종이 다른 가게는 제외")
+	@Test
+	void findStoresExcludingDifferentIndustryCode() {
+		// Given
+		double minLat = 37.5600;
+		double maxLat = 37.6100;
+		double minLon = 126.9700;
+		double maxLon = 126.9900;
+		Integer targetIndustryCode = 1234;
+
+		// When
+		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCode(
+			minLat, maxLat, minLon, maxLon, targetIndustryCode);
+
+		// Then
+		assertThat(stores).hasSize(2);
+		assertThat(stores).extracting(Store::getName).containsExactlyInAnyOrder("가게A", "가게B");
+		assertThat(stores).allMatch(store -> store.getIndustryCode().equals(targetIndustryCode));
+	}
+
+
+	@DisplayName("findByLatitudeBetweenAndLongitudeBetweenAndIndutypeCd - 특정 업종의 가게가 범위 내에 없을 경우 빈 리스트 반환")
+	@Test
+	void findStoresWhenNoMatchingIndustryCodeWithinCoordinates() {
+		// Given
+		double minLat = 37.5660;
+		double maxLat = 37.5675;
+		double minLon = 126.9775;
+		double maxLon = 126.9790;
+		Integer nonExistingIndustryCode = 9999;
+
+		// When
+		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCode(
+			minLat, maxLat, minLon, maxLon, nonExistingIndustryCode);
+
+		// Then
+		assertThat(stores).isEmpty();
+	}
+
+	@DisplayName("findByLatitudeBetweenAndLongitudeBetweenAndIndutypeCd - 업종은 일치하지만 범위 밖에 있는 가게는 제외")
+	@Test
+	void findStoresExcludingOutOfRangeButMatchingIndustryCode() {
+		// Given
+		double minLat = 37.5660;
+		double maxLat = 37.5675;
+		double minLon = 126.9775;
+		double maxLon = 126.9790;
+		Integer targetIndustryCode = 1234;
+
+		// When
+		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCode(
+			minLat, maxLat, minLon, maxLon, targetIndustryCode);
+
+		// Then
+		assertThat(stores).hasSize(2);
+		assertThat(stores).extracting(Store::getName).containsExactlyInAnyOrder("가게A", "가게B");
+		assertThat(stores).doesNotContain(storeD);
+		assertThat(stores).allMatch(store -> store.getIndustryCode().equals(targetIndustryCode));
 	}
 
 }

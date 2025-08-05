@@ -91,12 +91,12 @@ class StoreDataServiceTest {
 		invalidBlankInduTypeRow.setRefineWgs84Logt("127.456");
 		invalidBlankInduTypeRow.setRefineRoadnmAddr("Blank InduType Road Address");
 		invalidBlankInduTypeRow.setSigunNm("수원시");
-		invalidBlankInduTypeRow.setIndutypeCd(""); // 또는 " " 또는 null
+		invalidBlankInduTypeRow.setIndutypeCd("");
 		invalidBlankInduTypeRow.setBizregno("0000000004");
 
 		existingStore = Store.createStore(
 			"Existing Store", 37.0, 127.0,
-			"Old Address", "Old Sigun", "2102", "1234567890" // validRow와 동일한 사업자등록번호
+			"Old Address", "Old Sigun", 2102, 1234567890L
 		);
 	}
 
@@ -129,17 +129,15 @@ class StoreDataServiceTest {
 		// Given
 		List<StoreOpenApiResponse.Row> rows = Arrays.asList(fullyNullRow, invalidNullFieldRow, validRow);
 
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.empty());
 		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
 		storeDataService.processAndSaveStores(rows);
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidNullFieldRow.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(fullyNullRow.getBizregno());
 	}
 
 
@@ -240,25 +238,23 @@ class StoreDataServiceTest {
 			validRow
 		);
 
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.empty());
 		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
 		storeDataService.processAndSaveStores(rows);
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
 
-		// Verify that the repository was not called for any of the invalid rows
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullLeadTaxManStateCd.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullCmpnmNm.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullLat.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullLogt.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullAddr.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullSigun.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullIndu.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(rowWithNullBiz.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullLeadTaxManStateCd.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullCmpnmNm.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullLat.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullLogt.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullAddr.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullSigun.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(rowWithNullIndu.getBizregno()));
 	}
 
 
@@ -268,16 +264,16 @@ class StoreDataServiceTest {
 		// Given
 		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidClosedRow, validRow);
 
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.empty());
 		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
 		storeDataService.processAndSaveStores(rows);
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidClosedRow.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(invalidClosedRow.getBizregno()));
 	}
 
 	@Test
@@ -286,16 +282,16 @@ class StoreDataServiceTest {
 		// Given
 		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidBlankInduTypeRow, validRow);
 
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.empty());
 		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
 		storeDataService.processAndSaveStores(rows);
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidBlankInduTypeRow.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(invalidBlankInduTypeRow.getBizregno()));
 	}
 
 	@Test
@@ -304,29 +300,29 @@ class StoreDataServiceTest {
 		// Given
 		List<StoreOpenApiResponse.Row> rows = Arrays.asList(invalidInduTypeRow, validRow);
 
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.empty());
 		when(storeRepository.save(any(Store.class))).thenReturn(any(Store.class));
 
 		// When
 		storeDataService.processAndSaveStores(rows);
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidInduTypeRow.getBizregno());
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(invalidInduTypeRow.getBizregno()));
 	}
 
 	@Test
 	@DisplayName("processAndSaveStores - 기존 Store 업데이트 성공")
 	void testProcessAndSaveStores_updateExistingStore() {
 		// Given
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.of(existingStore));
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.of(existingStore));
 
 		// When
 		storeDataService.processAndSaveStores(Collections.singletonList(validRow));
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
 
 		assertEquals(validRow.getCmpnmNm(), existingStore.getName());
@@ -338,13 +334,13 @@ class StoreDataServiceTest {
 	@DisplayName("processAndSaveStores - 새로운 Store 저장 성공")
 	void testProcessAndSaveStores_addNewStore() {
 		// Given
-		when(storeRepository.findByBusinessRegistrationNumber(validRow.getBizregno())).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()))).thenReturn(Optional.empty());
 
 		// When
 		storeDataService.processAndSaveStores(Collections.singletonList(validRow));
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(validRow.getBizregno());
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(validRow.getBizregno()));
 		verify(storeRepository, times(1)).save(any(Store.class));
 	}
 
@@ -375,16 +371,16 @@ class StoreDataServiceTest {
 
 		List<StoreOpenApiResponse.Row> apiRows = Arrays.asList(newStoreRow, updatedStoreRow, invalidClosedRow);
 
-		when(storeRepository.findByBusinessRegistrationNumber(newStoreRow.getBizregno())).thenReturn(Optional.empty());
-		when(storeRepository.findByBusinessRegistrationNumber(updatedStoreRow.getBizregno())).thenReturn(Optional.of(existingStore));
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(newStoreRow.getBizregno()))).thenReturn(Optional.empty());
+		when(storeRepository.findByBusinessRegistrationNumber(Long.valueOf(updatedStoreRow.getBizregno()))).thenReturn(Optional.of(existingStore));
 
 		// When
 		storeDataService.processAndSaveStores(apiRows);
 
 		// Then
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(newStoreRow.getBizregno());
-		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(updatedStoreRow.getBizregno());
-		verify(storeRepository, never()).findByBusinessRegistrationNumber(invalidClosedRow.getBizregno()); // 건너뛴 Row는 호출되면 안됨
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(newStoreRow.getBizregno()));
+		verify(storeRepository, times(1)).findByBusinessRegistrationNumber(Long.valueOf(updatedStoreRow.getBizregno()));
+		verify(storeRepository, never()).findByBusinessRegistrationNumber(Long.valueOf(invalidClosedRow.getBizregno())); // 건너뛴 Row는 호출되면 안됨
 
 		verify(storeRepository, times(2)).save(any(Store.class));
 
