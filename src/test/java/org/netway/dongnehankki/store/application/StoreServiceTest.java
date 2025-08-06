@@ -12,12 +12,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.netway.dongnehankki.store.domain.Menu;
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
+import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.ReviewResponse;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
+import org.netway.dongnehankki.store.infrastructure.repository.MenuRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
@@ -35,6 +38,9 @@ public class StoreServiceTest {
 
 	@Mock
 	private ReviewRepository reviewRepository;
+
+	@Mock
+	private MenuRepository menuRepository;
 
 	@InjectMocks
 	private StoreService storeService;
@@ -152,5 +158,59 @@ public class StoreServiceTest {
 		verify(userRepository, times(1)).findByLoginId(userLoginId);
 		verify(reviewRepository, times(1)).save(any(Review.class));
 	}
+
+	@Test
+	@DisplayName("addStoreMenu - 유효하지 않은 store, UnregisterException 반환 ")
+	void addStoreMenu_nullStoreReturn() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.addStoreMenu(storeId, null));
+	}
+
+	@Test
+	@DisplayName("addStoreMenu - 유효하지 않은 User, UnregisterException 반환 ")
+	void addStoreMenu_nullUserReturn() {
+		// Given
+		String userLoginId = "id1";
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").price(10000).build();
+
+		// When
+		when(storeRepository.findById(any())).thenReturn(Optional.of(testStore));
+		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredUserException.class, () -> storeService.addStoreMenu(1L, storeMenuRequest));
+	}
+
+	@Test
+	@DisplayName("addStoreReview - 유효한 입력값에서 정상 작동")
+	void addStoreReview_success() {
+		// Given
+		Long storeId = 1L;
+		String userLoginId = "id1";
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
+		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").price(10000).build();
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
+		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.of(testUser));
+
+		storeService.addStoreMenu(storeId, storeMenuRequest);
+
+		// Then
+		verify(storeRepository, times(1)).findById(storeId);
+		verify(userRepository, times(1)).findByLoginId(userLoginId);
+		verify(menuRepository, times(1)).save(any(Menu.class));
+	}
+
 
 }
