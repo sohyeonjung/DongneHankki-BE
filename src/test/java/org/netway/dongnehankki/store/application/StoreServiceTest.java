@@ -27,7 +27,7 @@ public class StoreServiceTest {
 	private StoreService storeService;
 
 	@Test
-	@DisplayName("getStore - 해당하는 store가 없을시 UnregisterException 반환")
+	@DisplayName("getStoreById - 해당하는 store가 없을시 UnregisterException 반환")
 	void testGetStore_nullReturn() {
 		//Given
 		Long storeId = 1L;
@@ -36,12 +36,12 @@ public class StoreServiceTest {
 		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
 
 		// Then
-		assertThrows(UnregisteredStoreException.class, () -> storeService.getStore(storeId));
+		assertThrows(UnregisteredStoreException.class, () -> storeService.getStoreById(storeId));
 	}
 
 	@Test
 	@DisplayName("getStore - 해당하는 store가 있을 시 잘 반환")
-	void testProcessAndSaveStores_nullList() {
+	void testGetStoreById_success() {
 		//Given
 		Store store = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
@@ -49,7 +49,7 @@ public class StoreServiceTest {
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
-		StoreResponse result = storeService.getStore(storeId);
+		StoreResponse result = storeService.getStoreById(storeId);
 
 		// Then
 		assertThat(result.getName()).isEqualTo("storeA");

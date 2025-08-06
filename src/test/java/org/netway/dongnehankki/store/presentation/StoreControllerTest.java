@@ -29,12 +29,12 @@ public class StoreControllerTest {
 
 	@DisplayName("GET /stores/{storeId} - 존재하지 않는 id 에러 반환")
 	@Test
-	void getStore_NotFound() throws Exception {
+	void getStoreById_NotFound() throws Exception {
 		//given
 		Long notExistStoreId = 999L;
 
 		//when
-		when(storeService.getStore(notExistStoreId)).thenThrow(new UnregisteredStoreException());
+		when(storeService.getStoreById(notExistStoreId)).thenThrow(new UnregisteredStoreException());
 
 		//then
 		mockMvc.perform(get("/api/stores/{storeId}", notExistStoreId))
@@ -43,13 +43,13 @@ public class StoreControllerTest {
 
 	@DisplayName("GET /stores/{storeId} - 존재하는 id 결과를 반환")
 	@Test
-	void getStore_Success() throws Exception {
+	void getStoreById_Success() throws Exception {
 		//given
 		StoreResponse store = StoreResponse.builder().storeId(1L).name("store a").sigun("광명시").build();
 		Long storeId = 1L;
 
 		//when
-		when(storeService.getStore(storeId)).thenReturn(store);
+		when(storeService.getStoreById(storeId)).thenReturn(store);
 
 		//then
 		mockMvc.perform(get("/api/stores/{storeId}", 1L)
@@ -66,7 +66,7 @@ public class StoreControllerTest {
 			.andExpect(jsonPath("$.data.name").value("store a"))
 			.andExpect(jsonPath("$.data.sigun").value("광명시"));
 
-		verify(storeService, times(1)).getStore(storeId);
+		verify(storeService, times(1)).getStoreById(storeId);
 	}
 
 	@DisplayName("GET /stores?businessNum={businessNum} - 존재하지 않는 businessNum 에러 반환")
