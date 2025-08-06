@@ -8,6 +8,7 @@ import org.netway.dongnehankki.store.domain.Menu;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
+import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.MenuRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
@@ -65,5 +66,17 @@ public class StoreService {
 		store.getMenus().add(menu);
 		storeRepository.save(store);
 		menuRepository.save(menu);
+	}
+
+	@Transactional
+	public void deleteStoreMenu(Long storeId, Long menuId) {
+		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+		Menu menuToDelete = store.getMenus().stream()
+			.filter(it->it.getMenuId().equals(menuId))
+			.findFirst().orElseThrow(() -> new UnregisteredMenuException());
+
+		store.getMenus().remove(menuToDelete);
+		menuRepository.delete(menuToDelete);
+		storeRepository.save(store);
 	}
 }
