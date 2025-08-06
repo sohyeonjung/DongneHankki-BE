@@ -37,4 +37,16 @@ public class Menu extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	private Menu(String name, String description, String image, Integer price, Store store, User user) {
+		this.store = store;
+		this.name = name;
+		this.description = description;
+		this.image = image;
+		this.price = price;
+		this.user = user;
+	}
+
+	public static Menu createMenu(String name, String description, String image, Integer price, Store store, User user) {
+		return new Menu(name, description, image, price, store, user);
+	}
 }
