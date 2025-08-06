@@ -32,4 +32,15 @@ public class Review extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id", nullable = false)
 	private Store store;
+
+	private Review(String content, Integer scope, User user, Store store) {
+		this.content = content;
+		this.scope = scope;
+		this.user = user;
+		this.store = store;
+	}
+
+	public static Review createReview(String content, Integer scope, User user, Store store) {
+		return new Review(content, scope, user, store);
+	}
 }
