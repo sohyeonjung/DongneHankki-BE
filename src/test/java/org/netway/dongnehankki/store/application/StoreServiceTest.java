@@ -118,13 +118,13 @@ public class StoreServiceTest {
 	@DisplayName("writeStoreReview - 유효하지 않은 User, UnregisterException 반환 ")
 	void writeStoreReview_nullUserReturn() {
 		// Given
-		Long userId = 1L;
+		String userLoginId = "id1";
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
-		StoreReviewRequest storeReviewRequest = StoreReviewRequest.builder().userId(1L).build();
+		StoreReviewRequest storeReviewRequest = StoreReviewRequest.builder().userLoginId("id1").build();
 		// When
 		when(storeRepository.findById(any())).thenReturn(Optional.of(testStore));
-		when(userRepository.findById(userId)).thenReturn(Optional.empty());
+		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.empty());
 
 		// Then
 		assertThrows(UnregisteredUserException.class, () -> storeService.writeStoreReview(1L, storeReviewRequest));
@@ -135,30 +135,22 @@ public class StoreServiceTest {
 	void writeStoreReview_success() {
 		// Given
 		Long storeId = 1L;
-		Long userId = 1L;
+		String userLoginId = "id1";
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
 		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
-		StoreReviewRequest storeReviewRequest = StoreReviewRequest.builder().userId(1L).content("review test").scope(4).build();
+		StoreReviewRequest storeReviewRequest = StoreReviewRequest.builder().userLoginId("id1").content("review test").scope(4).build();
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
-		when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.of(testUser));
 
 		storeService.writeStoreReview(storeId, storeReviewRequest);
 
 		// Then
 		verify(storeRepository, times(1)).findById(storeId);
-		verify(userRepository, times(1)).findById(userId);
+		verify(userRepository, times(1)).findByLoginId(userLoginId);
 		verify(reviewRepository, times(1)).save(any(Review.class));
 	}
-
-
-
-
-
-
-
-
 
 }

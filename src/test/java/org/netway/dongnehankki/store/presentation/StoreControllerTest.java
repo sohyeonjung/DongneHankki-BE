@@ -1,6 +1,7 @@
 package org.netway.dongnehankki.store.presentation;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -8,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreService;
+import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @WebMvcTest(StoreController.class)
 @WithMockUser
 public class StoreControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@MockitoBean
 	private StoreService storeService;
@@ -110,5 +117,42 @@ public class StoreControllerTest {
 
 		verify(storeService, times(1)).getStoreByBusinessNum(businessNum);
 	}
+
+	@Test
+	@DisplayName("유효하지 않은 리뷰 요청시 400 Bad Request를 반환해야 한다")
+	void writeStoreReview_InvalidRequest_BadRequest() throws Exception {
+		// given
+		StoreReviewRequest invalidReviewRequest = StoreReviewRequest.builder().userLoginId("id2")
+				.content("Bad content").scope(6).build();
+
+		// then
+		mockMvc.perform(post("/api/stores/{storeId}/reviews", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidReviewRequest)))
+			.andExpect(status().isBadRequest());
+
+		verify(storeService, never()).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+	}
+
+
+	@DisplayName("POST /stores/{storeId}/reviews - 유효한 요청 시 200 반환")
+	@Test
+	void writeStoreReview_Success() throws Exception {
+		//given
+		StoreReviewRequest validReviewRequest = StoreReviewRequest.builder().userLoginId("id1").content("review").scope(4).build();
+
+		//when
+		doNothing().when(storeService).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+
+		//then
+		mockMvc.perform(post("/api/stores/{storeId}/reviews", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validReviewRequest)))
+			.andExpect(status().isOk());
+	}
+
+
 
 }
