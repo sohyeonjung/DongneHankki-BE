@@ -1,10 +1,15 @@
 package org.netway.dongnehankki.store.application;
 
+import java.awt.*;
+
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
+import org.netway.dongnehankki.store.domain.Menu;
+import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
+import org.netway.dongnehankki.store.infrastructure.repository.MenuRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
@@ -21,6 +26,7 @@ public class StoreService {
 
 	private final StoreRepository storeRepository;
 	private final ReviewRepository reviewRepository;
+	private final MenuRepository menuRepository;
 	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
@@ -46,5 +52,18 @@ public class StoreService {
 		store.getReviews().add(review);
 		storeRepository.save(store);
 		reviewRepository.save(review);
+	}
+
+	@Transactional
+	public void addStoreMenu(Long storeId, StoreMenuRequest storeMenuRequest) {
+		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+		User user = userRepository.findByLoginId(storeMenuRequest.getUserLoginId()).orElseThrow(() -> new UnregisteredUserException());
+		Menu menu = Menu.createMenu(
+			storeMenuRequest.getName(), storeMenuRequest.getDescription(), storeMenuRequest.getImage(), storeMenuRequest.getPrice(), store, user
+		);
+
+		store.getMenus().add(menu);
+		storeRepository.save(store);
+		menuRepository.save(menu);
 	}
 }
