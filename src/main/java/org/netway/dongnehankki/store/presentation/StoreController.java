@@ -2,14 +2,18 @@ package org.netway.dongnehankki.store.presentation;
 
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.store.application.StoreService;
+import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,6 +39,13 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success(store));
 	}
 
-
+	@PostMapping("/stores/{storeId}/reviews")
+	public ResponseEntity<ApiResponse<Void>> writeStoreReview(
+		@PathVariable Long storeId,
+		@RequestBody @Valid StoreReviewRequest storeReviewRequest
+	){
+		storeService.writeStoreReview(storeId, storeReviewRequest);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
 
 }
