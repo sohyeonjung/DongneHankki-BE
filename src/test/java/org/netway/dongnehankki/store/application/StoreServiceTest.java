@@ -57,4 +57,35 @@ public class StoreServiceTest {
 		assertThat(result.getIndustryCode()).isEqualTo(2316);
 	}
 
+	@Test
+	@DisplayName("getStoreByBusinessNum - 해당하는 store가 없을시 UnregisterException 반환")
+	void testGetStoreByBusinessNum_nullReturn() {
+		//Given
+		Long businessNum = 1L;
+
+		// When
+		when(storeRepository.findByBusinessRegistrationNumber(businessNum)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.getStoreByBusinessNum(businessNum));
+	}
+
+	@Test
+	@DisplayName("getStoreByBusinessNum - 해당하는 store가 있을 시 잘 반환")
+	void testGetStoreByBusinessNum_success() {
+		//Given
+		Store store = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		Long businessNum = 12356102561L;
+
+		// When
+		when(storeRepository.findByBusinessRegistrationNumber(businessNum)).thenReturn(Optional.of(store));
+		StoreResponse result = storeService.getStoreByBusinessNum(businessNum);
+
+		// Then
+		assertThat(result.getName()).isEqualTo("storeA");
+		assertThat(result.getAddress()).isEqualTo("경기도 광명시 A");
+		assertThat(result.getIndustryCode()).isEqualTo(2316);
+	}
+
 }
