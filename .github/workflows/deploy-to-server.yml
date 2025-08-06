@@ -10,6 +10,11 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+      id-token: write
 
     steps:
       - name: Checkout Repository
@@ -40,6 +45,19 @@ jobs:
         with:
           name: app-jar
           path: build/libs/*.jar
+
+      - name: register test result comment
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: '**/build/test-results/test/TEST-*.xml'
+
+      - name: register failed test comment
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          token: ${{ github.token }}
 
   deploy:
     name: Deploy to Server
