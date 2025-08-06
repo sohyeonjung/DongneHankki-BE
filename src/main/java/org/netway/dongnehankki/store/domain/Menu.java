@@ -1,6 +1,7 @@
 package org.netway.dongnehankki.store.domain;
 
 import org.netway.dongnehankki.global.common.BaseEntity;
+import org.netway.dongnehankki.user.domain.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,4 +32,9 @@ public class Menu extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="store_id", nullable = false)
 	private Store store;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
+
 }
