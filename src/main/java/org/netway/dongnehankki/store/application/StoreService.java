@@ -19,4 +19,9 @@ public class StoreService {
 		return StoreResponse.fromEntity(store);
 	}
 
+	public StoreResponse getStoreByBusinessNum(Long businessNum) {
+		Store store = storeRepository.findByBusinessRegistrationNumber(businessNum).orElseThrow(() -> new UnregisteredStoreException());
+		return StoreResponse.fromEntity(store);
+	}
+
 }
