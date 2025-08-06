@@ -23,7 +23,7 @@ public class StoreController {
 	public ResponseEntity<ApiResponse<StoreResponse>> getStoreById(
 		@PathVariable Long storeId
 	){
-		StoreResponse store = storeService.getStore(storeId);
+		StoreResponse store = storeService.getStoreById(storeId);
 		return ResponseEntity.ok(ApiResponse.success(store));
 	}
 

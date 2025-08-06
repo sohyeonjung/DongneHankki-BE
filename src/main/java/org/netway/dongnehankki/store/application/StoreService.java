@@ -14,7 +14,7 @@ public class StoreService {
 
 	private final StoreRepository storeRepository;
 
-	public StoreResponse getStore(Long storeId) {
+	public StoreResponse getStoreById(Long storeId) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
 		return StoreResponse.fromEntity(store);
 	}
