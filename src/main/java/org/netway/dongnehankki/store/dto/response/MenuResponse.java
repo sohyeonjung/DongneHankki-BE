@@ -11,6 +11,7 @@ public class MenuResponse {
 	private String description;
 	private String image;
 	private Integer price;
+	private String userLoginId;
 
 	public static MenuResponse fromEntity(Menu menu) {
 		return MenuResponse.builder()
@@ -19,6 +20,7 @@ public class MenuResponse {
 			.description(menu.getDescription())
 			.image(menu.getImage())
 			.price(menu.getPrice())
+			.userLoginId(menu.getUser().getLoginId())
 			.build();
 	}
 }
