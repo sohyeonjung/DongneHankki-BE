@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreService;
+import org.netway.dongnehankki.store.domain.Store;
+import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -153,6 +155,38 @@ public class StoreControllerTest {
 			.andExpect(status().isOk());
 	}
 
+	@Test
+	@DisplayName("POST /stores/{storeId}/menus - 유효하지 않은 요청시 400 Bad Request를 반환")
+	void addStoreMenu_InvalidRequest_BadRequest() throws Exception {
+		// given
+		StoreMenuRequest invalidMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").build();
+
+		// then
+		mockMvc.perform(post("/api/stores/{storeId}/menus", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidMenuRequest)))
+			.andExpect(status().isBadRequest());
+
+		verify(storeService, never()).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+	}
+
+	@DisplayName("POST /stores/{storeId}/menus - 유효한 요청 시 200 반환")
+	@Test
+	void addStoreMenu_Success() throws Exception {
+		//given
+		StoreMenuRequest validMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").image("link").price(10000).build();
+
+		//when
+		doNothing().when(storeService).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+
+		//then
+		mockMvc.perform(post("/api/stores/{storeId}/menus", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validMenuRequest)))
+			.andExpect(status().isOk());
+	}
 
 
 }
