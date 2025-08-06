@@ -6,6 +6,7 @@ import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +56,15 @@ public class StoreController {
 		@RequestBody @Valid StoreMenuRequest storeMenuRequest
 	){
 		storeService.addStoreMenu(storeId, storeMenuRequest);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@DeleteMapping("/stores/{storeId}/menus/{menuId}")
+	public ResponseEntity<ApiResponse<Void>> deleteStoreMenu(
+		@PathVariable Long storeId,
+		@PathVariable Long menuId
+	){
+		storeService.deleteStoreMenu(storeId, menuId);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
