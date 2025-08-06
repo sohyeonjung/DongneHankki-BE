@@ -2,6 +2,7 @@ package org.netway.dongnehankki.store.presentation;
 
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.store.application.StoreService;
+import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,15 @@ public class StoreController {
 		@RequestBody @Valid StoreReviewRequest storeReviewRequest
 	){
 		storeService.writeStoreReview(storeId, storeReviewRequest);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@PostMapping("/stores/{storeId}/menus")
+	public ResponseEntity<ApiResponse<Void>> addStoreMenu(
+		@PathVariable Long storeId,
+		@RequestBody @Valid StoreMenuRequest storeMenuRequest
+	){
+		storeService.addStoreMenu(storeId, storeMenuRequest);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
