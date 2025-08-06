@@ -13,6 +13,7 @@ import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
+import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -187,6 +188,58 @@ public class StoreControllerTest {
 				.content(objectMapper.writeValueAsString(validMenuRequest)))
 			.andExpect(status().isOk());
 	}
+
+	@Test
+	@DisplayName("DELETE /stores/{storeId}/menus/{menuId} - 상점 ID가 없을 경우 404 Not Found 반환")
+	void deleteStoreMenu_StoreNotFound() throws Exception {
+		// Given
+		Long menuId = 1L;
+		doThrow(new UnregisteredStoreException()).when(storeService).deleteStoreMenu(anyLong(), anyLong());
+
+		// Then
+		mockMvc.perform(delete("/api/stores/{storeId}/menus/{menuId}", 99L, menuId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound());
+
+		verify(storeService, times(1)).deleteStoreMenu(eq(99L), eq(menuId));
+	}
+
+	@Test
+	@DisplayName("DELETE /stores/{storeId}/menus/{menuId} - 메뉴 ID가 없을 경우 404 Not Found 반환")
+	void deleteStoreMenu_MenuNotFound() throws Exception {
+		// Given
+		Long storeId = 1L;
+		doThrow(new UnregisteredMenuException()).when(storeService).deleteStoreMenu(anyLong(), anyLong());
+
+		// Then
+		mockMvc.perform(delete("/api/stores/{storeId}/menus/{menuId}", storeId, 999L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound());
+
+		verify(storeService, times(1)).deleteStoreMenu(eq(storeId), eq(999L));
+	}
+
+	@DisplayName("DELETE /stores/{storeId}/menus/{menuId} - 유효한 요청 시 200 반환")
+	@Test
+	void deleteStoreMenu_Success() throws Exception {
+		//given
+		Long storeId = 1L;
+		Long menuId = 2L;
+
+		//when
+		doNothing().when(storeService).deleteStoreMenu(storeId, menuId);
+
+		//then
+		mockMvc.perform(delete("/api/stores/{storeId}/menus/{menuId}", storeId, menuId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk());
+		verify(storeService, times(1)).deleteStoreMenu(eq(storeId), eq(menuId));
+	}
+
+
 
 
 }
