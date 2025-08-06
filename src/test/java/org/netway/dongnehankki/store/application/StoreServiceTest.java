@@ -17,8 +17,8 @@ import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
-import org.netway.dongnehankki.store.dto.response.ReviewResponse;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
+import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.MenuRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
@@ -212,5 +212,60 @@ public class StoreServiceTest {
 		verify(menuRepository, times(1)).save(any(Menu.class));
 	}
 
+	@Test
+	@DisplayName("deleteStoreMenu - 유효하지 않은 store, UnregisterException 반환")
+	void deleteStoreMenu_nullStoreReturns() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.deleteStoreMenu(storeId, null));
+	}
+
+	@Test
+	@DisplayName("deleteStoreMenu - 유효하지 않은 menu, UnregisterException 반환")
+	void deleteStoreMenu_nullMenuReturns() {
+		// Given
+		Long storeId = 1L;
+		Long menuId = 999L;
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
+
+		// Then
+		assertThrows(UnregisteredMenuException.class, () -> storeService.deleteStoreMenu(storeId, menuId));
+		verify(menuRepository, never()).delete(any(Menu.class));
+		verify(storeRepository, never()).save(any(Store.class));
+	}
+
+	@Test
+	@DisplayName("deleteStoreMenu - 유효한 입력값에서 정상 작동")
+	void deleteStoreMenu_success() {
+		// Given
+		Long storeId = 1L;
+		Long deleteMenuId = 1L;
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		Menu testMenu = mock(Menu.class);
+		testStore.getMenus().add(testMenu);
+
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
+		when(testMenu.getMenuId()).thenReturn(deleteMenuId);
+		storeService.deleteStoreMenu(storeId, deleteMenuId);
+
+		// Then
+		verify(storeRepository, times(1)).findById(storeId);
+		verify(menuRepository, times(1)).delete(any(Menu.class));
+		verify(storeRepository, times(1)).save(testStore);
+		assertFalse(testStore.getMenus().contains(testMenu));
+	}
 
 }
