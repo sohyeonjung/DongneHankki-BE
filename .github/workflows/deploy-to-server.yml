@@ -85,9 +85,10 @@ jobs:
             # 3. Build the application on the server to create the JAR
             chmod +x gradlew
             ./gradlew build -x test
-
-            # 4. Build Docker Image on the server
-            docker build -t dongnehankki:latest .
+            
+            # 4. Build Docker Image with a unique tag
+            IMAGE_TAG="${{ steps.commit.outputs.short_hash }}"
+            docker build -t dongnehankki:$IMAGE_TAG .
 
             # 5. Stop, remove, and run the Docker container
             docker stop dongnehankki || true
@@ -104,5 +105,5 @@ jobs:
             -e TZ=Asia/Seoul \
             -e SPRING_PROFILES_ACTIVE=prod \
             -p 8083:8083 \
-            dongnehankki:latest
+            dongnehankki:$IMAGE_TAG
 
