@@ -30,3 +30,12 @@ openapi:
     sigun-nm: 광명시
 
 
+cloud:
+  aws:
+    s3:
+      bucket: dongnae
+    credentials:
+      access-key: AK3123TIewqewqGV3GO77
+      secret-key: 32313s0c3T4FcyWOLewqeqw9vr5pHpwuLQ
+    region:
+      static: ap-northeast-2
