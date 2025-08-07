@@ -13,7 +13,7 @@ public class PostCreateRequest {
 
     private String content;
 
-    private List<MultipartFile> images;
+    private MultipartFile[] images;
 
     private List<String> hashtags;
 

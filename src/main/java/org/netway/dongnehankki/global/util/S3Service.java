@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,7 +29,10 @@ public class S3Service {
         objectMetadata.setContentLength(multipartFile.getSize());
         objectMetadata.setContentType(multipartFile.getContentType());
 
-        String fileName = dirName + "/" + multipartFile.getOriginalFilename();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String uniqueFilename = UUID.randomUUID().toString() + extension;
+        String fileName = dirName + "/" + uniqueFilename;
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)

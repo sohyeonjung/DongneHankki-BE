@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.post.application;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -42,10 +43,12 @@ public class PostService {
         Post post = Post.of(request.getContent(), store, user);
         postRepository.save(post);
 
-        request.getImages().forEach(multipartFile -> {
-            String imageUrl = s3Service.uploadFile(multipartFile, "post-images");
-            imageRepository.save(new Image(null, imageUrl, post));
-        });
+        if (request.getImages() != null) {
+            for (int i = 0; i < request.getImages().length; i++) {
+                String imageUrl = s3Service.uploadFile(request.getImages()[i], "post-images");
+                imageRepository.save(new Image(imageUrl, post, i));
+            }
+        }
 
         request.getHashtags().forEach(tagName -> {
             Hashtag hashtag = hashtagRepository.findByName(tagName)
