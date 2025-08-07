@@ -6,7 +6,7 @@ on:
 #  pull_request:
 #    branches: [ "develop" ]
   pull_request_target:
-    types: [ "develop" ]
+    types: [ opened, synchronize, reopened ]
 
 jobs:
   build:
