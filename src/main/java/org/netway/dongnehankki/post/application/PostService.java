@@ -3,6 +3,7 @@ package org.netway.dongnehankki.post.application;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
 import org.netway.dongnehankki.post.domain.Image;
 import org.netway.dongnehankki.post.domain.Post;
@@ -29,6 +30,7 @@ public class PostService {
     private final PostHashtagRepository postHashtagRepository;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
+    private final S3Service s3Service;
 
     @Transactional
     public void createPost(PostCreateRequest request, Long userId) {
@@ -40,6 +42,15 @@ public class PostService {
         Post post = Post.of(request.getContent(), store, user);
         postRepository.save(post);
 
+        request.getImages().forEach(multipartFile -> {
+            String imageUrl = s3Service.uploadFile(multipartFile, "post-images");
+            imageRepository.save(new Image(null, imageUrl, post));
+        });
 
+        request.getHashtags().forEach(tagName -> {
+            Hashtag hashtag = hashtagRepository.findByName(tagName)
+                .orElseGet(() -> hashtagRepository.save(Hashtag.of(tagName)));
+            postHashtagRepository.save(new PostHashtag(post, hashtag));
+        });
     }
 }

@@ -27,7 +27,7 @@ public class Image {
 	@JoinColumn(name="post_id", nullable = false)
 	private Post post;
 
-	private Image(Long imageId, String url, Post post) {
+	public Image(Long imageId, String url, Post post) {
 		this.imageId = imageId;
 		this.url = url;
 		this.post = post;

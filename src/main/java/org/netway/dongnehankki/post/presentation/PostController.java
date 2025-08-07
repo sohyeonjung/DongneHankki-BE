@@ -7,8 +7,8 @@ import org.netway.dongnehankki.post.application.PostService;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,9 +19,9 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createPost(
-        @RequestBody PostCreateRequest request,
+        @ModelAttribute PostCreateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.createPost(request, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());

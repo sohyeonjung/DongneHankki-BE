@@ -1,5 +1,3 @@
-package org.netway.dongnehankki.post.presentation;
-
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -21,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
 
 @WebMvcTest(PostController.class)
 class PostControllerTest {
@@ -38,22 +37,30 @@ class PostControllerTest {
     @DisplayName("게시글 생성 API 호출 테스트")
     void testCreatePost() throws Exception {
         // Given
-        PostCreateRequest request = new PostCreateRequest(1L,"Test content", Collections.singletonList("url1"), Collections.singletonList("tag1"));
-        String requestContent = objectMapper.writeValueAsString(request);
+        MockMultipartFile imageFile = new MockMultipartFile(
+            "images",
+            "test.jpg",
+            "image/jpeg",
+            "test image content".getBytes()
+        );
+
+        PostCreateRequest request = new PostCreateRequest(1L, "Test content", Collections.singletonList(imageFile), Collections.singletonList("tag1"));
 
         CustomUserDetails mockUserDetails = mock(CustomUserDetails.class);
         User mockUser = mock(User.class);
         when(mockUserDetails.getUser()).thenReturn(mockUser);
         when(mockUser.getUserId()).thenReturn(1L);
-        when(mockUserDetails.getAuthorities()).thenReturn(Collections.emptyList()); // Mock authorities if needed by UsernamePasswordAuthenticationToken
+        when(mockUserDetails.getAuthorities()).thenReturn(Collections.emptyList());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(mockUserDetails, null, mockUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // When & Then
-        mockMvc.perform(post("/api/post/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestContent)
+        mockMvc.perform(multipart("/api/post/create")
+                .file(imageFile)
+                .param("storeId", String.valueOf(request.getStoreId()))
+                .param("content", request.getContent())
+                .param("hashtags", request.getHashtags().toArray(new String[0]))
                 .with(csrf()))
             .andExpect(status().isOk());
 
