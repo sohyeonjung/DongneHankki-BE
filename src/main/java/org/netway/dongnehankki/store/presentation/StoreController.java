@@ -19,13 +19,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/stores")
 @RequiredArgsConstructor
 public class StoreController {
 
 	private final StoreService storeService;
 
-	@GetMapping("/stores/{storeId}")
+	@GetMapping("/{storeId}")
 	public ResponseEntity<ApiResponse<StoreResponse>> getStoreById(
 		@PathVariable Long storeId
 	){
@@ -33,7 +33,7 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success(store));
 	}
 
-	@GetMapping("/stores")
+	@GetMapping
 	public ResponseEntity<ApiResponse<StoreResponse>> getStoreByBusinessNum(
 		@RequestParam Long businessNumber
 	){
@@ -41,7 +41,7 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success(store));
 	}
 
-	@PostMapping("/stores/{storeId}/reviews")
+	@PostMapping("/{storeId}/reviews")
 	public ResponseEntity<ApiResponse<Void>> writeStoreReview(
 		@PathVariable Long storeId,
 		@RequestBody @Valid StoreReviewRequest storeReviewRequest
@@ -50,7 +50,7 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@PostMapping("/stores/{storeId}/menus")
+	@PostMapping("/{storeId}/menus")
 	public ResponseEntity<ApiResponse<Void>> addStoreMenu(
 		@PathVariable Long storeId,
 		@RequestBody @Valid StoreMenuRequest storeMenuRequest
@@ -59,7 +59,7 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@DeleteMapping("/stores/{storeId}/menus/{menuId}")
+	@DeleteMapping("/{storeId}/menus/{menuId}")
 	public ResponseEntity<ApiResponse<Void>> deleteStoreMenu(
 		@PathVariable Long storeId,
 		@PathVariable Long menuId
