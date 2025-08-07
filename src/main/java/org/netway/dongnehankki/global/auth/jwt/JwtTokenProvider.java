@@ -96,8 +96,6 @@ public class JwtTokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-//        String userId = claims.get("userId", Long.class).toString();
-//        UserDetails principal = new User(userId, "", authorities);
         Long userId = claims.get("userId", Long.class);
         UserDetails principal = userRepository.findById(userId)
             .map(CustomUserDetails::new)

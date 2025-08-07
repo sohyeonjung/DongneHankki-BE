@@ -18,6 +18,9 @@ import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
+import org.netway.dongnehankki.post.dto.response.PostResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,5 +58,18 @@ public class PostService {
                 .orElseGet(() -> hashtagRepository.save(Hashtag.of(tagName)));
             postHashtagRepository.save(new PostHashtag(post, hashtag));
         });
+    }
+
+    @Transactional(readOnly = true)
+    public PostResponse getPost(Long postId) {
+        return postRepository.findById(postId)
+                .map(PostResponse::from)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getPostsByStore(Long storeId, Pageable pageable) {
+        return postRepository.findByStore_StoreId(storeId, pageable)
+                .map(PostResponse::from);
     }
 }
