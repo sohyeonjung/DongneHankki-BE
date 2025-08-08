@@ -95,13 +95,13 @@ public class UserController {
 
 
     @PostMapping("/sendAuthCode")
-    public ResponseEntity<ApiResponse<Void>> sendOne(@RequestParam String receiverNumber) {
+    public ResponseEntity<ApiResponse<Void>> sendAuthCode(@RequestParam String receiverNumber) {
         coolSmsService.sendSms(receiverNumber);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
     @GetMapping("/checkAuthCode")
-    public ResponseEntity<ApiResponse<String>> checkCertificationNumber(@RequestParam String receiverNumber,
+    public ResponseEntity<ApiResponse<String>> checkAuthCode(@RequestParam String receiverNumber,
         @RequestParam String authCode) {
         if (coolSmsService.verifyAuthCode(receiverNumber, authCode)){
             return ResponseEntity.ok(ApiResponse.success("인증에 성공하였습니다."));

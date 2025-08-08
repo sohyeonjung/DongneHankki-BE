@@ -29,4 +29,9 @@ openapi:
     url: https://openapi.gg.go.kr/RegionMnyFacltStus
     sigun-nm: 광명시
 
+coolsms:
+  api:
+    key: NCS104NE0IJ#@!I8
+    secret: FGY2AQ6VN9H#@!#COKBQ9CKQSJW5
+    number: 01011111111
 
