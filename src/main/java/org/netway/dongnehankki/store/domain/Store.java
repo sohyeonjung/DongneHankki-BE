@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.store.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +32,6 @@ public class Store extends BaseEntity {
 
 	private Double longitude;
 
-	private Integer likeCount;
-
 	private String sigun;
 
 	private String address;
@@ -40,6 +39,10 @@ public class Store extends BaseEntity {
 	private Integer industryCode;
 
 	private Long businessRegistrationNumber;
+
+	private LocalDateTime openAt;
+
+	private LocalDateTime closeAt;
 
 	@OneToOne(mappedBy = "store")
 	private User user;
