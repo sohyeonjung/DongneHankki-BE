@@ -84,11 +84,19 @@ jobs:
 
             # 3. Build the application on the server to create the JAR
             chmod +x gradlew
+            
+            # 3.5. 기존 빌드 파일 정리
+            ./gradlew clean
             ./gradlew build -x test
-
-            # 4. Build Docker Image on the server
+            
+            # 4. Docker 캐시 정리 및 이미지 빌드
+            echo "Cleaning Docker system..."
+            docker system prune -f
+            
+            echo "Building Docker image without cache..."
             docker build --no-cache -t dongnehankki:latest .
-
+            
+            
             # 5. Stop, remove, and run the Docker container
             docker stop dongnehankki || true
             docker rm dongnehankki || true
