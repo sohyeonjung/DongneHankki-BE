@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -98,27 +99,29 @@ class CoolSmsServiceTest {
     }
 
     @Test
-    void verifyAuthCode_인증번호_불일치시_false_반환_Redis_미삭제_확인() {
+    void verifyAuthCode_인증번호_불일치시_예외_발생_확인() {
         String phoneNumber = "01012345678";
         String authCode = "123456";
         String storedAuthCode = "654321";
         when(valueOperations.get("smsAuth:" + phoneNumber)).thenReturn(storedAuthCode);
 
-        boolean result = coolSmsService.verifyAuthCode(phoneNumber, authCode);
+        assertThrows(InvalidAuthCodeException.class,() -> {
+            coolSmsService.verifyAuthCode(phoneNumber, authCode);
+        });
 
-        assertFalse(result);
         verify(redisTemplate, never()).delete(anyString());
     }
 
     @Test
-    void verifyAuthCode_Redis에_인증번호_없을시_false_반환_Redis_미삭제_확인() {
+    void verifyAuthCode_Redis에_인증번호_없을시_예외_발생_확인() {
         String phoneNumber = "01012345678";
         String authCode = "123456";
         when(valueOperations.get("smsAuth:" + phoneNumber)).thenReturn(null);
 
-        boolean result = coolSmsService.verifyAuthCode(phoneNumber, authCode);
+        assertThrows(InvalidAuthCodeException.class, () -> {
+            coolSmsService.verifyAuthCode(phoneNumber, authCode);
+        });
 
-        assertFalse(result);
         verify(redisTemplate, never()).delete(anyString());
     }
 }

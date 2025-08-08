@@ -24,6 +24,7 @@ import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.EmptyNickNameException;
+import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
@@ -546,7 +547,7 @@ public class UserControllerTest {
         String authCode = "999999";
 
         // when
-        when(coolSmsService.verifyAuthCode(any(String.class), any(String.class))).thenReturn(false);
+        when(coolSmsService.verifyAuthCode(any(String.class), any(String.class))).thenThrow(new InvalidAuthCodeException());
 
         // then
         mockMvc.perform(get("/api/checkAuthCode")
@@ -554,10 +555,10 @@ public class UserControllerTest {
                 .param("authCode", authCode)
                 .with(csrf())
             ).andDo(print())
-            .andExpect(status().isOk())
+            .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.status").value("error"))
             .andExpect(jsonPath("$.code").value("401"))
-            .andExpect(jsonPath("$.message").value("유효하지 않은 인증 번호 입니다."));
+            .andExpect(jsonPath("$.message").value("유효하지 않은 인증 번호입니다."));
     }
 
 
