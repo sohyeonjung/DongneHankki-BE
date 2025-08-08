@@ -87,7 +87,7 @@ jobs:
             ./gradlew build -x test
 
             # 4. Build Docker Image on the server
-            docker build -t dongnehankki:latest .
+            docker build --no-cache -t dongnehankki:latest .
 
             # 5. Stop, remove, and run the Docker container
             docker stop dongnehankki || true
@@ -105,4 +105,3 @@ jobs:
             -e SPRING_PROFILES_ACTIVE=prod \
             -p 8083:8083 \
             dongnehankki:latest
-
