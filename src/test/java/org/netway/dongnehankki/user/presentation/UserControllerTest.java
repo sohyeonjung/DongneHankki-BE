@@ -557,7 +557,7 @@ public class UserControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("error"))
             .andExpect(jsonPath("$.code").value("401"))
-            .andExpect(jsonPath("$.message").value("유효하지않은 인증 번호 입니다."));
+            .andExpect(jsonPath("$.message").value("유효하지 않은 인증 번호 입니다."));
     }
 
 

@@ -1,19 +1,19 @@
 package org.netway.dongnehankki.user.application;
 
-
-
 import jakarta.annotation.PostConstruct;
+import java.security.SecureRandom;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Random;
+
 
 @Service
 public class CoolSmsService {
@@ -43,8 +43,8 @@ public class CoolSmsService {
     }
 
     private String generateAuthCode() {
-        Random random = new Random();
-        int code = 100000 + random.nextInt(900000);
+        SecureRandom secureRandom = new SecureRandom();
+        int code = 100000 + secureRandom.nextInt(900000);
         return String.valueOf(code);
     }
 
@@ -75,8 +75,9 @@ public class CoolSmsService {
         if (storedAuthCode != null && storedAuthCode.equals(authCode)) {
             redisTemplate.delete(key);
             return true;
+        } else {
+            throw new InvalidAuthCodeException();
         }
-        return false;
     }
 }
 
