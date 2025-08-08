@@ -45,16 +45,10 @@ jobs:
     name: Deploy to Server
     runs-on: ubuntu-latest
     needs: build
-    # if: github.event_name == 'push'
+    if: github.event_name == 'push'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: ./build/libs # JAR 파일이 다운로드될 경로
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -68,7 +62,7 @@ jobs:
             REPO_DIR="/home/${{ secrets.SERVER_USER }}/DongneHankki-BE" # Adjust path as needed
             BRANCH="develop" # Or whatever branch is being deployed
 
-            # 1. Clone or pull the latest code (This might not be strictly necessary if we're using artifacts, but good for other files)
+            # 1. Clone or pull the latest code
             if [ -d "$REPO_DIR" ]; then
               echo "Repository already exists. Pulling latest changes..."
               cd "$REPO_DIR"
@@ -88,13 +82,12 @@ jobs:
             mkdir -p src/main/resources
             echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
 
-            # 3. Copy downloaded JAR to the correct location for Docker build
-            # The JAR is downloaded to ./build/libs/ by the 'Download Build Artifacts' step
-            # We need to copy it to the REPO_DIR on the server before docker build
-            cp ./build/libs/*.jar $REPO_DIR/build/libs/app.jar
+            # 3. Build the application on the server to create the JAR
+            chmod +x gradlew
+            ./gradlew build -x test
 
             # 4. Build Docker Image on the server
-            docker build -t dongnehankki:latest .
+            docker build --no-cache -t dongnehankki:latest .
 
             # 5. Stop, remove, and run the Docker container
             docker stop dongnehankki || true
@@ -112,4 +105,3 @@ jobs:
             -e SPRING_PROFILES_ACTIVE=prod \
             -p 8083:8083 \
             dongnehankki:latest
-
