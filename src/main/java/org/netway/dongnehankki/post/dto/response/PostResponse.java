@@ -39,7 +39,7 @@ public class PostResponse {
         this.createdAt = createdAt;
     }
 
-    public static PostResponse from(Post post) {
+    public static PostResponse fromEntity(Post post) {
         return PostResponse.builder()
                 .postId(post.getPostId())
                 .content(post.getContent())

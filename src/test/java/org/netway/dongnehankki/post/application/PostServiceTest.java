@@ -34,7 +34,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -74,7 +73,7 @@ class PostServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
         given(s3Service.uploadFile(any(), anyString())).willReturn("s3-image-url");
-        given(hashtagRepository.findByName(anyString())).willReturn(Optional.of(Hashtag.of("#맛집")));
+        given(hashtagRepository.findByName(anyString())).willReturn(Optional.of(Hashtag.createHashtag("#맛집")));
 
         // when
         postService.createPost(request, userId);
@@ -94,7 +93,7 @@ class PostServiceTest {
         Long postId = 1L;
         User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.of("내용", store, user);
+        Post post = Post.createPost("내용", store, user);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
 
@@ -128,7 +127,7 @@ class PostServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.of("내용", store, user);
+        Post post = Post.createPost("내용", store, user);
         Page<Post> postPage = new PageImpl<>(List.of(post), pageable, 1);
 
         given(postRepository.findByStore_StoreId(storeId, pageable)).willReturn(postPage);

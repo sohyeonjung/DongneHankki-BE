@@ -10,23 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Hashtag {
-
-	public static Hashtag of(String name) {
-		return new Hashtag(null, name, new ArrayList<>());
-	}
-
-	private Hashtag(Long hashtagId, String name, List<PostHashtag> postHashtags) {
-		this.hashtagId = hashtagId;
-		this.name = name;
-		this.postHashtags = postHashtags;
-	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,4 +25,14 @@ public class Hashtag {
 
 	@OneToMany(mappedBy = "hashtag")
 	private List<PostHashtag> postHashtags = new ArrayList<>();
+
+	public static Hashtag createHashtag(String name) {
+		return new Hashtag(null, name, new ArrayList<>());
+	}
+
+	private Hashtag(Long hashtagId, String name, List<PostHashtag> postHashtags) {
+		this.hashtagId = hashtagId;
+		this.name = name;
+		this.postHashtags = postHashtags;
+	}
 }

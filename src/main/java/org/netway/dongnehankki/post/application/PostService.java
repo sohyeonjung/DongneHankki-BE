@@ -1,8 +1,5 @@
 package org.netway.dongnehankki.post.application;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
@@ -10,13 +7,16 @@ import org.netway.dongnehankki.post.domain.Image;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.domain.PostHashtag;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
+import org.netway.dongnehankki.post.exception.PostNotFoundException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
 import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.store.domain.Store;
+import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
+import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.springframework.data.domain.Page;
@@ -39,11 +39,11 @@ public class PostService {
     @Transactional
     public void createPost(PostCreateRequest request, Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new UnregisteredUserException());
         Store store = storeRepository.findById(request.getStoreId())
-            .orElseThrow(() -> new IllegalArgumentException("Store not found"));
+            .orElseThrow(() -> new UnregisteredStoreException());
 
-        Post post = Post.of(request.getContent(), store, user);
+        Post post = Post.createPost(request.getContent(), store, user);
         postRepository.save(post);
 
         if (request.getImages() != null) {
@@ -55,7 +55,7 @@ public class PostService {
 
         request.getHashtags().forEach(tagName -> {
             Hashtag hashtag = hashtagRepository.findByName(tagName)
-                .orElseGet(() -> hashtagRepository.save(Hashtag.of(tagName)));
+                .orElseGet(() -> hashtagRepository.save(Hashtag.createHashtag(tagName)));
             postHashtagRepository.save(new PostHashtag(post, hashtag));
         });
     }
@@ -63,13 +63,13 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse getPost(Long postId) {
         return postRepository.findById(postId)
-                .map(PostResponse::from)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+                .map(PostResponse::fromEntity)
+                .orElseThrow(() -> new PostNotFoundException());
     }
 
     @Transactional(readOnly = true)
     public Page<PostResponse> getPostsByStore(Long storeId, Pageable pageable) {
         return postRepository.findByStore_StoreId(storeId, pageable)
-                .map(PostResponse::from);
+                .map(PostResponse::fromEntity);
     }
 }
