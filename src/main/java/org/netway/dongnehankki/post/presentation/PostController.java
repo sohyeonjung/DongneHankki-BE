@@ -5,6 +5,7 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.post.application.PostService;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
+import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,10 +41,11 @@ public class PostController {
     }
 
     @GetMapping("/posts/store/{storeId}")
-    public ResponseEntity<ApiResponse<Page<PostResponse>>> getPostsByStore(
+    public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsByStore(
             @PathVariable Long storeId,
-            Pageable pageable) {
-        Page<PostResponse> response = postService.getPostsByStore(storeId, pageable);
+            @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
+            @RequestParam(defaultValue = "10") int size) {
+        CursorResult<PostResponse> response = postService.getPostsByStore(storeId, cursorPostId, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

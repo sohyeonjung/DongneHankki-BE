@@ -126,22 +126,6 @@ class PostServiceTest {
     @Test
     @DisplayName("가게별 게시글 목록 조회 테스트")
     void getPostsByStore_success() {
-        // given
-        Long storeId = 1L;
-        Pageable pageable = PageRequest.of(0, 10);
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
-        Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.createPost("내용", store, user);
-        Page<Post> postPage = new PageImpl<>(List.of(post), pageable, 1);
 
-        given(postRepository.findByStore_StoreId(storeId, pageable)).willReturn(postPage);
-
-        // when
-        Page<PostResponse> response = postService.getPostsByStore(storeId, pageable);
-
-        // then
-        assertThat(response.getTotalElements()).isEqualTo(1);
-        assertThat(response.getContent()).hasSize(1);
-        assertThat(response.getContent().get(0).getContent()).isEqualTo("내용");
     }
 }

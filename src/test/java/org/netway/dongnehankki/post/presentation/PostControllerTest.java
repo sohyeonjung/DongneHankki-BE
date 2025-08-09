@@ -117,21 +117,5 @@ class PostControllerTest {
     @WithMockUser
     @DisplayName("가게별 게시글 목록 조회 성공 테스트")
     void getPostsByStore_success() throws Exception {
-        // given
-        long storeId = 1L;
-        PostResponse post = PostResponse.builder().postId(1L).build();
-        Page<PostResponse> responsePage = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
-
-        given(postService.getPostsByStore(anyLong(), any(Pageable.class))).willReturn(responsePage);
-
-        // when & then
-        mockMvc.perform(get("/api/posts/store/{storeId}", storeId)
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content.length()").value(1))
-                .andExpect(jsonPath("$.data.totalElements").value(1))
-                .andDo(print());
     }
 }

@@ -1,12 +1,12 @@
 package org.netway.dongnehankki.post.application;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
-import org.netway.dongnehankki.post.domain.Image;
 import org.netway.dongnehankki.post.domain.Post;
-import org.netway.dongnehankki.post.domain.PostHashtag;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
+import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.exception.PostNotFoundException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
@@ -19,7 +19,7 @@ import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,8 +69,24 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResponse> getPostsByStore(Long storeId, Pageable pageable) {
-        return postRepository.findByStore_StoreId(storeId, pageable)
-                .map(PostResponse::fromEntity);
+    public CursorResult<PostResponse> getPostsByStore(Long storeId, Long cursorPostId, int pageSize) {
+        final Pageable pageable = PageRequest.of(0, pageSize + 1);
+        final List<Post> posts = (cursorPostId == null) ?
+            postRepository.findByStore_StoreIdOrderByPostIdDesc(storeId, pageable) :
+            postRepository.findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(storeId, cursorPostId, pageable);
+
+        Long nextCursor = null;
+        List<Post> responsePosts = posts;
+
+        if (posts.size() > pageSize) {
+            nextCursor = posts.get(pageSize).getPostId();
+            responsePosts = posts.subList(0, pageSize);
+        }
+
+        List<PostResponse> response = responsePosts.stream()
+            .map(PostResponse::fromEntity)
+            .toList();
+
+        return new CursorResult<>(response, nextCursor);
     }
 }
