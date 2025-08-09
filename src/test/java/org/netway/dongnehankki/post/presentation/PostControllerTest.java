@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.post.application.PostService;
+import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.netway.dongnehankki.user.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +118,32 @@ class PostControllerTest {
     @WithMockUser
     @DisplayName("가게별 게시글 목록 조회 성공 테스트")
     void getPostsByStore_success() throws Exception {
+        // given
+        Long storeId = 1L;
+        int size = 5;
+        Long nextCursor = 5L; // 다음 페이지를 조회하기 위한 커서 ID
+
+        List<PostResponse> postResponses = List.of(
+                PostResponse.builder().postId(10L).content("게시글 10").build(),
+                PostResponse.builder().postId(9L).content("게시글 9").build(),
+                PostResponse.builder().postId(8L).content("게시글 8").build(),
+                PostResponse.builder().postId(7L).content("게시글 7").build(),
+                PostResponse.builder().postId(6L).content("게시글 6").build()
+        );
+        CursorResult<PostResponse> mockResult = new CursorResult<>(postResponses, nextCursor);
+
+        given(postService.getPostsByStore(eq(storeId), any(), eq(size))).willReturn(mockResult);
+
+        // when & then
+        mockMvc.perform(get("/api/posts/store/{storeId}", storeId)
+                        .param("size", String.valueOf(size)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.values").isArray())
+                .andExpect(jsonPath("$.data.values.length()").value(size))
+                .andExpect(jsonPath("$.data.values[0].postId").value(10L))
+                .andExpect(jsonPath("$.data.nextCursor").value(nextCursor))
+                .andDo(print());
+
+        verify(postService).getPostsByStore(eq(storeId), any(), eq(size));
     }
 }
