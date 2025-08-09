@@ -14,6 +14,7 @@ import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.domain.PostHashtag;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
+import org.netway.dongnehankki.post.exception.PostNotFoundException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -115,8 +116,8 @@ class PostServiceTest {
 
         // when & then
         assertThatThrownBy(() -> postService.getPost(postId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Post not found");
+                .isInstanceOf(PostNotFoundException.class)
+                .hasMessage("존재하지 않는 게시글 입니다.");
     }
 
     @Test
