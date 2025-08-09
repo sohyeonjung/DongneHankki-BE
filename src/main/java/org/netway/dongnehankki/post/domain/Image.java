@@ -31,7 +31,7 @@ public class Image {
     @Column(nullable = false)
     private int displayOrder;
 
-    public Image(String url, Post post, int displayOrder) {
+    Image(String url, Post post, int displayOrder) {
         this.url = url;
         this.post = post;
         this.displayOrder = displayOrder;

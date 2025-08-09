@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.post.domain;
 
+import jakarta.persistence.CascadeType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,13 +40,13 @@ public class Post extends BaseEntity {
 	@JoinColumn(name="user_id")
 	private User user;
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images= new ArrayList<>();
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PostHashtag> postHashtags = new ArrayList<>();
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comment> comments = new ArrayList<>();
 
 
@@ -57,5 +58,15 @@ public class Post extends BaseEntity {
 		this.content = content;
 		this.store = store;
 		this.user = user;
+	}
+
+	public void addImage(String url, int displayOrder) {
+		Image image = new Image(url, this, displayOrder);
+		this.images.add(image);
+	}
+
+	public void addPostHashtag(Hashtag hashtag) {
+		PostHashtag postHashtag = new PostHashtag(this, hashtag);
+		this.postHashtags.add(postHashtag);
 	}
 }

@@ -80,11 +80,14 @@ class PostServiceTest {
         postService.createPost(request, userId);
 
         // then
-        verify(postRepository).save(any(Post.class));
-        ArgumentCaptor<Image> imageArgumentCaptor = ArgumentCaptor.forClass(Image.class);
-        verify(imageRepository).save(imageArgumentCaptor.capture());
-        assertThat(imageArgumentCaptor.getValue().getDisplayOrder()).isEqualTo(0);
-        verify(postHashtagRepository).save(any(PostHashtag.class));
+        ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(postRepository, times(1)).save(postArgumentCaptor.capture());
+        Post savedPost = postArgumentCaptor.getValue();
+
+        assertThat(savedPost.getImages()).hasSize(1);
+        assertThat(savedPost.getImages().get(0).getUrl()).isEqualTo("s3-image-url");
+        assertThat(savedPost.getPostHashtags()).hasSize(1);
+        assertThat(savedPost.getPostHashtags().get(0).getHashtag().getName()).isEqualTo("#맛집");
     }
 
     @Test

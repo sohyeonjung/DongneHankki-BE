@@ -39,25 +39,26 @@ public class PostService {
     @Transactional
     public void createPost(PostCreateRequest request, Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UnregisteredUserException());
+            .orElseThrow(UnregisteredUserException::new);
         Store store = storeRepository.findById(request.getStoreId())
-            .orElseThrow(() -> new UnregisteredStoreException());
+            .orElseThrow(UnregisteredStoreException::new);
 
         Post post = Post.createPost(request.getContent(), store, user);
-        postRepository.save(post);
 
         if (request.getImages() != null) {
             for (int i = 0; i < request.getImages().length; i++) {
                 String imageUrl = s3Service.uploadFile(request.getImages()[i], "post-images");
-                imageRepository.save(new Image(imageUrl, post, i));
+                post.addImage(imageUrl, i);
             }
         }
 
         request.getHashtags().forEach(tagName -> {
             Hashtag hashtag = hashtagRepository.findByName(tagName)
                 .orElseGet(() -> hashtagRepository.save(Hashtag.createHashtag(tagName)));
-            postHashtagRepository.save(new PostHashtag(post, hashtag));
+            post.addPostHashtag(hashtag);
         });
+
+        postRepository.save(post);
     }
 
     @Transactional(readOnly = true)

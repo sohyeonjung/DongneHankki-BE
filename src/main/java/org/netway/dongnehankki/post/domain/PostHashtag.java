@@ -29,7 +29,7 @@ public class PostHashtag {
 	@JoinColumn(name = "post_id", nullable = false)
 	private Post post;
 
-	public PostHashtag(Post post, Hashtag hashtag) {
+	PostHashtag(Post post, Hashtag hashtag) {
 		this.post = post;
 		this.hashtag = hashtag;
 	}
