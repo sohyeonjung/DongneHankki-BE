@@ -40,6 +40,8 @@ public class Store extends BaseEntity {
 
 	private Long businessRegistrationNumber;
 
+	private Integer scope;
+
 	private LocalDateTime openAt;
 
 	private LocalDateTime closeAt;
