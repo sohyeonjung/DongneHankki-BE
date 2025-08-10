@@ -68,4 +68,13 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
+	@DeleteMapping("/{storeId}/reviews/{reviewId}")
+	public ResponseEntity<ApiResponse<Void>> deleteStoreReview(
+		@PathVariable Long storeId,
+		@PathVariable Long reviewId
+	){
+		storeService.deleteStoreReview(storeId, reviewId);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
 }
