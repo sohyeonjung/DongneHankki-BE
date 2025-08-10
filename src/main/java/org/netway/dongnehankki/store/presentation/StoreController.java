@@ -3,8 +3,9 @@ package org.netway.dongnehankki.store.presentation;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.store.application.StoreService;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
-import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,9 +47,9 @@ public class StoreController {
 	@PostMapping("/{storeId}/reviews")
 	public ResponseEntity<ApiResponse<Void>> writeStoreReview(
 		@PathVariable Long storeId,
-		@RequestBody @Valid StoreReviewRequest storeReviewRequest
+		@RequestBody @Valid CreateStoreReviewRequest createStoreReviewRequest
 	){
-		storeService.writeStoreReview(storeId, storeReviewRequest);
+		storeService.writeStoreReview(storeId, createStoreReviewRequest);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
@@ -85,6 +86,16 @@ public class StoreController {
 		@RequestBody @Valid UpdateStoreOperatingHoursRequest updateStoreOperatingHoursRequest
 	){
 		storeService.updateStoreOperatingHours(storeId, updateStoreOperatingHoursRequest);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@PatchMapping("/{storeId}/reviews/{reviewId}")
+	public ResponseEntity<ApiResponse<Void>> updateStoreReview(
+		@PathVariable Long storeId,
+		@PathVariable Long reviewId,
+		@RequestBody @Valid UpdateStoreReviewRequest updateStoreReviewRequest
+	){
+		storeService.updateStoreReview(storeId, reviewId, updateStoreReviewRequest);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
