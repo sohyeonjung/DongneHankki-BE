@@ -13,11 +13,12 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreService;
-import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
-import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
+import org.netway.dongnehankki.store.exception.ReviewStoreMismatchException;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -131,7 +132,7 @@ public class StoreControllerTest {
 	@DisplayName("유효하지 않은 리뷰 요청시 400 Bad Request를 반환해야 한다")
 	void writeStoreReview_InvalidRequest_BadRequest() throws Exception {
 		// given
-		StoreReviewRequest invalidReviewRequest = StoreReviewRequest.builder().userLoginId("id2")
+		CreateStoreReviewRequest invalidReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id2")
 				.content("Bad content").scope(6).build();
 
 		// then
@@ -141,7 +142,7 @@ public class StoreControllerTest {
 				.content(objectMapper.writeValueAsString(invalidReviewRequest)))
 			.andExpect(status().isBadRequest());
 
-		verify(storeService, never()).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+		verify(storeService, never()).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));
 	}
 
 
@@ -149,10 +150,10 @@ public class StoreControllerTest {
 	@Test
 	void writeStoreReview_Success() throws Exception {
 		//given
-		StoreReviewRequest validReviewRequest = StoreReviewRequest.builder().userLoginId("id1").content("review").scope(4).build();
+		CreateStoreReviewRequest validReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id1").content("review").scope(4).build();
 
 		//when
-		doNothing().when(storeService).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+		doNothing().when(storeService).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));
 
 		//then
 		mockMvc.perform(post("/api/stores/{storeId}/reviews", 1L)
@@ -175,7 +176,7 @@ public class StoreControllerTest {
 				.content(objectMapper.writeValueAsString(invalidMenuRequest)))
 			.andExpect(status().isBadRequest());
 
-		verify(storeService, never()).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+		verify(storeService, never()).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));
 	}
 
 	@DisplayName("POST /stores/{storeId}/menus - 유효한 요청 시 200 반환")
@@ -185,7 +186,7 @@ public class StoreControllerTest {
 		StoreMenuRequest validMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").image("link").price(10000).build();
 
 		//when
-		doNothing().when(storeService).writeStoreReview(anyLong(), any(StoreReviewRequest.class));
+		doNothing().when(storeService).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));
 
 		//then
 		mockMvc.perform(post("/api/stores/{storeId}/menus", 1L)
@@ -378,5 +379,80 @@ public class StoreControllerTest {
 			.andExpect(jsonPath("$.message").value("OK"));
 
 		verify(storeService, times(1)).updateStoreOperatingHours(eq(storeId), any(UpdateStoreOperatingHoursRequest.class));
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/reviews/{reviewId} - 유효하지 않은 요청 시 400 Bad Request 반환")
+	void updateStoreReview_BadRequest() throws Exception {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+		UpdateStoreReviewRequest invalidRequest = UpdateStoreReviewRequest.builder().content("invalide").build();
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/reviews/{reviewId}", storeId, reviewId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidRequest)))
+			.andExpect(status().isBadRequest());
+
+		verify(storeService, never()).updateStoreOperatingHours(anyLong(), any(UpdateStoreOperatingHoursRequest.class));
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/reviews/{reviewId} - 상점 ID가 없을 경우 404 Not Found 반환")
+	void updateStoreReview_StoreNotFound() throws Exception {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+		UpdateStoreReviewRequest validRequest = UpdateStoreReviewRequest.builder().content("invalide").scope(4).build();
+
+		//when
+		doThrow(new UnregisteredStoreException()).when(storeService).updateStoreReview(eq(storeId), eq(reviewId), any(UpdateStoreReviewRequest.class));
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/reviews/{reviewId}", storeId, reviewId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/reviews/{reviewId} - 상점일 일치 하지 않을 경우 400 Bad Request 반환")
+	void updateStoreReview_StoreMisMatch() throws Exception {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+		UpdateStoreReviewRequest validRequest = UpdateStoreReviewRequest.builder().content("invalide").scope(4).build();
+
+		//when
+		doThrow(new ReviewStoreMismatchException()).when(storeService).updateStoreReview(eq(storeId), eq(reviewId), any(UpdateStoreReviewRequest.class));
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/reviews/{reviewId}", storeId, reviewId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/reviews/{reviewId} - 유효한 요청 시 200 OK 반환 ")
+	void updateStoreReview_Success() throws Exception {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+		UpdateStoreReviewRequest validRequest = UpdateStoreReviewRequest.builder().content("invalide").scope(4).build();
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/reviews/{reviewId}", storeId, reviewId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.code").value("200"))
+			.andExpect(jsonPath("$.message").value("OK"));
 	}
 }
