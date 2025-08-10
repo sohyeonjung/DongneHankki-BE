@@ -22,7 +22,7 @@ public class StoreResponse {
 	private String address;
 	private Integer industryCode;
 	private Long businessRegistrationNumber;
-	private Integer scope;
+	private Double avgStar;
 	private List<OperatingHourResponse> operatingHours;
 
 	private UserResponse owner;
@@ -49,7 +49,7 @@ public class StoreResponse {
 			.address(store.getAddress())
 			.industryCode(store.getIndustryCode())
 			.businessRegistrationNumber(store.getBusinessRegistrationNumber())
-			.scope(store.getScope())
+			.avgStar(store.getAverageStar())
 			.operatingHours(operatingHours)
 			.owner(user)
 			.menus(menus)
