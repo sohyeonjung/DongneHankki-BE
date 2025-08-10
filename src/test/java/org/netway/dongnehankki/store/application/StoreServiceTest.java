@@ -4,19 +4,25 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.domain.Menu;
+import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
@@ -325,5 +331,57 @@ public class StoreServiceTest {
 		assertFalse(testStore.getReviews().contains(testReview));
 	}
 
+	@Test
+	@DisplayName("updateStoreOperationgHours - 유효하지 않은 store, UnregisterException 반환")
+	void updateStoreOperatingHours_nullStoreReturns() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.updateStoreOperatingHours(storeId, null));
+	}
+
+	@Test
+	@DisplayName("updateStoreOperationgHours - 유효한 입력 값에서 정상 작동")
+	void updateStoreOperatingHours_success() {
+		// Given
+		Long storeId = 1L;
+		Store testStore = mock(Store.class);
+		List<UpdateStoreOperatingHoursRequest.OperatingHourRequest> operatingHourRequests = List.of(
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.MONDAY).openTime(
+				LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.TUESDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.WEDNESDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.THURSDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.FRIDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.SATURDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.SUNDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build()
+		);
+		UpdateStoreOperatingHoursRequest updateStoreOperatingHoursRequest = UpdateStoreOperatingHoursRequest.builder().operatingHours(operatingHourRequests).build();
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
+		storeService.updateStoreOperatingHours(storeId, updateStoreOperatingHoursRequest);
+
+		// Then
+		verify(storeRepository, times(1)).findById(storeId);
+		verify(testStore, times(1)).updateOperatingHours(any(List.class));
+
+		ArgumentCaptor<List<OperatingHour>> captor = ArgumentCaptor.forClass(List.class);
+		verify(testStore, times(1)).updateOperatingHours(captor.capture());
+
+		List<OperatingHour> capturedHours = captor.getValue();
+		assertThat(capturedHours.size()).isEqualTo(7);
+
+		OperatingHour mondayHour = capturedHours.get(0);
+		assertThat(mondayHour.getDayOfWeek()).isEqualTo(DayOfWeek.MONDAY);
+		assertThat(mondayHour.getOpenTime()).isEqualTo(LocalTime.of(9, 0));
+		assertThat(mondayHour.getCloseTime()).isEqualTo(LocalTime.of(18, 0));
+
+		verify(storeRepository, times(1)).save(testStore);
+	}
 
 }
