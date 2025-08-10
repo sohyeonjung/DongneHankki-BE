@@ -64,10 +64,6 @@ public class Store extends BaseEntity {
 	@OneToMany(mappedBy = "store")
 	private List<Follow> follows = new ArrayList<>();
 
-	public void setOperatingHours(List<OperatingHour> operatingHours) {
-		this.operatingHours = operatingHours;
-	}
-
 	private Store(String name, Double latitude, Double longitude, String address, String sigun,
 		Integer industryCode, Long businessRegistrationNumber) {
 		this.name = name;
@@ -91,5 +87,10 @@ public class Store extends BaseEntity {
 		this.address = refineRoadnmAddr;
 		this.sigun = sigunNm;
 		this.industryCode = indutypeCd;
+	}
+
+	public void updateOperatingHours(List<OperatingHour> operatingHours) {
+		this.operatingHours.clear();
+		this.operatingHours = operatingHours;
 	}
 }
