@@ -1,6 +1,5 @@
 package org.netway.dongnehankki.store.domain;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +8,14 @@ import org.netway.dongnehankki.follow.domain.Follow;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.user.domain.User;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -40,11 +43,11 @@ public class Store extends BaseEntity {
 
 	private Long businessRegistrationNumber;
 
+	@ElementCollection
+	@CollectionTable(name = "store_operating_hours", joinColumns = @JoinColumn(name = "store_id"))
+	private List<OperatingHour> operatingHours = new ArrayList<>();
+
 	private Integer scope;
-
-	private LocalDateTime openAt;
-
-	private LocalDateTime closeAt;
 
 	@OneToOne(mappedBy = "store")
 	private User user;
@@ -60,6 +63,10 @@ public class Store extends BaseEntity {
 
 	@OneToMany(mappedBy = "store")
 	private List<Follow> follows = new ArrayList<>();
+
+	public void setOperatingHours(List<OperatingHour> operatingHours) {
+		this.operatingHours = operatingHours;
+	}
 
 	private Store(String name, Double latitude, Double longitude, String address, String sigun,
 		Integer industryCode, Long businessRegistrationNumber) {
