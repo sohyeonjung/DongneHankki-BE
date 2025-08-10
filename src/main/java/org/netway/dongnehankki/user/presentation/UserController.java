@@ -3,6 +3,7 @@ package org.netway.dongnehankki.user.presentation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.common.ApiResponse;
+import org.netway.dongnehankki.user.application.CoolSmsService;
 import org.netway.dongnehankki.user.application.UserService;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
 import org.netway.dongnehankki.user.dto.request.LoginResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final CoolSmsService coolSmsService;
 
     @PostMapping("/customers")
     public ResponseEntity<ApiResponse<Void>> signUpCustomer(@RequestBody CustomerSignUpRequest customerSignUpRequest) {
@@ -85,6 +87,21 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId){
         userService.deleteUser(userId);
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+
+    @PostMapping("/sendAuthCode")
+    public ResponseEntity<ApiResponse<Void>> sendAuthCode(@RequestParam String receiverNumber) {
+        coolSmsService.sendSms(receiverNumber);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @GetMapping("/checkAuthCode")
+    public ResponseEntity<ApiResponse<String>> checkAuthCode(@RequestParam String receiverNumber,
+        @RequestParam String authCode) {
+        coolSmsService.verifyAuthCode(receiverNumber, authCode);
+        return ResponseEntity.ok(ApiResponse.success("인증에 성공하였습니다."));
+
     }
 
 }

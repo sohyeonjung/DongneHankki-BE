@@ -14,14 +14,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreSyncService;
+import org.netway.dongnehankki.user.application.CoolSmsService;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
 import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.EmptyNickNameException;
+import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
@@ -57,7 +60,8 @@ public class UserControllerTest {
     @MockitoBean
     private StoreSyncService storeSyncService;
 
-
+    @MockitoBean
+    private CoolSmsService coolSmsService;
     @Test
     public void 일반회원_회원가입() throws Exception{
         //given
@@ -499,9 +503,63 @@ public class UserControllerTest {
             .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    public void 인증번호_전송_성공() throws Exception {
+        // given
+        String receiverNumber = "01012345678";
 
+        // when
+        when(coolSmsService.sendSms(any(String.class))).thenReturn(mock(SingleMessageSentResponse.class));
 
+        // then
+        mockMvc.perform(post("/api/sendAuthCode")
+                .param("receiverNumber", receiverNumber)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"));
+    }
 
+    @Test
+    public void 인증번호_확인_성공() throws Exception {
+        // given
+        String receiverNumber = "01012345678";
+        String authCode = "123456";
+
+        // when
+        when(coolSmsService.verifyAuthCode(any(String.class), any(String.class))).thenReturn(true);
+
+        // then
+        mockMvc.perform(get("/api/checkAuthCode")
+                .param("receiverNumber", receiverNumber)
+                .param("authCode", authCode)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("success"))
+            .andExpect(jsonPath("$.data").value("인증에 성공하였습니다."));
+    }
+
+    @Test
+    public void 인증번호_확인_실패() throws Exception {
+        // given
+        String receiverNumber = "01012345678";
+        String authCode = "999999";
+
+        // when
+        when(coolSmsService.verifyAuthCode(any(String.class), any(String.class))).thenThrow(new InvalidAuthCodeException());
+
+        // then
+        mockMvc.perform(get("/api/checkAuthCode")
+                .param("receiverNumber", receiverNumber)
+                .param("authCode", authCode)
+                .with(csrf())
+            ).andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.status").value("error"))
+            .andExpect(jsonPath("$.code").value("401"))
+            .andExpect(jsonPath("$.message").value("유효하지 않은 인증 번호입니다."));
+    }
 
 
 
