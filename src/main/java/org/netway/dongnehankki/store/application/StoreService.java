@@ -8,9 +8,11 @@ import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.domain.Menu;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
-import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
+import org.netway.dongnehankki.store.exception.ReviewStoreMismatchException;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -47,11 +49,11 @@ public class StoreService {
 	}
 
 	@Transactional
-	public void writeStoreReview(Long storeId, StoreReviewRequest storeReviewRequest) {
+	public void writeStoreReview(Long storeId, CreateStoreReviewRequest createStoreReviewRequest) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
-		User user = userRepository.findByLoginId(storeReviewRequest.getUserLoginId()).orElseThrow(() -> new UnregisteredUserException());
+		User user = userRepository.findByLoginId(createStoreReviewRequest.getUserLoginId()).orElseThrow(() -> new UnregisteredUserException());
 		Review review = Review.createReview(
-			storeReviewRequest.getContent(), storeReviewRequest.getScope(), user, store
+			createStoreReviewRequest.getContent(), createStoreReviewRequest.getScope(), user, store
 		);
 
 		store.getReviews().add(review);
@@ -94,6 +96,17 @@ public class StoreService {
 		store.getReviews().remove(reviewToDelete);
 		reviewRepository.delete(reviewToDelete);
 		storeRepository.save(store);
+	}
+
+	@Transactional
+	public void updateStoreReview(Long storeId, Long reviewId, UpdateStoreReviewRequest updateStoreReviewRequest) {
+		storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+		Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new UnregisteredReviewException());
+		if(!review.getStore().getStoreId().equals(storeId)) throw new ReviewStoreMismatchException();
+
+		review.updateReview(updateStoreReviewRequest.getContent(), updateStoreReviewRequest.getScope());
+
+		reviewRepository.save(review);
 	}
 
 	@Transactional
