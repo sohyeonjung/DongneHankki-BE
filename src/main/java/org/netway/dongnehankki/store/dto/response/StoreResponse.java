@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.store.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.netway.dongnehankki.store.domain.Store;
@@ -20,8 +21,11 @@ public class StoreResponse {
 	private String address;
 	private Integer industryCode;
 	private Long businessRegistrationNumber;
-	private UserResponse owner;
+	private Integer scope;
+	private LocalDateTime openAt;
+	private LocalDateTime closeAt;
 
+	private UserResponse owner;
 	private List<MenuResponse> menus;
 	private List<ReviewResponse> reviews;
 
@@ -39,11 +43,13 @@ public class StoreResponse {
 			.name(store.getName())
 			.latitude(store.getLatitude())
 			.longitude(store.getLongitude())
-			.likeCount(store.getLikeCount())
 			.sigun(store.getSigun())
 			.address(store.getAddress())
 			.industryCode(store.getIndustryCode())
 			.businessRegistrationNumber(store.getBusinessRegistrationNumber())
+			.scope(store.getScope())
+			.openAt(store.getOpenAt())
+			.closeAt(store.getCloseAt())
 			.owner(user)
 			.menus(menus)
 			.reviews(reviews)

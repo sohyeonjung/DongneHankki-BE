@@ -1,5 +1,7 @@
 package org.netway.dongnehankki.map.dto.response;
 
+import java.time.LocalDateTime;
+
 import org.netway.dongnehankki.store.domain.Store;
 
 import lombok.Builder;
@@ -16,6 +18,9 @@ public class MapResponse {
 	private String sigun;
 	private String address;
 	private Integer industryCode;
+	private Integer scope;
+	private LocalDateTime openAt;
+	private LocalDateTime closeAt;
 
 	public static MapResponse fromEntity(Store store) {
 		return MapResponse.builder()
@@ -23,10 +28,12 @@ public class MapResponse {
 			.name(store.getName())
 			.latitude(store.getLatitude())
 			.longitude(store.getLongitude())
-			.likeCount(store.getLikeCount())
 			.sigun(store.getSigun())
 			.address(store.getAddress())
 			.industryCode(store.getIndustryCode())
+			.scope(store.getScope())
+			.openAt(store.getOpenAt())
+			.closeAt(store.getCloseAt())
 			.build();
 	}
 }
