@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class StoreReviewRequest {
+public class CreateStoreReviewRequest {
 	@NotEmpty
 	String userLoginId;
 	@NotNull

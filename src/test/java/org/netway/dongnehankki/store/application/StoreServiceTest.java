@@ -21,9 +21,11 @@ import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
-import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
+import org.netway.dongnehankki.store.exception.ReviewStoreMismatchException;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -33,6 +35,7 @@ import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class StoreServiceTest {
@@ -134,13 +137,13 @@ public class StoreServiceTest {
 		String userLoginId = "id1";
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
-		StoreReviewRequest storeReviewRequest = StoreReviewRequest.builder().userLoginId("id1").build();
+		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id1").build();
 		// When
 		when(storeRepository.findById(any())).thenReturn(Optional.of(testStore));
 		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.empty());
 
 		// Then
-		assertThrows(UnregisteredUserException.class, () -> storeService.writeStoreReview(1L, storeReviewRequest));
+		assertThrows(UnregisteredUserException.class, () -> storeService.writeStoreReview(1L, createStoreReviewRequest));
 	}
 
 	@Test
@@ -152,13 +155,13 @@ public class StoreServiceTest {
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
 		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
-		StoreReviewRequest storeReviewRequest = StoreReviewRequest.builder().userLoginId("id1").content("review test").scope(4).build();
+		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id1").content("review test").scope(4).build();
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
 		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.of(testUser));
 
-		storeService.writeStoreReview(storeId, storeReviewRequest);
+		storeService.writeStoreReview(storeId, createStoreReviewRequest);
 
 		// Then
 		verify(storeRepository, times(1)).findById(storeId);
@@ -384,4 +387,77 @@ public class StoreServiceTest {
 		verify(storeRepository, times(1)).save(testStore);
 	}
 
+	@Test
+	@DisplayName("updateStoreReview - 유효하지 않은 store, UnregisterException 반환")
+	void updateStoreReview_nullStoreReturns() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.updateStoreReview(storeId, null, null));
+	}
+
+	@Test
+	@DisplayName("updateStoreReview - 유효하지 않은 review, UnregisterException 반환")
+	void updateStoreReview_nullReviewReturns() {
+		// Given
+		Long storeId = 1L;
+		Store testStore = mock(Store.class);
+		Long reviewId = 2L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.ofNullable(testStore));
+		when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredReviewException.class, () -> storeService.updateStoreReview(storeId, reviewId, null));
+	}
+
+	@Test
+	@DisplayName("updateStoreReview - 유효하지 않은 store, review 시 MisMatchException 반환")
+	void updateStoreReview_mismatchStoreReturns() {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+		Store testStore = mock(Store.class);
+		Store invalidStore = mock(Store.class);
+		Review testReview = mock(Review.class);
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.ofNullable(testStore));
+		when(reviewRepository.findById(reviewId)).thenReturn(Optional.ofNullable(testReview));
+		when(testReview.getStore()).thenReturn(invalidStore);
+
+		// Then
+		assertThrows(ReviewStoreMismatchException.class, () -> storeService.updateStoreReview(storeId, reviewId, null));
+	}
+
+	@Test
+	@DisplayName("updateStoreReview - 유효한 입력 값에서 정상 작동")
+	void updateStoreReview_success() {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		Review testReview = Review.createReview("review1", 5, null, testStore);
+		testStore.getReviews().add(testReview);
+		UpdateStoreReviewRequest updateStoreReviewRequest = UpdateStoreReviewRequest.builder().content("review2").scope(4).build();
+
+		ReflectionTestUtils.setField(testStore, "storeId", storeId);
+		ReflectionTestUtils.setField(testReview, "reviewId", reviewId);
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.ofNullable(testStore));
+		when(reviewRepository.findById(reviewId)).thenReturn(Optional.ofNullable(testReview));
+		storeService.updateStoreReview(storeId, reviewId, updateStoreReviewRequest);
+
+		// Then
+		verify(reviewRepository, times(1)).save(testReview);
+		assertThat(testStore.getReviews().get(0).getContent()).isEqualTo("review2");
+		assertThat(testStore.getReviews().get(0).getScope()).isEqualTo(4);
+	}
 }
