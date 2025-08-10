@@ -14,6 +14,7 @@ public class CreateStoreReviewRequest {
 	String userLoginId;
 	@NotNull
 	String content;
+	@NotNull
 	@Min(1)
 	@Max(5)
 	Integer scope;
