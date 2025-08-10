@@ -9,6 +9,7 @@ import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.domain.Menu;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.StoreStarRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
@@ -72,6 +73,13 @@ public class StoreService {
 		store.getMenus().add(menu);
 		storeRepository.save(store);
 		menuRepository.save(menu);
+	}
+
+	@Transactional
+	public void addStoreStar(Long storeId, StoreStarRequest storeStarRequest) {
+		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+		store.getStars().put(storeStarRequest.getUserId(), storeStarRequest.getStar());
+		storeRepository.save(store);
 	}
 
 	@Transactional
