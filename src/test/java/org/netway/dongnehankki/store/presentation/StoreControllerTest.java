@@ -14,6 +14,7 @@ import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
+import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -239,7 +240,53 @@ public class StoreControllerTest {
 		verify(storeService, times(1)).deleteStoreMenu(eq(storeId), eq(menuId));
 	}
 
+	@Test
+	@DisplayName("DELETE /stores/{storeId}/reviews/{reviewId}- 상점 ID가 없을 경우 404 Not Found 반환")
+	void deleteStoreReview_StoreNotFound() throws Exception {
+		// Given
+		Long reviewId = 1L;
+		doThrow(new UnregisteredStoreException()).when(storeService).deleteStoreReview(anyLong(), anyLong());
 
+		// Then
+		mockMvc.perform(delete("/api/stores/{storeId}/reviews/{reviewId}", 99L, reviewId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound());
 
+		verify(storeService, times(1)).deleteStoreReview(eq(99L), eq(reviewId));
+	}
 
+	@Test
+	@DisplayName("DELETE /stores/{storeId}/reviews/{reviewId} - 리뷰 ID가 없을 경우 404 Not Found 반환")
+	void deleteStoreReview_ReviewNotFound() throws Exception {
+		// Given
+		Long storeId = 1L;
+		doThrow(new UnregisteredReviewException()).when(storeService).deleteStoreReview(anyLong(), anyLong());
+
+		// Then
+		mockMvc.perform(delete("/api/stores/{storeId}/reviews/{reviewId}", storeId, 999L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound());
+
+		verify(storeService, times(1)).deleteStoreReview(eq(storeId), eq(999L));
+	}
+
+	@DisplayName("DELETE /stores/{storeId}/reviews/{reviewId} - 유효한 요청 시 200 반환")
+	@Test
+	void deleteStoreReview_Success() throws Exception {
+		//given
+		Long storeId = 1L;
+		Long reviewId = 2L;
+
+		//when
+		doNothing().when(storeService).deleteStoreReview(storeId, reviewId);
+
+		//then
+		mockMvc.perform(delete("/api/stores/{storeId}/reviews/{reviewId}", storeId, reviewId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk());
+		verify(storeService, times(1)).deleteStoreReview(eq(storeId), eq(reviewId));
+	}
 }
