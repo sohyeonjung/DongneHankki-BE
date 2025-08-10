@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreService;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.StoreStarRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
@@ -145,7 +146,6 @@ public class StoreControllerTest {
 		verify(storeService, never()).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));
 	}
 
-
 	@DisplayName("POST /stores/{storeId}/reviews - 유효한 요청 시 200 반환")
 	@Test
 	void writeStoreReview_Success() throws Exception {
@@ -193,6 +193,52 @@ public class StoreControllerTest {
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(validMenuRequest)))
+			.andExpect(status().isOk());
+	}
+
+	@DisplayName("POST /stores/{storeId}/stars - 유효하지 않은 요청시 Bad Request 400")
+	@Test
+	void addStoreStar_BadRequest() throws Exception {
+		//given
+		StoreStarRequest invalidRequest = StoreStarRequest.builder().userId(1L).star(7).build();
+
+		//then
+		mockMvc.perform(post("/api/stores/{storeId}/stars", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidRequest)))
+			.andExpect(status().isBadRequest());
+		verify(storeService, never()).addStoreStar(anyLong(), any(StoreStarRequest.class));
+	}
+
+	@DisplayName("POST /stores/{storeId}/stars - 상점 ID가 없을 경우 404 Not Found")
+	@Test
+	void addStoreStar_StoreNotFound() throws Exception {
+		//given
+		StoreStarRequest validRequest = StoreStarRequest.builder().userId(1L).star(4).build();
+
+		//when
+		doThrow(new UnregisteredStoreException()).when(storeService).addStoreStar(anyLong(), any(StoreStarRequest.class));
+
+		//then
+		mockMvc.perform(post("/api/stores/{storeId}/stars", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+			.andExpect(status().isNotFound());
+	}
+
+	@DisplayName("POST /stores/{storeId}/stars - 유효한 요청 시 200 반환")
+	@Test
+	void addStoreStar_Success() throws Exception {
+		//given
+		StoreStarRequest validRequest = StoreStarRequest.builder().userId(1L).star(4).build();
+
+		//then
+		mockMvc.perform(post("/api/stores/{storeId}/stars", 1L)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
 			.andExpect(status().isOk());
 	}
 
@@ -419,7 +465,7 @@ public class StoreControllerTest {
 	}
 
 	@Test
-	@DisplayName("PATCH /stores/{storeId}/reviews/{reviewId} - 상점일 일치 하지 않을 경우 400 Bad Request 반환")
+	@DisplayName("PATCH /stores/{storeId}/reviews/{reviewId} - 상점이 일치 하지 않을 경우 400 Bad Request 반환")
 	void updateStoreReview_StoreMisMatch() throws Exception {
 		// Given
 		Long storeId = 1L;
