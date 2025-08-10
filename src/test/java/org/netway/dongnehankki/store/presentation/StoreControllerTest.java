@@ -6,12 +6,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreService;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
@@ -288,5 +293,90 @@ public class StoreControllerTest {
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 		verify(storeService, times(1)).deleteStoreReview(eq(storeId), eq(reviewId));
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/operatingHours - 유효하지 않은 요청 시 400 Bad Request 반환 (리스트 길이가 7이 아닌 경우)")
+	void updateOperatingHours_BadRequest() throws Exception {
+		// Given
+		Long storeId = 1L;
+		UpdateStoreOperatingHoursRequest invalidRequest = UpdateStoreOperatingHoursRequest.builder()
+			.operatingHours(List.of(
+				UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.MONDAY).openTime(
+					LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build()
+			))
+			.build();
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/operatingHours", storeId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalidRequest)))
+			.andExpect(status().isBadRequest());
+
+		verify(storeService, never()).updateStoreOperatingHours(anyLong(), any(UpdateStoreOperatingHoursRequest.class));
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/operatingHours - 상점 ID가 없을 경우 404 Not Found 반환")
+	void updateOperatingHours_StoreNotFound()  throws Exception {
+		// Given
+		Long storeId = 999L;
+		List<UpdateStoreOperatingHoursRequest.OperatingHourRequest> operatingHourRequests = List.of(
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.MONDAY).openTime(
+				LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.TUESDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.WEDNESDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.THURSDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.FRIDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.SATURDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.SUNDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build()
+		);
+		UpdateStoreOperatingHoursRequest validRequest = UpdateStoreOperatingHoursRequest.builder().operatingHours(operatingHourRequests).build();
+
+		// When
+		doThrow(new UnregisteredStoreException()).when(storeService).updateStoreOperatingHours(eq(storeId), any(UpdateStoreOperatingHoursRequest.class));
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/operatingHours", storeId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+			.andExpect(status().isNotFound());
+
+		verify(storeService, times(1)).updateStoreOperatingHours(eq(storeId), any(UpdateStoreOperatingHoursRequest.class));
+	}
+
+	@Test
+	@DisplayName("PATCH /stores/{storeId}/operatingHours - 유효한 요청 시 200 OK 반환")
+	void updateOperatingHours_Success() throws Exception {
+		// Given
+		Long storeId = 1L;
+		List<UpdateStoreOperatingHoursRequest.OperatingHourRequest> operatingHourRequests = List.of(
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.MONDAY).openTime(
+				LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.TUESDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.WEDNESDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.THURSDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.FRIDAY).openTime(LocalTime.of(9, 0)).closeTime(LocalTime.of(18, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.SATURDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build(),
+			UpdateStoreOperatingHoursRequest.OperatingHourRequest.builder().dayOfWeek(DayOfWeek.SUNDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build()
+		);
+		UpdateStoreOperatingHoursRequest validRequest = UpdateStoreOperatingHoursRequest.builder().operatingHours(operatingHourRequests).build();
+
+		// When
+		doNothing().when(storeService).updateStoreOperatingHours(eq(storeId), any(UpdateStoreOperatingHoursRequest.class));
+
+		// Then
+		mockMvc.perform(patch("/api/stores/{storeId}/operatingHours", storeId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(validRequest)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.code").value("200"))
+			.andExpect(jsonPath("$.message").value("OK"));
+
+		verify(storeService, times(1)).updateStoreOperatingHours(eq(storeId), any(UpdateStoreOperatingHoursRequest.class));
 	}
 }
