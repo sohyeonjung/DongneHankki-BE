@@ -22,6 +22,7 @@ import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.StoreStarRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
@@ -220,6 +221,38 @@ public class StoreServiceTest {
 		verify(storeRepository, times(1)).findById(storeId);
 		verify(userRepository, times(1)).findByLoginId(userLoginId);
 		verify(menuRepository, times(1)).save(any(Menu.class));
+	}
+
+	@Test
+	@DisplayName("addStoreStar - 유효하지 않은 store, UnregisterException 반환 ")
+	void addStoreStar_nullStoreReturn() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.addStoreStar(storeId, null));
+	}
+
+	@Test
+	@DisplayName("addStoreStar - 유효한 입력 값에서 정상 작동")
+	void addStoreStar_Success() {
+		// Given
+		Long storeId = 1L;
+		Long userId = 10L;
+		StoreStarRequest request = StoreStarRequest.builder().userId(userId).star(5).build();
+
+		Store store = new Store();
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+		storeService.addStoreStar(storeId, request);
+
+		// Then
+		verify(storeRepository, times(1)).save(store);
+		assertThat(store.getStars().get(userId)).isEqualTo(5);
 	}
 
 	@Test
