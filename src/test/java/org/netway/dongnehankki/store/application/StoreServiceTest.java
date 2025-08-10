@@ -19,6 +19,7 @@ import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
+import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.MenuRepository;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
@@ -267,5 +268,62 @@ public class StoreServiceTest {
 		verify(storeRepository, times(1)).save(testStore);
 		assertFalse(testStore.getMenus().contains(testMenu));
 	}
+
+	@Test
+	@DisplayName("deleteStoreReview - 유효하지 않은 store, UnregisterException 반환")
+	void deleteStoreReview_nullStoreReturns() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.deleteStoreReview(storeId, null));
+	}
+
+	@Test
+	@DisplayName("deleteStoreReview - 유효하지 않은 review, UnregisterException 반환")
+	void deleteStoreReview_nullReviewReturns() {
+		// Given
+		Long storeId = 1L;
+		Long reviewId = 999L;
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
+
+		// Then
+		assertThrows(UnregisteredReviewException.class, () -> storeService.deleteStoreReview(storeId, reviewId));
+		verify(reviewRepository, never()).delete(any(Review.class));
+		verify(storeRepository, never()).save(any(Store.class));
+	}
+
+	@Test
+	@DisplayName("deleteStoreMenu - 유효한 입력값에서 정상 작동")
+	void deleteStoreReview_success() {
+		// Given
+		Long storeId = 1L;
+		Long deleteReviewId = 1L;
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		Review testReview = mock(Review.class);
+		testStore.getReviews().add(testReview);
+
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
+		when(testReview.getReviewId()).thenReturn(deleteReviewId);
+		storeService.deleteStoreReview(storeId, deleteReviewId);
+
+		// Then
+		verify(storeRepository, times(1)).findById(storeId);
+		verify(reviewRepository, times(1)).delete(any(Review.class));
+		verify(storeRepository, times(1)).save(testStore);
+		assertFalse(testStore.getReviews().contains(testReview));
+	}
+
 
 }
