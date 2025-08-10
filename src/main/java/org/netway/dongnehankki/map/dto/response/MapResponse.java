@@ -1,6 +1,7 @@
 package org.netway.dongnehankki.map.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.netway.dongnehankki.store.domain.Store;
 
@@ -19,10 +20,12 @@ public class MapResponse {
 	private String address;
 	private Integer industryCode;
 	private Integer scope;
-	private LocalDateTime openAt;
-	private LocalDateTime closeAt;
+	private List<OperatingHourResponse> operatingHours;
 
 	public static MapResponse fromEntity(Store store) {
+		List<OperatingHourResponse> operatingHours = store.getOperatingHours()
+			.stream().map(OperatingHourResponse::fromEntity).toList();
+
 		return MapResponse.builder()
 			.storeId(store.getStoreId())
 			.name(store.getName())
@@ -32,8 +35,7 @@ public class MapResponse {
 			.address(store.getAddress())
 			.industryCode(store.getIndustryCode())
 			.scope(store.getScope())
-			.openAt(store.getOpenAt())
-			.closeAt(store.getCloseAt())
+			.operatingHours(operatingHours)
 			.build();
 	}
 }
