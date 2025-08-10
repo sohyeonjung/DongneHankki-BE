@@ -43,4 +43,10 @@ public class Review extends BaseEntity {
 	public static Review createReview(String content, Integer scope, User user, Store store) {
 		return new Review(content, scope, user, store);
 	}
+
+	public Review updateReview(String content, Integer scope){
+		this.content = content;
+		this.scope = scope;
+		return this;
+	}
 }
