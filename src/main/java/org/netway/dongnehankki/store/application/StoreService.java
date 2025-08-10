@@ -1,12 +1,15 @@
 package org.netway.dongnehankki.store.application;
 
-import java.awt.*;
 
+import java.util.List;
+
+import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.domain.Menu;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.StoreReviewRequest;
+import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
@@ -90,6 +93,17 @@ public class StoreService {
 
 		store.getReviews().remove(reviewToDelete);
 		reviewRepository.delete(reviewToDelete);
+		storeRepository.save(store);
+	}
+
+	@Transactional
+	public void updateStoreOperatingHours(Long storeId, UpdateStoreOperatingHoursRequest updateStoreOperatingHoursRequest) {
+		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+
+		List<OperatingHour> operatingHours = updateStoreOperatingHoursRequest.getOperatingHours().stream()
+			.map(it->OperatingHour.createOperatingHour(it.getDayOfWeek(), it.getOpenTime(), it.getCloseTime())).toList();
+
+		store.updateOperatingHours(operatingHours);
 		storeRepository.save(store);
 	}
 }
