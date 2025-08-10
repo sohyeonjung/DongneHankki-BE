@@ -1,7 +1,9 @@
 package org.netway.dongnehankki.store.domain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.follow.domain.Follow;
@@ -47,7 +49,9 @@ public class Store extends BaseEntity {
 	@CollectionTable(name = "store_operating_hours", joinColumns = @JoinColumn(name = "store_id"))
 	private List<OperatingHour> operatingHours = new ArrayList<>();
 
-	private Integer scope;
+	@ElementCollection
+	@CollectionTable(name = "store_stars", joinColumns = @JoinColumn(name = "store_id"))
+	private Map<Long, Integer> stars = new HashMap<>();
 
 	@OneToOne(mappedBy = "store")
 	private User user;
@@ -92,5 +96,13 @@ public class Store extends BaseEntity {
 	public void updateOperatingHours(List<OperatingHour> operatingHours) {
 		this.operatingHours.clear();
 		this.operatingHours = operatingHours;
+	}
+
+	public Double getAverageStar(){
+		if(stars == null || stars.isEmpty()) return 0.0;
+		return stars.values().stream()
+			.mapToInt(Integer::intValue)
+			.average()
+			.orElse(0.0);
 	}
 }

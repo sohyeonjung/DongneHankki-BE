@@ -19,7 +19,7 @@ public class MapResponse {
 	private String sigun;
 	private String address;
 	private Integer industryCode;
-	private Integer scope;
+	private Double avgStar;
 	private List<OperatingHourResponse> operatingHours;
 
 	public static MapResponse fromEntity(Store store) {
@@ -34,7 +34,7 @@ public class MapResponse {
 			.sigun(store.getSigun())
 			.address(store.getAddress())
 			.industryCode(store.getIndustryCode())
-			.scope(store.getScope())
+			.avgStar(store.getAverageStar())
 			.operatingHours(operatingHours)
 			.build();
 	}
