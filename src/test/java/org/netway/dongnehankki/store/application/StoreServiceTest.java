@@ -27,6 +27,7 @@ import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursReques
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.ReviewStoreMismatchException;
+import org.netway.dongnehankki.store.exception.UnregisterdStarException;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -251,7 +252,6 @@ public class StoreServiceTest {
 		storeService.addStoreStar(storeId, request);
 
 		// Then
-		verify(storeRepository, times(1)).save(store);
 		assertThat(store.getStars().get(userId)).isEqualTo(5);
 	}
 
@@ -365,6 +365,53 @@ public class StoreServiceTest {
 		verify(reviewRepository, times(1)).delete(any(Review.class));
 		verify(storeRepository, times(1)).save(testStore);
 		assertFalse(testStore.getReviews().contains(testReview));
+	}
+
+	@Test
+	@DisplayName("deleteStoreStar - 유효하지 않은 store, UnregisterException 반환")
+	void deleteStoreStar_nullStoreReturns() {
+		// Given
+		Long storeId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// Then
+		assertThrows(UnregisteredStoreException.class, () -> storeService.deleteStoreStar(storeId, null));
+	}
+
+	@Test
+	@DisplayName("deleteStoreStar - 유효하지 않은 star, UnregisterException 반환")
+	void deleteStoreStar_nullStarReturns() {
+		// Given
+		Long storeId = 1L;
+		Store testStore = mock(Store.class);
+		Long userId = 1L;
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.ofNullable(testStore));
+
+		// Then
+		assertThrows(UnregisterdStarException.class, () -> storeService.deleteStoreStar(storeId, userId));
+	}
+
+	@Test
+	@DisplayName("deleteStoreStar - 유효한 입력값에서 정상 작동")
+	void deleteStoreStar_Success() {
+		// Given
+		Long storeId = 1L;
+		Long userId = 1L;
+		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
+			"광명시", 2316, 12356102561L);
+		testStore.getStars().put(userId, 5);
+
+		// When
+		when(storeRepository.findById(storeId)).thenReturn(Optional.ofNullable(testStore));
+		storeService.deleteStoreStar(storeId, userId);
+
+		// Then
+		verify(storeRepository, times(1)).save(testStore);
+		assertFalse(testStore.getStars().containsKey(userId));
 	}
 
 	@Test

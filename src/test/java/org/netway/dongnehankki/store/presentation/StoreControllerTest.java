@@ -342,6 +342,25 @@ public class StoreControllerTest {
 		verify(storeService, times(1)).deleteStoreReview(eq(storeId), eq(reviewId));
 	}
 
+
+	@DisplayName("DELETE /{storeId}/stars - 유효한 요청 시 200 반환")
+	@Test
+	void deleteStoreStar_Success() throws Exception {
+		//given
+		Long storeId = 1L;
+		Long userId = 2L;
+
+		//when
+		doNothing().when(storeService).deleteStoreStar(storeId, userId);
+
+		//then
+		mockMvc.perform(delete("/api/stores/{storeId}/stars", storeId)
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk());
+		verify(storeService, times(1)).deleteStoreStar(eq(storeId), eq(userId));
+	}
+
 	@Test
 	@DisplayName("PATCH /stores/{storeId}/operatingHours - 유효하지 않은 요청 시 400 Bad Request 반환 (리스트 길이가 7이 아닌 경우)")
 	void updateOperatingHours_BadRequest() throws Exception {

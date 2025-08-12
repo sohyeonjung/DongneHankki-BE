@@ -92,6 +92,15 @@ public class StoreController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
+	@DeleteMapping("/{storeId}/stars")
+	public ResponseEntity<ApiResponse<Void>> deleteStoreStar(
+		@PathVariable Long storeId,
+		@AuthenticationPrincipal CustomUserDetails customUserDetails
+	){
+		storeService.deleteStoreStar(storeId, customUserDetails.getUser().getUserId());
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
 	@PatchMapping("/{storeId}/operatingHours")
 	public ResponseEntity<ApiResponse<Void>> updateOperatingHours(
 		@PathVariable Long storeId,

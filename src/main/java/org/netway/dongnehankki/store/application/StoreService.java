@@ -3,6 +3,7 @@ package org.netway.dongnehankki.store.application;
 
 import java.util.List;
 
+import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
@@ -14,6 +15,7 @@ import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursReques
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.netway.dongnehankki.store.exception.ReviewStoreMismatchException;
+import org.netway.dongnehankki.store.exception.UnregisterdStarException;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -103,6 +105,14 @@ public class StoreService {
 
 		store.getReviews().remove(reviewToDelete);
 		reviewRepository.delete(reviewToDelete);
+		storeRepository.save(store);
+	}
+
+	@Transactional
+	public void deleteStoreStar(Long storeId, Long userId) {
+		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+		var removed = store.getStars().remove(userId);
+		if(removed == null) throw new UnregisterdStarException();
 		storeRepository.save(store);
 	}
 
