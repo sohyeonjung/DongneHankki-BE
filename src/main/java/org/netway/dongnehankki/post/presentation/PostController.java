@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
 
-    @PostMapping(value = "/post/create", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createPost(
         @ModelAttribute PostCreateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -34,13 +34,13 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @GetMapping("/post/{postId}")
+    @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable Long postId) {
         PostResponse response = postService.getPost(postId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping("/posts/store/{storeId}")
+    @GetMapping("/store/{storeId}")
     public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsByStore(
             @PathVariable Long storeId,
             @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
