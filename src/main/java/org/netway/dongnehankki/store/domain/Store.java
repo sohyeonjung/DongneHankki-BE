@@ -49,10 +49,6 @@ public class Store extends BaseEntity {
 	@CollectionTable(name = "store_operating_hours", joinColumns = @JoinColumn(name = "store_id"))
 	private List<OperatingHour> operatingHours = new ArrayList<>();
 
-	@ElementCollection
-	@CollectionTable(name = "store_stars", joinColumns = @JoinColumn(name = "store_id"))
-	private Map<Long, Integer> stars = new HashMap<>();
-
 	@OneToOne(mappedBy = "store")
 	private User user;
 
@@ -98,10 +94,12 @@ public class Store extends BaseEntity {
 		this.operatingHours = operatingHours;
 	}
 
-	public Double getAverageStar(){
-		if(stars == null || stars.isEmpty()) return 0.0;
-		return stars.values().stream()
-			.mapToInt(Integer::intValue)
+	public Double getAverageStar() {
+		if (reviews == null || reviews.isEmpty()) {
+			return 0.0;
+		}
+		return reviews.stream()
+			.mapToInt(Review::getScope)
 			.average()
 			.orElse(0.0);
 	}
