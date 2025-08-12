@@ -1,16 +1,13 @@
 package org.netway.dongnehankki.store.presentation;
 
-import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.store.application.StoreService;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
-import org.netway.dongnehankki.store.dto.request.StoreStarRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursRequest;
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -62,15 +59,6 @@ public class StoreController {
 		@RequestBody @Valid StoreMenuRequest storeMenuRequest
 	){
 		storeService.addStoreMenu(storeId, storeMenuRequest);
-		return ResponseEntity.ok(ApiResponse.success());
-	}
-
-	@PostMapping("/{storeId}/stars")
-	public ResponseEntity<ApiResponse<Void>> addStoreStar(
-		@PathVariable Long storeId,
-		@RequestBody @Valid StoreStarRequest storeStarRequest
-	){
-		storeService.addStoreStar(storeId, storeStarRequest);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
