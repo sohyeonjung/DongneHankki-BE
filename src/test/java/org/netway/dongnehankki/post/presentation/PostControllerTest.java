@@ -71,7 +71,7 @@ class PostControllerTest {
                 new UsernamePasswordAuthenticationToken(mockUserDetails, null, mockUserDetails.getAuthorities());
 
         // when & then
-        mockMvc.perform(multipart("/api/post/create")
+        mockMvc.perform(multipart("/api/posts/create")
                         .file(imageFile)
                         .param("storeId", "1")
                         .param("content", "맛있어요!")
@@ -107,7 +107,7 @@ class PostControllerTest {
         given(postService.getPost(anyLong())).willReturn(response);
 
         // when & then
-        mockMvc.perform(get("/api/post/{postId}", postId))
+        mockMvc.perform(get("/api/posts/{postId}", postId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.postId").value(postId))
                 .andExpect(jsonPath("$.data.content").value("게시글 내용"))
