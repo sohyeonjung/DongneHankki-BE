@@ -19,6 +19,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
 logging:
   level:
     org.hibernate.sql: debug
@@ -48,3 +49,13 @@ spring:
     activate:
       on-profile: local
     import: optional:application-local.yml
+
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}

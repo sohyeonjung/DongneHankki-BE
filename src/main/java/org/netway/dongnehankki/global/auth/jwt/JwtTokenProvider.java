@@ -3,7 +3,9 @@ package org.netway.dongnehankki.global.auth.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.netway.dongnehankki.user.infrastructure.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,13 +30,16 @@ public class JwtTokenProvider {
 
     private final Key key;
 
+    private final UserRepository userRepository;
+
     @Value("${jwt.access-token-expiration-minutes}")
     private long accessTokenExpirationMinutes;
 
     @Value("${jwt.refresh-token-expiration-minutes}")
     private long refreshTokenExpirationMinutes;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, UserRepository userRepository) {
+        this.userRepository = userRepository;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -91,8 +96,11 @@ public class JwtTokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        String userId = claims.get("userId", Long.class).toString();
-        UserDetails principal = new User(userId, "", authorities);
+        Long userId = claims.get("userId", Long.class);
+        UserDetails principal = userRepository.findById(userId)
+            .map(CustomUserDetails::new)
+            .orElseThrow(() -> new RuntimeException("ID에 해당하는 사용자를 찾을 수 없습니다: " + userId));
+
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
@@ -109,7 +117,7 @@ public class JwtTokenProvider {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
-        }
+        } 
         return false;
     }
 

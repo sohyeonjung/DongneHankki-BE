@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.post.domain;
 
+import jakarta.persistence.CascadeType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,17 +17,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long postId;
 
-	private String title;
 
 	private String content;
 
@@ -38,12 +40,33 @@ public class Post extends BaseEntity {
 	@JoinColumn(name="user_id")
 	private User user;
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Image> images= new ArrayList<>();
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PostHashtag> postHashtags = new ArrayList<>();
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comment> comments = new ArrayList<>();
+
+
+	public static Post createPost(String content, Store store, User user) {
+		return new Post(content, store, user);
+	}
+
+	private Post(String content, Store store, User user) {
+		this.content = content;
+		this.store = store;
+		this.user = user;
+	}
+
+	public void addImage(String url, int displayOrder) {
+		Image image = new Image(url, this, displayOrder);
+		this.images.add(image);
+	}
+
+	public void addPostHashtag(Hashtag hashtag) {
+		PostHashtag postHashtag = new PostHashtag(this, hashtag);
+		this.postHashtags.add(postHashtag);
+	}
 }

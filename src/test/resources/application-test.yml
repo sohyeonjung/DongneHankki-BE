@@ -35,3 +35,12 @@ coolsms:
     secret: FGY2AQ6VN9H#@!#COKBQ9CKQSJW5
     number: 01011111111
 
+cloud:
+  aws:
+    s3:
+      bucket: dongnae
+    credentials:
+      access-key: AK3123TIewqewqGV3GO77
+      secret-key: 32313s0c3T4FcyWOLewqeqw9vr5pHpwuLQ
+    region:
+      static: ap-northeast-2
