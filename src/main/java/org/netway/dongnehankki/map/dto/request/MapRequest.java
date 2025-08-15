@@ -1,5 +1,9 @@
 package org.netway.dongnehankki.map.dto.request;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -33,4 +37,10 @@ public class MapRequest {
 	private Integer industryCode;
 
 	private Integer scope;
+
+	private List<DayOfWeek> days;
+
+	private LocalTime startAt;
+
+	private LocalTime endAt;
 }

@@ -1,5 +1,7 @@
 package org.netway.dongnehankki.map.application;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.netway.dongnehankki.store.domain.Store;
@@ -42,6 +44,21 @@ public class MapService {
 		Integer scope = mapRequest.getScope();
 		if(scope != null){
 			stores = stores.stream().filter(it -> it.getAverageStar() >= scope).toList();
+		}
+
+		if (mapRequest.getDays() != null || mapRequest.getStartAt() != null || mapRequest.getEndAt() != null){
+			List<DayOfWeek> days = (mapRequest.getDays() == null || mapRequest.getDays().isEmpty())
+				? List.of(DayOfWeek.values()) : mapRequest.getDays();
+			LocalTime startAt = (mapRequest.getStartAt() == null) ? LocalTime.MIN : mapRequest.getStartAt();
+			LocalTime endAt = (mapRequest.getEndAt() == null) ? LocalTime.MAX : mapRequest.getEndAt();
+
+			stores = stores.stream()
+				.filter(store -> store.getOperatingHours().stream()
+					.anyMatch(openHour ->
+						days.contains(openHour.getDayOfWeek()) &&
+							!openHour.getOpenTime().isAfter(startAt) &&
+							!openHour.getCloseTime().isBefore(endAt)
+					)).toList();
 		}
 
 		return stores.stream().map(MapResponse::fromEntity).toList();

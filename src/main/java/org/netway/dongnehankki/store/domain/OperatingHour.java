@@ -6,10 +6,12 @@ import java.time.LocalTime;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @Embeddable
 @NoArgsConstructor
 public class OperatingHour {
