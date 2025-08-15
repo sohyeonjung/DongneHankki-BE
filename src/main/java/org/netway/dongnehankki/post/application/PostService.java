@@ -8,6 +8,7 @@ import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -88,5 +89,15 @@ public class PostService {
             .toList();
 
         return new CursorResult<>(response, nextCursor);
+    }
+
+    @Transactional
+    public void deletePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+            .orElseThrow(PostNotFoundException::new);
+        if(!post.getUser().getUserId().equals(userId)){
+            throw new UserNotMatchedException();
+        }
+        post.markAsDeleted();
     }
 }

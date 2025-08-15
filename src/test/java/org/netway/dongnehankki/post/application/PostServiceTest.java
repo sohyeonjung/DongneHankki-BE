@@ -15,6 +15,7 @@ import org.netway.dongnehankki.post.domain.PostHashtag;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -187,5 +188,57 @@ class PostServiceTest {
         assertThat(result.values()).hasSize(2);
         assertThat(result.nextCursor()).isNull();
         verify(postRepository).findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(eq(storeId), eq(cursorPostId), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 성공 테스트")
+    void deletePost_success() {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        try {
+            java.lang.reflect.Field userIdField = User.class.getDeclaredField("userId");
+            userIdField.setAccessible(true);
+            userIdField.set(user, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
+        Post post = Post.createPost("내용", store, user);
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // when
+        postService.deletePost(postId, userId);
+
+        // then
+        assertThat(post.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 실패 - 유저가 일치하지 않음")
+    void deletePost_throwsException_whenUserNotMatched() {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        Long anotherUserId = 2L;
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        try {
+            java.lang.reflect.Field userIdField = User.class.getDeclaredField("userId");
+            userIdField.setAccessible(true);
+            userIdField.set(user, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
+        Post post = Post.createPost("내용", store, user);
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // when & then
+        assertThatThrownBy(() -> postService.deletePost(postId, anotherUserId))
+            .isInstanceOf(UserNotMatchedException.class)
+            .hasMessage("작성자와 일치하지 않습니다.");
     }
 }

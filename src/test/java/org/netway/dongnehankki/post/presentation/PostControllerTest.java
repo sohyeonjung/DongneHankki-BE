@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -145,5 +146,27 @@ class PostControllerTest {
                 .andDo(print());
 
         verify(postService).getPostsByStore(eq(storeId), any(), eq(size));
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 성공 테스트")
+    void deletePost_success() throws Exception {
+        // given
+        Long postId = 1L;
+        User mockUser = mock(User.class);
+        given(mockUser.getUserId()).willReturn(1L);
+        given(mockUser.getRole()).willReturn(User.Role.CUSTOMER);
+        CustomUserDetails mockUserDetails = new CustomUserDetails(mockUser);
+        UsernamePasswordAuthenticationToken authenticationToken =
+            new UsernamePasswordAuthenticationToken(mockUserDetails, null, mockUserDetails.getAuthorities());
+
+        // when & then
+        mockMvc.perform(delete("/api/posts/{postId}", postId)
+                .with(csrf())
+                .with(authentication(authenticationToken)))
+            .andExpect(status().isOk())
+            .andDo(print());
+
+        verify(postService).deletePost(eq(postId), eq(1L));
     }
 }

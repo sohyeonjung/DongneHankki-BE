@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.store.domain.Store;
+import org.hibernate.annotations.Where;
 import org.netway.dongnehankki.user.domain.User;
 
 import jakarta.persistence.Entity;
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "deleted_at is NULL")
 public class Post extends BaseEntity {
 
 	@Id
