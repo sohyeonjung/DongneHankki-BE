@@ -121,6 +121,36 @@ public class MapServiceTest {
 			defaultBoundingBox.getMinLon(), defaultBoundingBox.getMaxLon());
 	}
 
+	@DisplayName("줌 레벨 6 (0.5km 반경)일 때, 200m 내 가게 반환")
+	@Test
+	void getStoresByMap_zoomLevel6_returnsOnlyWithin200m() {
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(6).build();
+
+		double radiusKm = 0.2;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		MapBoundingBox boundingBox500m = MapBoundingBox.builder().minLat(CENTER_LAT - deltaLatDegree).maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree).maxLon(CENTER_LON + deltaLonDegree).build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox500m);
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(boundingBox500m.getMinLat(), boundingBox500m.getMaxLat(),
+			boundingBox500m.getMinLon(), boundingBox500m.getMaxLon()))
+			.thenReturn(Collections.singletonList(storeWithin500m));
+
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		assertThat(result).hasSize(1);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactlyInAnyOrder("500m내 가게");
+
+		verify(mapBoundaryCalculator).calculateBoundingBox(CENTER_LAT, CENTER_LON, 6);
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetween(boundingBox500m.getMinLat(), boundingBox500m.getMaxLat(),
+			boundingBox500m.getMinLon(), boundingBox500m.getMaxLon());
+	}
+
 	@DisplayName("줌 레벨 5 (0.5km 반경)일 때, 500m 내 가게 반환")
 	@Test
 	void getStoresByMap_zoomLevel5_returnsOnlyWithin500m() {
