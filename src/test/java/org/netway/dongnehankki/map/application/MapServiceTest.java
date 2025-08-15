@@ -381,5 +381,49 @@ public class MapServiceTest {
 		verify(storeRepository, never()).findByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble());
 	}
 
+	@DisplayName("scope가 주어졌을 때, 해당 별점 이상인 가게만 반환")
+	@Test
+	void getStoresOnMap_withScope_returnsFilteredStores() {
+		// Given
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(3).scope(4).build();
+
+		double radiusKm = 5.0;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		MapBoundingBox boundingBox = MapBoundingBox.builder()
+			.minLat(CENTER_LAT - deltaLatDegree).maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree).maxLon(CENTER_LON + deltaLonDegree)
+			.build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox);
+
+		Store highRatedStore = spy(storeWithin500m);
+		doReturn(5.0).when(highRatedStore).getAverageStar();
+
+		Store lowRatedStore = spy(storeWithin2km);
+		doReturn(3.0).when(lowRatedStore).getAverageStar();
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon()
+		)).thenReturn(List.of(highRatedStore, lowRatedStore));
+
+		// When
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		// Then
+		assertThat(result).hasSize(1);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactly("500m내 가게");
+
+		verify(mapBoundaryCalculator).calculateBoundingBox(CENTER_LAT, CENTER_LON, 3);
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetween(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon()
+		);
+	}
+
 
 }
