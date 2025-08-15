@@ -39,6 +39,11 @@ public class MapService {
 			);
 		}
 
+		Integer scope = mapRequest.getScope();
+		if(scope != null){
+			stores = stores.stream().filter(it -> it.getAverageStar() >= scope).toList();
+		}
+
 		return stores.stream().map(MapResponse::fromEntity).toList();
 	}
 }

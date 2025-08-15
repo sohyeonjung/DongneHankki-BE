@@ -27,9 +27,10 @@ public class MapRequest {
 	@Max(value = 180, message = "경도는 180보다 클 수 없습니다.")
 	private Double longitude;
 
-
 	@NotNull(message = "줌 레벨은 필수 값입니다.")
 	private Integer zoomLevel;
 
 	private Integer industryCode;
+
+	private Integer scope;
 }
