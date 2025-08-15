@@ -1,7 +1,9 @@
 package org.netway.dongnehankki.store.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.netway.dongnehankki.map.dto.response.OperatingHourResponse;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 
@@ -20,8 +22,10 @@ public class StoreResponse {
 	private String address;
 	private Integer industryCode;
 	private Long businessRegistrationNumber;
-	private UserResponse owner;
+	private Double avgStar;
+	private List<OperatingHourResponse> operatingHours;
 
+	private UserResponse owner;
 	private List<MenuResponse> menus;
 	private List<ReviewResponse> reviews;
 
@@ -33,17 +37,20 @@ public class StoreResponse {
 		UserResponse user = store.getUser() != null ? UserResponse.fromEntity(store.getUser()) : null;
 		List<MenuResponse> menus = store.getMenus().stream().map(MenuResponse::fromEntity).toList();
 		List<ReviewResponse> reviews = store.getReviews().stream().map(ReviewResponse::fromEntity).toList();
+		List<OperatingHourResponse> operatingHours = store.getOperatingHours()
+			.stream().map(OperatingHourResponse::fromEntity).toList();
 
 		return StoreResponse.builder()
 			.storeId(store.getStoreId())
 			.name(store.getName())
 			.latitude(store.getLatitude())
 			.longitude(store.getLongitude())
-			.likeCount(store.getLikeCount())
 			.sigun(store.getSigun())
 			.address(store.getAddress())
 			.industryCode(store.getIndustryCode())
 			.businessRegistrationNumber(store.getBusinessRegistrationNumber())
+			.avgStar(store.getAverageStar())
+			.operatingHours(operatingHours)
 			.owner(user)
 			.menus(menus)
 			.reviews(reviews)
