@@ -14,8 +14,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,9 +31,18 @@ public class PostController {
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createPost(
-        @ModelAttribute PostCreateRequest request,
+        @ModelAttribute org.netway.dongnehankki.post.dto.request.PostCreateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.createPost(request, userDetails.getUser().getUserId());
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> updatePost(
+        @PathVariable Long postId,
+        @RequestBody org.netway.dongnehankki.post.dto.request.PostUpdateRequest request,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        postService.updatePost(postId, request, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());
     }
 

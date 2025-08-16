@@ -71,4 +71,10 @@ public class Post extends BaseEntity {
 		PostHashtag postHashtag = new PostHashtag(this, hashtag);
 		this.postHashtags.add(postHashtag);
 	}
+
+	public void update(String content, List<Hashtag> newHashtags) {
+		this.content = content;
+		this.postHashtags.clear();
+		newHashtags.forEach(this::addPostHashtag);
+	}
 }

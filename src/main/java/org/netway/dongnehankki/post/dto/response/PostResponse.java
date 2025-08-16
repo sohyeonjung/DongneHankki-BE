@@ -61,16 +61,19 @@ public class PostResponse {
     @Getter
     public static class ImageResponse {
         private final String imageUrl;
+        private final Long imageId;
         private final int displayOrder;
 
         @Builder
-        public ImageResponse(String imageUrl, int displayOrder) {
+        public ImageResponse(String imageUrl, Long imageId, int displayOrder) {
             this.imageUrl = imageUrl;
+            this.imageId = imageId;
             this.displayOrder = displayOrder;
         }
 
         public static ImageResponse from(Image image) {
             return ImageResponse.builder()
+                    .imageId(image.getImageId())
                     .imageUrl(image.getUrl())
                     .displayOrder(image.getDisplayOrder())
                     .build();

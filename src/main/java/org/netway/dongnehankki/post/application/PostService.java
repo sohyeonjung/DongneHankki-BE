@@ -100,4 +100,33 @@ public class PostService {
         }
         post.markAsDeleted();
     }
+
+    @Transactional
+    public void updatePost(Long postId, org.netway.dongnehankki.post.dto.request.PostUpdateRequest request, Long userId) {
+        Post post = postRepository.findById(postId)
+            .orElseThrow(PostNotFoundException::new);
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new UserNotMatchedException();
+        }
+
+        // Delete images
+        if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
+            List<org.netway.dongnehankki.post.domain.Image> imagesToDelete = post.getImages().stream()
+                .filter(image -> request.getDeleteImageIds().contains(image.getImageId()))
+                .toList();
+
+            imagesToDelete.forEach(image -> {
+                s3Service.deleteFile(image.getUrl());
+                post.getImages().remove(image);
+            });
+        }
+
+        // Update hashtags
+        List<Hashtag> newHashtags = request.getHashtags().stream()
+            .map(tagName -> hashtagRepository.findByName(tagName)
+                .orElseGet(() -> hashtagRepository.save(Hashtag.createHashtag(tagName))))
+            .toList();
+
+        post.update(request.getContent(), newHashtags);
+    }
 }
