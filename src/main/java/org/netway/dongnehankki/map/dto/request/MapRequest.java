@@ -1,5 +1,9 @@
 package org.netway.dongnehankki.map.dto.request;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -27,9 +31,16 @@ public class MapRequest {
 	@Max(value = 180, message = "경도는 180보다 클 수 없습니다.")
 	private Double longitude;
 
-
 	@NotNull(message = "줌 레벨은 필수 값입니다.")
 	private Integer zoomLevel;
 
 	private Integer industryCode;
+
+	private Integer scope;
+
+	private List<DayOfWeek> days;
+
+	private LocalTime startAt;
+
+	private LocalTime endAt;
 }

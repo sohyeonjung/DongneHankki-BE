@@ -3,6 +3,8 @@ package org.netway.dongnehankki.map.application;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.map.dto.request.MapRequest;
 import org.netway.dongnehankki.map.dto.response.MapResponse;
@@ -119,6 +122,36 @@ public class MapServiceTest {
 		verify(mapBoundaryCalculator).calculateBoundingBox(CENTER_LAT, CENTER_LON, 0);
 		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetween(defaultBoundingBox.getMinLat(), defaultBoundingBox.getMaxLat(),
 			defaultBoundingBox.getMinLon(), defaultBoundingBox.getMaxLon());
+	}
+
+	@DisplayName("줌 레벨 6 (0.5km 반경)일 때, 200m 내 가게 반환")
+	@Test
+	void getStoresByMap_zoomLevel6_returnsOnlyWithin200m() {
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(6).build();
+
+		double radiusKm = 0.2;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		MapBoundingBox boundingBox500m = MapBoundingBox.builder().minLat(CENTER_LAT - deltaLatDegree).maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree).maxLon(CENTER_LON + deltaLonDegree).build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox500m);
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(boundingBox500m.getMinLat(), boundingBox500m.getMaxLat(),
+			boundingBox500m.getMinLon(), boundingBox500m.getMaxLon()))
+			.thenReturn(Collections.singletonList(storeWithin500m));
+
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		assertThat(result).hasSize(1);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactlyInAnyOrder("500m내 가게");
+
+		verify(mapBoundaryCalculator).calculateBoundingBox(CENTER_LAT, CENTER_LON, 6);
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetween(boundingBox500m.getMinLat(), boundingBox500m.getMaxLat(),
+			boundingBox500m.getMinLon(), boundingBox500m.getMaxLon());
 	}
 
 	@DisplayName("줌 레벨 5 (0.5km 반경)일 때, 500m 내 가게 반환")
@@ -350,6 +383,101 @@ public class MapServiceTest {
 		);
 		verify(storeRepository, never()).findByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble());
 	}
+
+	@DisplayName("scope가 주어졌을 때, 해당 별점 이상인 가게만 반환")
+	@Test
+	void getStoresOnMap_withScope_returnsFilteredStores() {
+		// Given
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(3).scope(4).build();
+
+		double radiusKm = 5.0;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		MapBoundingBox boundingBox = MapBoundingBox.builder()
+			.minLat(CENTER_LAT - deltaLatDegree).maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree).maxLon(CENTER_LON + deltaLonDegree)
+			.build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox);
+
+		Store highRatedStore = spy(storeWithin500m);
+		doReturn(5.0).when(highRatedStore).getAverageStar();
+
+		Store lowRatedStore = spy(storeWithin2km);
+		doReturn(3.0).when(lowRatedStore).getAverageStar();
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon()
+		)).thenReturn(List.of(highRatedStore, lowRatedStore));
+
+		// When
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		// Then
+		assertThat(result).hasSize(1);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactly("500m내 가게");
+
+		verify(mapBoundaryCalculator).calculateBoundingBox(CENTER_LAT, CENTER_LON, 3);
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetween(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon()
+		);
+	}
+
+	@DisplayName("요일과 시간 조건이 주어졌을 때, 해당 운영시간인 가게만 반환")
+	@Test
+	void getStoresOnMap_withOperatingHoursFilter_returnsFilteredStores() {
+		// Given
+		MapRequest request = MapRequest.builder().latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(3)
+			.days(List.of(DayOfWeek.MONDAY)).startAt(LocalTime.of(9, 0)).endAt(LocalTime.of(18, 0)).build();
+
+		double radiusKm = 5.0;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		MapBoundingBox boundingBox = MapBoundingBox.builder()
+			.minLat(CENTER_LAT - deltaLatDegree)
+			.maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree)
+			.maxLon(CENTER_LON + deltaLonDegree)
+			.build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox);
+
+		OperatingHour matchingHour = OperatingHour.builder().dayOfWeek(DayOfWeek.MONDAY).openTime(LocalTime.of(8, 0)).closeTime(LocalTime.of(19, 0)).build();
+		OperatingHour nonMatchingHour = OperatingHour.builder().dayOfWeek(DayOfWeek.TUESDAY).openTime(LocalTime.of(10, 0)).closeTime(LocalTime.of(17, 0)).build();
+
+		Store storeOpen = spy(storeWithin500m);
+		doReturn(List.of(matchingHour)).when(storeOpen).getOperatingHours();
+
+		Store storeClosed = spy(storeWithin2km);
+		doReturn(List.of(nonMatchingHour)).when(storeClosed).getOperatingHours();
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon()
+		)).thenReturn(List.of(storeOpen, storeClosed));
+
+		// When
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		// Then
+		assertThat(result).hasSize(1);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactly("500m내 가게");
+
+		verify(mapBoundaryCalculator).calculateBoundingBox(CENTER_LAT, CENTER_LON, 3);
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetween(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon()
+		);
+	}
+
 
 
 }

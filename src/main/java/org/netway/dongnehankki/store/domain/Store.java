@@ -45,7 +45,7 @@ public class Store extends BaseEntity {
 
 	private Long businessRegistrationNumber;
 
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "store_operating_hours", joinColumns = @JoinColumn(name = "store_id"))
 	private List<OperatingHour> operatingHours = new ArrayList<>();
 
@@ -58,7 +58,7 @@ public class Store extends BaseEntity {
 	@OneToMany(mappedBy = "store")
 	private List<Post> posts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "store")
+	@OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
 	private List<Review> reviews = new ArrayList<>();
 
 	@OneToMany(mappedBy = "store")
