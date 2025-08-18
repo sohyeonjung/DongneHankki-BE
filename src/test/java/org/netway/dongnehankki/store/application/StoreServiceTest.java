@@ -134,13 +134,13 @@ public class StoreServiceTest {
 	@DisplayName("writeStoreReview - 유효하지 않은 User, UnregisterException 반환 ")
 	void writeStoreReview_nullUserReturn() {
 		// Given
-		String userLoginId = "id1";
+		Long userId = 1L;
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
-		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id1").build();
+		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userId(1L).build();
 		// When
 		when(storeRepository.findById(any())).thenReturn(Optional.of(testStore));
-		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.empty());
+		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		// Then
 		assertThrows(UnregisteredUserException.class, () -> storeService.writeStoreReview(1L, createStoreReviewRequest));
@@ -151,21 +151,21 @@ public class StoreServiceTest {
 	void writeStoreReview_success() {
 		// Given
 		Long storeId = 1L;
-		String userLoginId = "id1";
+		Long userId = 1L;
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
 		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
-		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id1").content("review test").scope(4).build();
+		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userId(1L).content("review test").scope(4).build();
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
-		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.of(testUser));
+		when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
 		storeService.writeStoreReview(storeId, createStoreReviewRequest);
 
 		// Then
 		verify(storeRepository, times(1)).findById(storeId);
-		verify(userRepository, times(1)).findByLoginId(userLoginId);
+		verify(userRepository, times(1)).findById(userId);
 		verify(reviewRepository, times(1)).save(any(Review.class));
 	}
 
@@ -186,14 +186,14 @@ public class StoreServiceTest {
 	@DisplayName("addStoreMenu - 유효하지 않은 User, UnregisterException 반환 ")
 	void addStoreMenu_nullUserReturn() {
 		// Given
-		String userLoginId = "id1";
+		Long userId = 1L;
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
-		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").price(10000).build();
+		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userId(1L).name("menu1").description("menu1 descrp").price(10000).build();
 
 		// When
 		when(storeRepository.findById(any())).thenReturn(Optional.of(testStore));
-		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.empty());
+		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		// Then
 		assertThrows(UnregisteredUserException.class, () -> storeService.addStoreMenu(1L, storeMenuRequest));
@@ -204,21 +204,21 @@ public class StoreServiceTest {
 	void addStoreReview_success() {
 		// Given
 		Long storeId = 1L;
-		String userLoginId = "id1";
+		Long userId = 1L;
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
 		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
-		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").price(10000).build();
+		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userId(1L).name("menu1").description("menu1 descrp").price(10000).build();
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.of(testStore));
-		when(userRepository.findByLoginId(userLoginId)).thenReturn(Optional.of(testUser));
+		when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
 		storeService.addStoreMenu(storeId, storeMenuRequest);
 
 		// Then
 		verify(storeRepository, times(1)).findById(storeId);
-		verify(userRepository, times(1)).findByLoginId(userLoginId);
+		verify(userRepository, times(1)).findById(userId);
 		verify(menuRepository, times(1)).save(any(Menu.class));
 	}
 
