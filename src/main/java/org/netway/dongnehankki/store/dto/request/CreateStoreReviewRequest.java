@@ -10,8 +10,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CreateStoreReviewRequest {
-	@NotEmpty
-	String userLoginId;
+	@NotNull
+	Long userId;
 	@NotNull
 	String content;
 	@NotNull

@@ -51,7 +51,7 @@ public class StoreService {
 	@Transactional
 	public void writeStoreReview(Long storeId, CreateStoreReviewRequest createStoreReviewRequest) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
-		User user = userRepository.findByLoginId(createStoreReviewRequest.getUserLoginId()).orElseThrow(() -> new UnregisteredUserException());
+		User user = userRepository.findById(createStoreReviewRequest.getUserId()).orElseThrow(() -> new UnregisteredUserException());
 		Review review = Review.createReview(
 			createStoreReviewRequest.getContent(), createStoreReviewRequest.getScope(), user, store
 		);
@@ -64,7 +64,7 @@ public class StoreService {
 	@Transactional
 	public void addStoreMenu(Long storeId, StoreMenuRequest storeMenuRequest) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
-		User user = userRepository.findByLoginId(storeMenuRequest.getUserLoginId()).orElseThrow(() -> new UnregisteredUserException());
+		User user = userRepository.findById(storeMenuRequest.getUserId()).orElseThrow(() -> new UnregisteredUserException());
 		Menu menu = Menu.createMenu(
 			storeMenuRequest.getName(), storeMenuRequest.getDescription(), storeMenuRequest.getImage(), storeMenuRequest.getPrice(), store, user
 		);
