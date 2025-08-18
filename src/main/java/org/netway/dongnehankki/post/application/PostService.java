@@ -6,6 +6,7 @@ import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
+import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.exception.PostNotFoundException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
@@ -102,7 +103,7 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Long postId, org.netway.dongnehankki.post.dto.request.PostUpdateRequest request, Long userId) {
+    public void updatePost(Long postId, PostUpdateRequest request, Long userId) {
         Post post = postRepository.findById(postId)
             .orElseThrow(PostNotFoundException::new);
         if (!post.getUser().getUserId().equals(userId)) {

@@ -49,7 +49,7 @@ public class PostResponse {
                 .userNickname(post.getUser().getNickname())
                 .images(post.getImages().stream()
                         .sorted(Comparator.comparingInt(Image::getDisplayOrder))
-                        .map(ImageResponse::from)
+                        .map(ImageResponse::fromEntity)
                         .collect(Collectors.toList()))
                 .hashtags(post.getPostHashtags().stream()
                         .map(postHashtag -> postHashtag.getHashtag().getName())
@@ -71,7 +71,7 @@ public class PostResponse {
             this.displayOrder = displayOrder;
         }
 
-        public static ImageResponse from(Image image) {
+        public static ImageResponse fromEntity(Image image) {
             return ImageResponse.builder()
                     .imageId(image.getImageId())
                     .imageUrl(image.getUrl())

@@ -5,6 +5,7 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.post.application.PostService;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
+import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ public class PostController {
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createPost(
-        @ModelAttribute org.netway.dongnehankki.post.dto.request.PostCreateRequest request,
+        @ModelAttribute PostCreateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.createPost(request, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());
@@ -40,7 +41,7 @@ public class PostController {
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> updatePost(
         @PathVariable Long postId,
-        @RequestBody org.netway.dongnehankki.post.dto.request.PostUpdateRequest request,
+        @RequestBody PostUpdateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.updatePost(postId, request, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());
