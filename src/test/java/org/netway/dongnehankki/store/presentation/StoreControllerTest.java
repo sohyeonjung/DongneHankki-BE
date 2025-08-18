@@ -132,7 +132,7 @@ public class StoreControllerTest {
 	@DisplayName("유효하지 않은 리뷰 요청시 400 Bad Request를 반환해야 한다")
 	void writeStoreReview_InvalidRequest_BadRequest() throws Exception {
 		// given
-		CreateStoreReviewRequest invalidReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id2")
+		CreateStoreReviewRequest invalidReviewRequest = CreateStoreReviewRequest.builder().userId(2L)
 				.content("Bad content").scope(6).build();
 
 		// then
@@ -149,7 +149,7 @@ public class StoreControllerTest {
 	@Test
 	void writeStoreReview_Success() throws Exception {
 		//given
-		CreateStoreReviewRequest validReviewRequest = CreateStoreReviewRequest.builder().userLoginId("id1").content("review").scope(4).build();
+		CreateStoreReviewRequest validReviewRequest = CreateStoreReviewRequest.builder().userId(1L).content("review").scope(4).build();
 
 		//when
 		doNothing().when(storeService).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));
@@ -166,7 +166,7 @@ public class StoreControllerTest {
 	@DisplayName("POST /stores/{storeId}/menus - 유효하지 않은 요청시 400 Bad Request를 반환")
 	void addStoreMenu_InvalidRequest_BadRequest() throws Exception {
 		// given
-		StoreMenuRequest invalidMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").build();
+		StoreMenuRequest invalidMenuRequest = StoreMenuRequest.builder().userId(1L).name("menu1").description("menu1 descrp").build();
 
 		// then
 		mockMvc.perform(post("/api/stores/{storeId}/menus", 1L)
@@ -182,7 +182,7 @@ public class StoreControllerTest {
 	@Test
 	void addStoreMenu_Success() throws Exception {
 		//given
-		StoreMenuRequest validMenuRequest = StoreMenuRequest.builder().userLoginId("id1").name("menu1").description("menu1 descrp").image("link").price(10000).build();
+		StoreMenuRequest validMenuRequest = StoreMenuRequest.builder().userId(1L).name("menu1").description("menu1 descrp").image("link").price(10000).build();
 
 		//when
 		doNothing().when(storeService).writeStoreReview(anyLong(), any(CreateStoreReviewRequest.class));

@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class StoreMenuRequest {
-	@NotEmpty
-	private String userLoginId;
+	@NotNull
+	private Long userId;
 	@NotEmpty
 	private String name;
 	@NotEmpty
