@@ -24,13 +24,14 @@ public class PostResponse {
     private final Role uploderRole;
     private final List<ImageResponse> images;
     private final List<String> hashtags;
+    private final int likeCount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createdAt;
 
     @Builder
     public PostResponse(Long postId, String content, Long storeId, String storeName, Long userId, String userNickname,
-        Role uploderRole, List<ImageResponse> images, List<String> hashtags, LocalDateTime createdAt) {
+        Role uploderRole, List<ImageResponse> images, List<String> hashtags, int likeCount, LocalDateTime createdAt) {
         this.postId = postId;
         this.content = content;
         this.storeId = storeId;
@@ -40,6 +41,7 @@ public class PostResponse {
         this.uploderRole = uploderRole;
         this.images = images;
         this.hashtags = hashtags;
+        this.likeCount = likeCount;
         this.createdAt = createdAt;
     }
 
@@ -59,6 +61,7 @@ public class PostResponse {
                 .hashtags(post.getPostHashtags().stream()
                         .map(postHashtag -> postHashtag.getHashtag().getName())
                         .collect(Collectors.toList()))
+                .likeCount(post.getPostLikes().size())
                 .createdAt(post.getCreatedAt())
                 .build();
     }
