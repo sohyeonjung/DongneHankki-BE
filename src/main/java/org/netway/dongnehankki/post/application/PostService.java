@@ -39,13 +39,13 @@ public class PostService {
     private final S3Service s3Service;
 
     @Transactional
-    public void createPost(PostCreateRequest request, Long userId) {
+    public void createPost(PostCreateRequest request, Long userId, Post.Role role) {
         User user = userRepository.findById(userId)
             .orElseThrow(UnregisteredUserException::new);
         Store store = storeRepository.findById(request.getStoreId())
             .orElseThrow(UnregisteredStoreException::new);
 
-        Post post = Post.createPost(request.getContent(), store, user);
+        Post post = Post.createPost(request.getContent(), store, user, role);
 
         if (request.getImages() != null) {
             for (int i = 0; i < request.getImages().length; i++) {
@@ -110,7 +110,6 @@ public class PostService {
             throw new UserNotMatchedException();
         }
 
-        // Delete images
         if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
             List<org.netway.dongnehankki.post.domain.Image> imagesToDelete = post.getImages().stream()
                 .filter(image -> request.getDeleteImageIds().contains(image.getImageId()))
@@ -122,7 +121,6 @@ public class PostService {
             });
         }
 
-        // Update hashtags
         List<Hashtag> newHashtags = request.getHashtags().stream()
             .map(tagName -> hashtagRepository.findByName(tagName)
                 .orElseGet(() -> hashtagRepository.save(Hashtag.createHashtag(tagName))))

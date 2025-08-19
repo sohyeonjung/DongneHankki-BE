@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.netway.dongnehankki.post.domain.Post.Role;
 
 @Getter
 public class PostResponse {
@@ -20,6 +21,7 @@ public class PostResponse {
     private final String storeName;
     private final Long userId;
     private final String userNickname;
+    private final Role uploderRole;
     private final List<ImageResponse> images;
     private final List<String> hashtags;
 
@@ -27,13 +29,15 @@ public class PostResponse {
     private final LocalDateTime createdAt;
 
     @Builder
-    public PostResponse(Long postId, String content, Long storeId, String storeName, Long userId, String userNickname, List<ImageResponse> images, List<String> hashtags, LocalDateTime createdAt) {
+    public PostResponse(Long postId, String content, Long storeId, String storeName, Long userId, String userNickname,
+        Role uploderRole, List<ImageResponse> images, List<String> hashtags, LocalDateTime createdAt) {
         this.postId = postId;
         this.content = content;
         this.storeId = storeId;
         this.storeName = storeName;
         this.userId = userId;
         this.userNickname = userNickname;
+        this.uploderRole = uploderRole;
         this.images = images;
         this.hashtags = hashtags;
         this.createdAt = createdAt;
@@ -47,6 +51,7 @@ public class PostResponse {
                 .storeName(post.getStore().getName())
                 .userId(post.getUser().getUserId())
                 .userNickname(post.getUser().getNickname())
+                .uploderRole(post.getRole())
                 .images(post.getImages().stream()
                         .sorted(Comparator.comparingInt(Image::getDisplayOrder))
                         .map(ImageResponse::fromEntity)

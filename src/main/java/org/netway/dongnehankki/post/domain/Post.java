@@ -1,6 +1,8 @@
 package org.netway.dongnehankki.post.domain;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.netway.dongnehankki.user.domain.User.Role;
 
 @Entity
 @Getter
@@ -51,15 +54,23 @@ public class Post extends BaseEntity {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comment> comments = new ArrayList<>();
 
+	@Enumerated(EnumType.STRING)
+	private Role role;
 
-	public static Post createPost(String content, Store store, User user) {
-		return new Post(content, store, user);
+	public enum Role {
+		OWNER, CUSTOMER
 	}
 
-	private Post(String content, Store store, User user) {
+
+	public static Post createPost(String content, Store store, User user, Role role) {
+		return new Post(content, store, user, role);
+	}
+
+	private Post(String content, Store store, User user, Role role) {
 		this.content = content;
 		this.store = store;
 		this.user = user;
+		this.role = role;
 	}
 
 	public void addImage(String url, int displayOrder) {

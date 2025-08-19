@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.post.application.PostService;
+import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
@@ -30,11 +31,19 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    public ResponseEntity<ApiResponse<Void>> createPost(
+    @PostMapping(value = "/owners", consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse<Void>> createOwnerPost(
         @ModelAttribute PostCreateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        postService.createPost(request, userDetails.getUser().getUserId());
+        postService.createPost(request, userDetails.getUser().getUserId(), Post.Role.OWNER);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @PostMapping(value = "/customers", consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse<Void>> createCustomerPost(
+        @ModelAttribute PostCreateRequest request,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        postService.createPost(request, userDetails.getUser().getUserId(), Post.Role.CUSTOMER);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
