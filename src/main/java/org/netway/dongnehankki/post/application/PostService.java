@@ -26,6 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.netway.dongnehankki.follow.repository.FollowRepository;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -37,6 +39,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final S3Service s3Service;
+    private final FollowRepository followRepository;
 
     @Transactional
     public void createPost(PostCreateRequest request, Long userId, Post.Role role) {
@@ -127,5 +130,31 @@ public class PostService {
             .toList();
 
         post.update(request.getContent(), newHashtags);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResult<PostResponse> getPostsFromFollowedStores(Long userId, Long cursorPostId, int pageSize) {
+        final Pageable pageable = PageRequest.of(0, pageSize + 1);
+        List<Store> followedStores = followRepository.findByUser_UserId(userId).stream()
+                .map(follow -> follow.getStore())
+                .toList();
+
+        final List<Post> posts = (cursorPostId == null) ?
+                postRepository.findByStoreInOrderByPostIdDesc(followedStores, pageable) :
+                postRepository.findByStoreInAndPostIdLessThanOrderByPostIdDesc(followedStores, cursorPostId, pageable);
+
+        Long nextCursor = null;
+        List<Post> responsePosts = posts;
+
+        if (posts.size() > pageSize) {
+            nextCursor = posts.get(pageSize).getPostId();
+            responsePosts = posts.subList(0, pageSize);
+        }
+
+        List<PostResponse> response = responsePosts.stream()
+                .map(PostResponse::fromEntity)
+                .toList();
+
+        return new CursorResult<>(response, nextCursor);
     }
 }

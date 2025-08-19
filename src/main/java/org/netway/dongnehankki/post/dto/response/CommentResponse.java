@@ -23,7 +23,7 @@ public class CommentResponse {
         this.updatedAt = updatedAt;
     }
 
-    public static CommentResponse from(Comment comment) {
+    public static CommentResponse fromEntity(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getCommentId())
                 .content(comment.getContent())

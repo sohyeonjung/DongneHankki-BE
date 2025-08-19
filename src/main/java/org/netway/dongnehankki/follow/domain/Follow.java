@@ -28,4 +28,11 @@ public class Follow {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="store_id", nullable = false)
 	private Store store;
+
+	public static Follow of(User user, Store store) {
+		Follow follow = new Follow();
+		follow.user = user;
+		follow.store = store;
+		return follow;
+	}
 }

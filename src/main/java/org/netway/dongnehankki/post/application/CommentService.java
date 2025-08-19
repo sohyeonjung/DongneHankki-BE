@@ -3,8 +3,7 @@ package org.netway.dongnehankki.post.application;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.post.domain.Comment;
 import org.netway.dongnehankki.post.domain.Post;
-import org.netway.dongnehankki.post.dto.request.CommentCreateRequest;
-import org.netway.dongnehankki.post.dto.request.CommentUpdateRequest;
+import org.netway.dongnehankki.post.dto.request.CommentRequest;
 import org.netway.dongnehankki.post.exception.CommentNotFoundException;
 import org.netway.dongnehankki.post.exception.PostNotFoundException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
@@ -29,7 +28,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createComment(Long postId, CommentCreateRequest request, Long userId) {
+    public void createComment(Long postId, CommentRequest request, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
         User user = userRepository.findById(userId)
@@ -43,12 +42,12 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(Long postId) {
         return commentRepository.findByPost_PostId(postId).stream()
-                .map(CommentResponse::from)
+                .map(CommentResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void updateComment(Long commentId, CommentUpdateRequest request, Long userId) {
+    public void updateComment(Long commentId, CommentRequest request, Long userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
         if (!comment.getUser().getUserId().equals(userId)) {

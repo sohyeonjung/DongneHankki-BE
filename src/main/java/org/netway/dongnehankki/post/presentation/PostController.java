@@ -5,12 +5,11 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.post.application.PostService;
 import org.netway.dongnehankki.post.domain.Post;
+import org.netway.dongnehankki.post.dto.request.CommentRequest;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.netway.dongnehankki.post.application.CommentService;
-import org.netway.dongnehankki.post.dto.request.CommentCreateRequest;
 import org.netway.dongnehankki.post.dto.response.CommentResponse;
 
 import java.util.List;
@@ -89,7 +87,7 @@ public class PostController {
     @PostMapping("/{postId}/comments")
     public ResponseEntity<ApiResponse<Void>> createComment(
             @PathVariable Long postId,
-            @RequestBody CommentCreateRequest request,
+            @RequestBody CommentRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         commentService.createComment(postId, request, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());
@@ -99,5 +97,14 @@ public class PostController {
     public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(@PathVariable Long postId) {
         List<CommentResponse> comments = commentService.getComments(postId);
         return ResponseEntity.ok(ApiResponse.success(comments));
+    }
+
+    @GetMapping("/followed")
+    public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsFromFollowedStores(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
+            @RequestParam(defaultValue = "10") int size) {
+        CursorResult<PostResponse> response = postService.getPostsFromFollowedStores(userDetails.getUser().getUserId(), cursorPostId, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.post.application.CommentService;
-import org.netway.dongnehankki.post.dto.request.CommentUpdateRequest;
+import org.netway.dongnehankki.post.dto.request.CommentRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Void>> updateComment(
             @PathVariable Long commentId,
-            @RequestBody CommentUpdateRequest request,
+            @RequestBody CommentRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         commentService.updateComment(commentId, request, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());
