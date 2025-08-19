@@ -43,4 +43,6 @@ public class MapRequest {
 	private LocalTime startAt;
 
 	private LocalTime endAt;
+
+	private String keyword;
 }
