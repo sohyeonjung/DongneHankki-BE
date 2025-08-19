@@ -78,7 +78,7 @@ class PostServiceTest {
         given(hashtagRepository.findByName(anyString())).willReturn(Optional.of(Hashtag.createHashtag("#맛집")));
 
         // when
-        postService.createPost(request, userId);
+        postService.createPost(request, userId, Post.Role.CUSTOMER);
 
         // then
         ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
@@ -98,7 +98,7 @@ class PostServiceTest {
         Long postId = 1L;
         User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.createPost("내용", store, user);
+        Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
 
@@ -135,9 +135,9 @@ class PostServiceTest {
 
         // pageSize + 1 만큼의 Mock 데이터 생성
         List<Post> posts = List.of(
-            Post.createPost("p6", store, user), Post.createPost("p5", store, user),
-            Post.createPost("p4", store, user), Post.createPost("p3", store, user),
-            Post.createPost("p2", store, user), Post.createPost("p1", store, user)
+            Post.createPost("p6", store, user, Post.Role.CUSTOMER), Post.createPost("p5", store, user, Post.Role.CUSTOMER),
+            Post.createPost("p4", store, user, Post.Role.CUSTOMER), Post.createPost("p3", store, user, Post.Role.CUSTOMER),
+            Post.createPost("p2", store, user, Post.Role.CUSTOMER), Post.createPost("p1", store, user, Post.Role.CUSTOMER)
         );
 
         // postId를 모킹하기 위해 리플렉션 사용 (실제로는 데이터베이스에서 자동 생성됨)
@@ -175,7 +175,7 @@ class PostServiceTest {
 
         // pageSize보다 적은 수의 Mock 데이터 생성
         List<Post> posts = List.of(
-            Post.createPost("p3", store, user), Post.createPost("p2", store, user)
+            Post.createPost("p3", store, user, Post.Role.CUSTOMER), Post.createPost("p2", store, user, Post.Role.CUSTOMER)
         );
 
         given(postRepository.findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(eq(storeId), eq(cursorPostId), any(Pageable.class)))
@@ -205,7 +205,7 @@ class PostServiceTest {
             e.printStackTrace();
         }
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.createPost("내용", store, user);
+        Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
 
@@ -232,7 +232,7 @@ class PostServiceTest {
             e.printStackTrace();
         }
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.createPost("내용", store, user);
+        Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
 

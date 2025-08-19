@@ -24,12 +24,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.netway.dongnehankki.post.application.CommentService;
+import org.netway.dongnehankki.post.dto.request.CommentCreateRequest;
+import org.netway.dongnehankki.post.dto.response.CommentResponse;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
 
     @PostMapping(value = "/owners", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createOwnerPost(
@@ -77,5 +84,20 @@ public class PostController {
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.deletePost(postId, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<ApiResponse<Void>> createComment(
+            @PathVariable Long postId,
+            @RequestBody CommentCreateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        commentService.createComment(postId, request, userDetails.getUser().getUserId());
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(@PathVariable Long postId) {
+        List<CommentResponse> comments = commentService.getComments(postId);
+        return ResponseEntity.ok(ApiResponse.success(comments));
     }
 }

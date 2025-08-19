@@ -72,7 +72,7 @@ class PostControllerTest {
                 new UsernamePasswordAuthenticationToken(mockUserDetails, null, mockUserDetails.getAuthorities());
 
         // when & then
-        mockMvc.perform(multipart("/api/posts/create")
+        mockMvc.perform(multipart("/api/posts/customers")
                         .file(imageFile)
                         .param("storeId", "1")
                         .param("content", "맛있어요!")
@@ -84,7 +84,7 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(postService).createPost(any(), eq(1L));
+        verify(postService).createPost(any(), eq(1L), eq(org.netway.dongnehankki.post.domain.Post.Role.CUSTOMER));
     }
 
     @Test
