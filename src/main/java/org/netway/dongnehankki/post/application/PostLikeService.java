@@ -3,6 +3,8 @@ package org.netway.dongnehankki.post.application;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.domain.PostLike;
+import org.netway.dongnehankki.post.exception.AlreadyLikedException;
+import org.netway.dongnehankki.post.exception.NotLikedException;
 import org.netway.dongnehankki.post.exception.PostNotFoundException;
 import org.netway.dongnehankki.post.repository.PostLikeRepository;
 import org.netway.dongnehankki.post.repository.PostRepository;
@@ -29,7 +31,7 @@ public class PostLikeService {
 
         postLikeRepository.findByUser_UserIdAndPost_PostId(userId, postId)
                 .ifPresent(like -> {
-                    throw new IllegalStateException("Already liked");
+                    throw new AlreadyLikedException();
                 });
 
         PostLike postLike = PostLike.of(user, post);
@@ -39,7 +41,7 @@ public class PostLikeService {
     @Transactional
     public void unlikePost(Long userId, Long postId) {
         PostLike postLike = postLikeRepository.findByUser_UserIdAndPost_PostId(userId, postId)
-                .orElseThrow(() -> new IllegalStateException("Not liked"));
+                .orElseThrow(() -> new NotLikedException());
         postLikeRepository.delete(postLike);
     }
 }

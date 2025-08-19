@@ -2,6 +2,8 @@ package org.netway.dongnehankki.follow.application;
 
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.follow.domain.Follow;
+import org.netway.dongnehankki.follow.exception.AlreadyFollowedException;
+import org.netway.dongnehankki.follow.exception.NotFollowedException;
 import org.netway.dongnehankki.follow.repository.FollowRepository;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -29,7 +31,7 @@ public class FollowService {
 
         followRepository.findByUser_UserIdAndStore_StoreId(userId, storeId)
                 .ifPresent(follow -> {
-                    throw new IllegalStateException("Already followed");
+                    throw new AlreadyFollowedException();
                 });
 
         Follow follow = Follow.of(user, store);
@@ -39,7 +41,7 @@ public class FollowService {
     @Transactional
     public void unfollow(Long userId, Long storeId) {
         Follow follow = followRepository.findByUser_UserIdAndStore_StoreId(userId, storeId)
-                .orElseThrow(() -> new IllegalStateException("Not followed"));
+                .orElseThrow(() -> new NotFollowedException());
         followRepository.delete(follow);
     }
 }
