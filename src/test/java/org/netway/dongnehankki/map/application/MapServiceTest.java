@@ -45,6 +45,9 @@ public class MapServiceTest {
 	private Store storeWithin5km;
 	private Store storeWithin7km;
 	private Store storeWithin10km;
+	private Store storeWithDifferentName;
+	private Store storeWithSameName;
+	private Store storeWithSameNameAndIndustry;
 
 	@BeforeEach
 	void setUp() {
@@ -69,6 +72,18 @@ public class MapServiceTest {
 		double lat_9km = CENTER_LAT + (9.0 / KM_PER_LATITUDE_DEGREE);
 		double lon_9km = CENTER_LON + (9.0 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
 		storeWithin10km = Store.createStore("10km내 가게", lat_9km, lon_9km, "주소5", "경기도 광명시", 1235, 109990000L);
+
+		double lat_diff_name = CENTER_LAT + (0.5 / KM_PER_LATITUDE_DEGREE);
+		double lon_diff_name = CENTER_LON + (0.5 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
+		storeWithDifferentName = Store.createStore("다른 가게", lat_diff_name, lon_diff_name, "주소6", "경기도 광명시", 1234, 201112222L);
+
+		double lat_same_name = CENTER_LAT + (0.8 / KM_PER_LATITUDE_DEGREE);
+		double lon_same_name = CENTER_LON + (0.8 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
+		storeWithSameName = Store.createStore("가게", lat_same_name, lon_same_name, "주소7", "경기도 광명시", 1235, 301112222L);
+
+		double lat_same_name_industry = CENTER_LAT + (0.9 / KM_PER_LATITUDE_DEGREE);
+		double lon_same_name_industry = CENTER_LON + (0.9 / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE);
+		storeWithSameNameAndIndustry = Store.createStore("가게", lat_same_name_industry, lon_same_name_industry, "주소8", "경기도 광명시", 1234, 401112222L);
 
 	}
 
@@ -478,6 +493,91 @@ public class MapServiceTest {
 		);
 	}
 
+	@DisplayName("키워드와 위치 정보로 가게를 필터링하여 반환")
+	@Test
+	void getStoresOnMap_withKeywordAndLocation_returnsFilteredStores() {
+		// Given
+		String keyword = "가게";
+		MapRequest request = MapRequest.builder()
+			.latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(3).keyword(keyword).build();
 
+		double radiusKm = 5.0;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
 
+		MapBoundingBox boundingBox = MapBoundingBox.builder()
+			.minLat(CENTER_LAT - deltaLatDegree).maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree).maxLon(CENTER_LON + deltaLonDegree)
+			.build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox);
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndNameContaining(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon(),
+			keyword
+		)).thenReturn(Arrays.asList(storeWithin500m, storeWithin2km, storeWithin5km, storeWithSameNameAndIndustry, storeWithSameName));
+
+		// When
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		// Then
+		assertThat(result).hasSize(5);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactlyInAnyOrder("500m내 가게", "2km내 가게", "5km내 가게", "가게", "가게");
+
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetweenAndNameContaining(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon(),
+			keyword
+		);
+		verify(storeRepository, never()).findByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+	}
+
+	@DisplayName("키워드, 업종 코드, 위치 정보로 가게를 필터링하여 반환")
+	@Test
+	void getStoresOnMap_withKeywordIndustryCodeAndLocation_returnsFilteredStores() {
+		// Given
+		String keyword = "가게";
+		Integer targetIndustryCode = 1234;
+		MapRequest request = MapRequest.builder()
+			.latitude(CENTER_LAT).longitude(CENTER_LON).zoomLevel(3).keyword(keyword).industryCode(targetIndustryCode).build();
+
+		double radiusKm = 5.0;
+		double deltaLatDegree = radiusKm / KM_PER_LATITUDE_DEGREE;
+		double deltaLonDegree = radiusKm / KM_PER_LONGITUDE_DEGREE_AT_SEOUL_LATITUDE;
+
+		MapBoundingBox boundingBox = MapBoundingBox.builder()
+			.minLat(CENTER_LAT - deltaLatDegree).maxLat(CENTER_LAT + deltaLatDegree)
+			.minLon(CENTER_LON - deltaLonDegree).maxLon(CENTER_LON + deltaLonDegree)
+			.build();
+
+		when(mapBoundaryCalculator.calculateBoundingBox(anyDouble(), anyDouble(), anyInt()))
+			.thenReturn(boundingBox);
+
+		when(storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCodeAndNameContaining(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon(),
+			targetIndustryCode,
+			keyword
+		)).thenReturn(Arrays.asList(storeWithin500m, storeWithin2km, storeWithin5km, storeWithSameNameAndIndustry));
+
+		// When
+		List<MapResponse> result = mapService.getStoresOnMap(request);
+
+		// Then
+		assertThat(result).hasSize(4);
+		assertThat(result).extracting(MapResponse::getName)
+			.containsExactlyInAnyOrder("500m내 가게", "2km내 가게", "5km내 가게", "가게");
+		assertThat(result).allMatch(store -> store.getIndustryCode().equals(targetIndustryCode));
+
+		verify(storeRepository).findByLatitudeBetweenAndLongitudeBetweenAndIndustryCodeAndNameContaining(
+			boundingBox.getMinLat(), boundingBox.getMaxLat(),
+			boundingBox.getMinLon(), boundingBox.getMaxLon(),
+			targetIndustryCode,
+			keyword
+		);
+		verify(storeRepository, never()).findByLatitudeBetweenAndLongitudeBetween(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+	}
 }
