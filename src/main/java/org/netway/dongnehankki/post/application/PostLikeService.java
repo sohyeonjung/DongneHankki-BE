@@ -5,7 +5,7 @@ import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.domain.PostLike;
 import org.netway.dongnehankki.post.exception.AlreadyLikedException;
 import org.netway.dongnehankki.post.exception.NotLikedException;
-import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UnregisteredPostException;
 import org.netway.dongnehankki.post.repository.PostLikeRepository;
 import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.user.domain.User;
@@ -27,7 +27,7 @@ public class PostLikeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(UnregisteredUserException::new);
         Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
+                .orElseThrow(UnregisteredPostException::new);
 
         postLikeRepository.findByUser_UserIdAndPost_PostId(userId, postId)
                 .ifPresent(like -> {

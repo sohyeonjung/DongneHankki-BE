@@ -9,12 +9,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
-import org.netway.dongnehankki.post.domain.Image;
 import org.netway.dongnehankki.post.domain.Post;
-import org.netway.dongnehankki.post.domain.PostHashtag;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
-import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UnregisteredPostException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
@@ -24,9 +22,6 @@ import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -120,7 +115,7 @@ class PostServiceTest {
 
         // when & then
         assertThatThrownBy(() -> postService.getPost(postId))
-                .isInstanceOf(PostNotFoundException.class)
+                .isInstanceOf(UnregisteredPostException.class)
                 .hasMessage("존재하지 않는 게시글 입니다.");
     }
 

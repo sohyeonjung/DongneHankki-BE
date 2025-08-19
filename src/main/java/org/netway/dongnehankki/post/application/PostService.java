@@ -8,7 +8,7 @@ import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
-import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UnregisteredPostException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
@@ -70,7 +70,7 @@ public class PostService {
     public PostResponse getPost(Long postId) {
         return postRepository.findById(postId)
                 .map(PostResponse::fromEntity)
-                .orElseThrow(() -> new PostNotFoundException());
+                .orElseThrow(() -> new UnregisteredPostException());
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +98,7 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
-            .orElseThrow(PostNotFoundException::new);
+            .orElseThrow(UnregisteredPostException::new);
         if(!post.getUser().getUserId().equals(userId)){
             throw new UserNotMatchedException();
         }
@@ -108,7 +108,7 @@ public class PostService {
     @Transactional
     public void updatePost(Long postId, PostUpdateRequest request, Long userId) {
         Post post = postRepository.findById(postId)
-            .orElseThrow(PostNotFoundException::new);
+            .orElseThrow(UnregisteredPostException::new);
         if (!post.getUser().getUserId().equals(userId)) {
             throw new UserNotMatchedException();
         }

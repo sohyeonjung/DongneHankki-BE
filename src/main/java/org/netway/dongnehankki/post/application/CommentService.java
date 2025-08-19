@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.post.domain.Comment;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.request.CommentRequest;
-import org.netway.dongnehankki.post.exception.CommentNotFoundException;
-import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UnregisteredCommentException;
+import org.netway.dongnehankki.post.exception.UnregisteredPostException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.CommentRepository;
 import org.netway.dongnehankki.post.repository.PostRepository;
@@ -30,7 +30,7 @@ public class CommentService {
     @Transactional
     public void createComment(Long postId, CommentRequest request, Long userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
+                .orElseThrow(UnregisteredPostException::new);
         User user = userRepository.findById(userId)
                 .orElseThrow(UnregisteredUserException::new);
 
@@ -49,17 +49,17 @@ public class CommentService {
     @Transactional
     public void updateComment(Long commentId, CommentRequest request, Long userId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(CommentNotFoundException::new);
+                .orElseThrow(UnregisteredCommentException::new);
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new UserNotMatchedException();
         }
-        comment.update(request.getContent());
+        comment.updateComment(request.getContent());
     }
 
     @Transactional
     public void deleteComment(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(CommentNotFoundException::new);
+                .orElseThrow(UnregisteredCommentException::new);
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new UserNotMatchedException();
         }
