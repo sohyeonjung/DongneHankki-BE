@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.user.dto.request;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,4 +12,5 @@ public class CustomerSignUpRequest {
     private String nickname;
     private String name;
     private String phoneNumber;
+    private LocalDate birth;
 }

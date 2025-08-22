@@ -1,6 +1,7 @@
 package org.netway.dongnehankki.user.domain;
 
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,8 @@ public class User extends BaseEntity {
 
 	private String name;
 
+	private LocalDate birth;
+
 	private String phoneNumber;
 
 	@Enumerated(EnumType.STRING)
@@ -59,7 +62,7 @@ public class User extends BaseEntity {
 		OWNER, CUSTOMER, ADMIN
 	}
 
-	private User(String loginId, String password, String nickname, String name, String phoneNumber, Role role, Store store) {
+	private User(String loginId, String password, String nickname, String name, String phoneNumber, Role role, Store store, LocalDate birth) {
 		this.loginId = loginId;
 		this.password = password;
 		this.nickname = nickname;
@@ -67,14 +70,15 @@ public class User extends BaseEntity {
 		this.phoneNumber = phoneNumber;
 		this.role = role;
 		this.store = store;
+		this.birth = birth;
 	}
 
-	public static User ofCustomer(String loginId, String password, String nickname, String name, String phoneNumber){
-		return new User(loginId, password, nickname, name, phoneNumber, Role.CUSTOMER, null);
+	public static User ofCustomer(String loginId, String password, String nickname, String name, String phoneNumber,LocalDate birth){
+		return new User(loginId, password, nickname, name, phoneNumber, Role.CUSTOMER, null, birth);
 	}
 
-	public static User ofOwner(String loginId, String password, String nickname, String name, String phoneNumber, Store store){
-		return new User(loginId, password, nickname, name, phoneNumber, Role.OWNER, store);
+	public static User ofOwner(String loginId, String password, String nickname, String name, String phoneNumber, Store store, LocalDate birth){
+		return new User(loginId, password, nickname, name, phoneNumber, Role.OWNER, store, birth);
 	}
 
 	public void updateNickname(String nickname) {

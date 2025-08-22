@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.store.application.StoreSyncService;
@@ -70,6 +71,7 @@ public class UserControllerTest {
         String nickname = "nickname";
         String name = "name";
         String phoneNumber = "010-1111-1111";
+        LocalDate birth =  LocalDate.of(2025,8,22);
 
         //when
         when(userService.customerSignUp(any(CustomerSignUpRequest.class))).thenReturn(mock(
@@ -78,7 +80,7 @@ public class UserControllerTest {
         //then
         mockMvc.perform(post("/api/customers")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(loginId, password,nickname, name, phoneNumber)))
+            .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(loginId, password,nickname, name, phoneNumber, birth)))
             .with(csrf())
         ).andDo(print())
             .andExpect(status().isOk());
@@ -93,6 +95,7 @@ public class UserControllerTest {
         String name = "name";
         String phoneNumber = "010-1111-1111";
         Long storeId = 1L;
+        LocalDate birth =  LocalDate.of(2025,8,22);
 
         //when
         when(userService.ownerSignUp(any(OwnerSignUpRequest.class))).thenReturn(mock(
@@ -101,7 +104,7 @@ public class UserControllerTest {
         //then
         mockMvc.perform(post("/api/owners")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new OwnerSignUpRequest(loginId,password,nickname,name, phoneNumber,storeId)))
+                .content(objectMapper.writeValueAsBytes(new OwnerSignUpRequest(loginId,password,name,phoneNumber,storeId,birth )))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isOk());
@@ -194,6 +197,7 @@ public class UserControllerTest {
         String nickname = "nickname";
         String name = "name";
         String phoneNumber = "010-1111-1111";
+        LocalDate birth =  LocalDate.of(2025,8,22);
 
         //when
         when(userService.customerSignUp(any(CustomerSignUpRequest.class))).thenThrow(new DuplicateNickNameException());
@@ -201,7 +205,7 @@ public class UserControllerTest {
         //then
         mockMvc.perform(post("/api/customers")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(loginId, password,nickname, name, phoneNumber)))
+                .content(objectMapper.writeValueAsBytes(new CustomerSignUpRequest(loginId, password,nickname, name, phoneNumber, birth)))
                 .with(csrf())
             ).andDo(print())
             .andExpect(status().isBadRequest());
@@ -321,7 +325,7 @@ public class UserControllerTest {
     public void 단일_고객_회원_조회() throws Exception{
         //given
         Long userId = 1L;
-        UserResponse mockUserResponse = new UserResponse(userId, "testLoginId", "testNickname","testName", "010-1111-1111", User.Role.CUSTOMER, null);
+        UserResponse mockUserResponse = new UserResponse(userId, "testLoginId", "testNickname","testName", "010-1111-1111", User.Role.CUSTOMER, null,LocalDate.of(2025,8,22));
 
         //when
         when(userService.findByUserId(any(Long.class))).thenReturn(mockUserResponse);
@@ -343,7 +347,7 @@ public class UserControllerTest {
         String name = "name";
         String phoneNumber = "010-1111-1111";
         Long storeId = 100L;
-        UserResponse mockUserResponse = new UserResponse(userId, loginId, nickname, name, phoneNumber ,Role.OWNER, storeId);
+        UserResponse mockUserResponse = new UserResponse(userId, loginId, nickname, name, phoneNumber ,Role.OWNER, storeId,LocalDate.of(2025,8,22));
 
         //when
         when(userService.findByUserId(any(Long.class))).thenReturn(mockUserResponse);
@@ -381,7 +385,7 @@ public class UserControllerTest {
         String newName = "name";
         String newPhoneNumber = "010-1111-1111";
         UpdateUserRequest userUpdateRequest = new UpdateUserRequest(newPassword, updatedNickname);
-        UserResponse mockUpdatedUserResponse = new UserResponse(userId, "testId", updatedNickname, newName, newPhoneNumber, Role.CUSTOMER, null);
+        UserResponse mockUpdatedUserResponse = new UserResponse(userId, "testId", updatedNickname, newName, newPhoneNumber, Role.CUSTOMER, null,LocalDate.of(2025,8,22));
 
         //when
         when(userService.updateUser(any(Long.class), any(UpdateUserRequest.class))).thenReturn(mockUpdatedUserResponse);
@@ -403,7 +407,7 @@ public class UserControllerTest {
         String updatedNickname = "새로운닉네임";
         String newPassword = "newPassword";
         UpdateUserRequest userUpdateRequest = new UpdateUserRequest(newPassword, updatedNickname);
-        UserResponse mockUpdatedUserResponse = new UserResponse(userId, "testId", updatedNickname, "testName", "010-1111-1111", Role.OWNER, 1L);
+        UserResponse mockUpdatedUserResponse = new UserResponse(userId, "testId", updatedNickname, "testName", "010-1111-1111", Role.OWNER, 1L,LocalDate.of(2025,8,22));
 
         //when
         when(userService.updateUser(any(Long.class), any(UpdateUserRequest.class))).thenReturn(mockUpdatedUserResponse);

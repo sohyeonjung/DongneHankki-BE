@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.global.auth;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.user.domain.User;
@@ -18,7 +19,8 @@ class CustomUserDetailsTest {
     @BeforeEach
     void setUp() {
         // 테스트를 위한 User 객체 생성
-        user = User.ofCustomer("testLoginId", "testPassword", "testNickname", "testName", "010-1234-5678");
+        user = User.ofCustomer("testLoginId", "testPassword", "testNickname", "testName", "010-1234-5678",
+            LocalDate.of(2025,8,22));
         customUserDetails = new CustomUserDetails(user);
     }
 
