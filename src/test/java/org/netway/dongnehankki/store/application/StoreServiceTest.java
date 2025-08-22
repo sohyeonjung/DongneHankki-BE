@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -154,7 +155,8 @@ public class StoreServiceTest {
 		Long userId = 1L;
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
-		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
+		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468",
+			LocalDate.of(2025,8,22));
 		CreateStoreReviewRequest createStoreReviewRequest = CreateStoreReviewRequest.builder().userId(1L).content("review test").scope(4).build();
 
 		// When
@@ -207,7 +209,7 @@ public class StoreServiceTest {
 		Long userId = 1L;
 		Store testStore = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
-		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468");
+		User testUser = User.ofCustomer("1", "1234", "nickname", "name", "010-1234-5468",LocalDate.of(2025,8,22));
 		StoreMenuRequest storeMenuRequest = StoreMenuRequest.builder().userId(1L).name("menu1").description("menu1 descrp").price(10000).build();
 
 		// When

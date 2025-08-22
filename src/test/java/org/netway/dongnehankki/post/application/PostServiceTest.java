@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.post.application;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,7 +69,7 @@ class PostServiceTest {
         MultipartFile mockFile = mock(MultipartFile.class);
         PostCreateRequest request = new PostCreateRequest(storeId, "새 게시글", new MultipartFile[]{mockFile}, List.of("#맛집"));
 
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone", LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -95,7 +96,7 @@ class PostServiceTest {
     void getPost_success() {
         // given
         Long postId = 1L;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
         Post post = Post.createPost("내용", store, user);
 
@@ -129,7 +130,7 @@ class PostServiceTest {
         // given
         Long storeId = 1L;
         int pageSize = 5;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
 
         // pageSize + 1 만큼의 Mock 데이터 생성
@@ -169,7 +170,7 @@ class PostServiceTest {
         Long storeId = 1L;
         Long cursorPostId = 10L;
         int pageSize = 5;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
 
         // pageSize보다 적은 수의 Mock 데이터 생성
