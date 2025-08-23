@@ -5,6 +5,7 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.post.application.PostService;
 import org.netway.dongnehankki.post.domain.Post;
+import org.netway.dongnehankki.post.domain.Post.Role;
 import org.netway.dongnehankki.post.dto.request.CommentRequest;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
@@ -67,12 +68,21 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping("/store/{storeId}")
-    public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsByStore(
+    @GetMapping("/store/{storeId}/owners")
+    public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getOwnerPostsByStore(
             @PathVariable Long storeId,
             @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
             @RequestParam(defaultValue = "10") int size) {
-        CursorResult<PostResponse> response = postService.getPostsByStore(storeId, cursorPostId, size);
+        CursorResult<PostResponse> response = postService.getPostsByStoreAndRole(storeId, Role.OWNER, cursorPostId, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/store/{storeId}/customers")
+    public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getCustomerPostsByStore(
+            @PathVariable Long storeId,
+            @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
+            @RequestParam(defaultValue = "10") int size) {
+        CursorResult<PostResponse> response = postService.getPostsByStoreAndRole(storeId, Role.CUSTOMER, cursorPostId, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

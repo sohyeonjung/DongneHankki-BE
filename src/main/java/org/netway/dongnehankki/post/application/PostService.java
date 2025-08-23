@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
 import org.netway.dongnehankki.post.domain.Post;
+import org.netway.dongnehankki.post.domain.Post.Role;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
@@ -79,6 +80,28 @@ public class PostService {
         final List<Post> posts = (cursorPostId == null) ?
             postRepository.findByStore_StoreIdOrderByPostIdDesc(storeId, pageable) :
             postRepository.findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(storeId, cursorPostId, pageable);
+
+        Long nextCursor = null;
+        List<Post> responsePosts = posts;
+
+        if (posts.size() > pageSize) {
+            nextCursor = posts.get(pageSize).getPostId();
+            responsePosts = posts.subList(0, pageSize);
+        }
+
+        List<PostResponse> response = responsePosts.stream()
+            .map(PostResponse::fromEntity)
+            .toList();
+
+        return new CursorResult<>(response, nextCursor);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResult<PostResponse> getPostsByStoreAndRole(Long storeId, Role role, Long cursorPostId, int pageSize) {
+        final Pageable pageable = PageRequest.of(0, pageSize + 1);
+        final List<Post> posts = (cursorPostId == null) ?
+            postRepository.findByStore_StoreIdAndRoleOrderByPostIdDesc(storeId, role, pageable) :
+            postRepository.findByStore_StoreIdAndRoleAndPostIdLessThanOrderByPostIdDesc(storeId, role, cursorPostId, pageable);
 
         Long nextCursor = null;
         List<Post> responsePosts = posts;
