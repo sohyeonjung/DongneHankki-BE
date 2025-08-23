@@ -24,6 +24,9 @@ public class MapBoundaryCalculator {
 			case 5:
 				radiusKm = 0.5;
 				break;
+			case 6:
+				radiusKm = 0.2;
+				break;
 			default:
 				radiusKm = 10.0;
 				break;

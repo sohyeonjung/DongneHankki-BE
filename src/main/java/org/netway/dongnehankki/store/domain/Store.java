@@ -1,17 +1,23 @@
 package org.netway.dongnehankki.store.domain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.follow.domain.Follow;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.user.domain.User;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -31,8 +37,6 @@ public class Store extends BaseEntity {
 
 	private Double longitude;
 
-	private Integer likeCount;
-
 	private String sigun;
 
 	private String address;
@@ -40,6 +44,10 @@ public class Store extends BaseEntity {
 	private Integer industryCode;
 
 	private Long businessRegistrationNumber;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "store_operating_hours", joinColumns = @JoinColumn(name = "store_id"))
+	private List<OperatingHour> operatingHours = new ArrayList<>();
 
 	@OneToOne(mappedBy = "store")
 	private User user;
@@ -50,7 +58,7 @@ public class Store extends BaseEntity {
 	@OneToMany(mappedBy = "store")
 	private List<Post> posts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "store")
+	@OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
 	private List<Review> reviews = new ArrayList<>();
 
 	@OneToMany(mappedBy = "store")
@@ -79,5 +87,20 @@ public class Store extends BaseEntity {
 		this.address = refineRoadnmAddr;
 		this.sigun = sigunNm;
 		this.industryCode = indutypeCd;
+	}
+
+	public void updateOperatingHours(List<OperatingHour> operatingHours) {
+		this.operatingHours.clear();
+		this.operatingHours = operatingHours;
+	}
+
+	public Double getAverageStar() {
+		if (reviews == null || reviews.isEmpty()) {
+			return 0.0;
+		}
+		return reviews.stream()
+			.mapToInt(Review::getScope)
+			.average()
+			.orElse(0.0);
 	}
 }

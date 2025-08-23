@@ -207,4 +207,49 @@ class StoreRepositoryTest {
 		assertThat(stores).allMatch(store -> store.getIndustryCode().equals(targetIndustryCode));
 	}
 
+	@DisplayName("findByLatitudeBetweenAndLongitudeBetweenAndNameContaining - 위치와 이름으로 필터링")
+	@Test
+	void findByCoordinatesAndName() {
+		// Given
+		double minLat = 37.5660;
+		double maxLat = 37.5675;
+		double minLon = 126.9775;
+		double maxLon = 126.9790;
+		String keyword = "A";
+
+		// When
+		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndNameContaining(
+			minLat, maxLat, minLon, maxLon, keyword
+		);
+
+		// Then
+		assertThat(stores).hasSize(1);
+		assertThat(stores).extracting(Store::getName)
+			.containsExactlyInAnyOrder("가게A");
+	}
+
+	@DisplayName("findByLatitudeBetweenAndLongitudeBetweenAndIndustryCodeAndNameContaining - 위치, 업종, 이름으로 필터링")
+	@Test
+	void findByCoordinatesAndIndustryCodeAndName() {
+		// Given
+		double minLat = 37.5660;
+		double maxLat = 37.5675;
+		double minLon = 126.9775;
+		double maxLon = 126.9790;
+		Integer targetIndustryCode = 1234;
+		String keyword = "가게";
+
+		// When
+		List<Store> stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCodeAndNameContaining(
+			minLat, maxLat, minLon, maxLon, targetIndustryCode, keyword
+		);
+
+		// Then
+		assertThat(stores).hasSize(2);
+		assertThat(stores).extracting(Store::getName)
+			.containsExactlyInAnyOrder("가게A", "가게B");
+		assertThat(stores).allMatch(store -> store.getIndustryCode().equals(targetIndustryCode));
+	}
 }
+
+
