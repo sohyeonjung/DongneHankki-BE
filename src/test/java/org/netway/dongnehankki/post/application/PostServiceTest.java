@@ -192,7 +192,7 @@ class PostServiceTest {
         // given
         Long postId = 1L;
         Long userId = 1L;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone", LocalDate.of(2025,8,22));
         try {
             java.lang.reflect.Field userIdField = User.class.getDeclaredField("userId");
             userIdField.setAccessible(true);
@@ -219,7 +219,7 @@ class PostServiceTest {
         Long postId = 1L;
         Long userId = 1L;
         Long anotherUserId = 2L;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone", LocalDate.of(2025,8,22));
         try {
             java.lang.reflect.Field userIdField = User.class.getDeclaredField("userId");
             userIdField.setAccessible(true);
