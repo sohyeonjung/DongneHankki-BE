@@ -1,9 +1,5 @@
 package org.netway.dongnehankki.notification.application;
 
-import java.util.List;
-
-import org.netway.dongnehankki.notification.dto.request.FCMNotificationRequest;
-import org.netway.dongnehankki.user.infrastructure.UserRepository;
 import org.springframework.stereotype.Service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
