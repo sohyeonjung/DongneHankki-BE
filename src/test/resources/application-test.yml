@@ -44,3 +44,6 @@ cloud:
       secret-key: 32313s0c3T4FcyWOLewqeqw9vr5pHpwuLQ
     region:
       static: ap-northeast-2
+
+fcm:
+  secret: test.json
