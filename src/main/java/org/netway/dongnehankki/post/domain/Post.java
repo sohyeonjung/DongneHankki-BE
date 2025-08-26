@@ -1,11 +1,14 @@
 package org.netway.dongnehankki.post.domain;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.store.domain.Store;
+import org.hibernate.annotations.Where;
 import org.netway.dongnehankki.user.domain.User;
 
 import jakarta.persistence.Entity;
@@ -19,10 +22,12 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.netway.dongnehankki.user.domain.User.Role;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "deleted_at is NULL")
 public class Post extends BaseEntity {
 
 	@Id
@@ -49,15 +54,26 @@ public class Post extends BaseEntity {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comment> comments = new ArrayList<>();
 
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PostLike> postLikes = new ArrayList<>();
 
-	public static Post createPost(String content, Store store, User user) {
-		return new Post(content, store, user);
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	public enum Role {
+		OWNER, CUSTOMER
 	}
 
-	private Post(String content, Store store, User user) {
+
+	public static Post createPost(String content, Store store, User user, Role role) {
+		return new Post(content, store, user, role);
+	}
+
+	private Post(String content, Store store, User user, Role role) {
 		this.content = content;
 		this.store = store;
 		this.user = user;
+		this.role = role;
 	}
 
 	public void addImage(String url, int displayOrder) {
@@ -68,5 +84,11 @@ public class Post extends BaseEntity {
 	public void addPostHashtag(Hashtag hashtag) {
 		PostHashtag postHashtag = new PostHashtag(this, hashtag);
 		this.postHashtags.add(postHashtag);
+	}
+
+	public void update(String content, List<Hashtag> newHashtags) {
+		this.content = content;
+		this.postHashtags.clear();
+		newHashtags.forEach(this::addPostHashtag);
 	}
 }
