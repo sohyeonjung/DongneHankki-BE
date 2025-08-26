@@ -51,6 +51,8 @@ dependencies {
 
 	implementation 'net.nurigo:sdk:4.3.2'
 
+	implementation 'com.google.firebase:firebase-admin:9.3.0'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'
