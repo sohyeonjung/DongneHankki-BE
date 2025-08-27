@@ -53,6 +53,7 @@ google:
   cloud:
     project: ${GOOGLE_PROJECT_ID}
     location: global
+    cloud-key: ${GOOGLE_CLOUD_KEY}
 ---
 spring:
   config:

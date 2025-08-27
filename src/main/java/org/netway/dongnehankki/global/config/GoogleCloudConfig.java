@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -16,8 +17,10 @@ import com.google.genai.types.HttpOptions;
 @Configuration
 public class GoogleCloudConfig {
 
-	@Value("classpath:googlecloudkey.json")
-	Resource gcsCredentials;
+	// @Value("classpath:googlecloudkey.json")
+	// Resource gcsCredentials;
+	@Value("${google.cloud.cloud-key}")
+	String path;
 	@Value("${google.cloud.project}")
 	private String projectId;
 	@Value("${google.cloud.location}")
@@ -26,6 +29,8 @@ public class GoogleCloudConfig {
 	@Bean
 	public Client vertexClient() throws IOException {
 		List<String> scopes = Collections.singletonList("https://www.googleapis.com/auth/cloud-platform");
+
+		Resource gcsCredentials = new ClassPathResource(path);
 
 		GoogleCredentials credentials = GoogleCredentials.fromStream(gcsCredentials.getInputStream())
 			.createScoped(scopes);
