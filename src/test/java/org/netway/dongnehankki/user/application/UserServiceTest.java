@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
+import org.netway.dongnehankki.post.application.VertexAIService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
@@ -45,9 +46,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import com.google.genai.Client;
+
 @SpringBootTest
 @ActiveProfiles("test")
-
 public class UserServiceTest {
 
     @Autowired
@@ -73,6 +75,12 @@ public class UserServiceTest {
 
     @MockitoBean
     private StoreSyncService storeSyncService;
+
+    @MockitoBean
+    private Client vertexClient;
+
+    @MockitoBean
+    private VertexAIService vertexAIService;
 
     @Test
     void 일반회원_회원가입이_정상적으로_동작하는경우() {

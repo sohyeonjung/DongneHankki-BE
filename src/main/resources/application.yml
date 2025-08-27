@@ -46,6 +46,14 @@ coolsms:
 
 fcm:
   secret: ${FCM_FILE_NAME}
+
+google:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+  cloud:
+    project: ${GOOGLE_PROJECT_ID}
+    location: global
+    cloud-key: ${GOOGLE_CLOUD_KEY}
 ---
 spring:
   config:
