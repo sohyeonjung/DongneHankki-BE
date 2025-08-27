@@ -181,9 +181,12 @@ public class PostService {
         return new CursorResult<>(response, nextCursor);
     }
 
+    @Transactional(readOnly = true)
     public CursorResult<PostResponse> latestPosts(Long cursorPostId, int pageSize) {
         final Pageable pageable = PageRequest.of(0, pageSize + 1);
-        final List<Post> posts = postRepository.findAllByCursor(cursorPostId, pageable);
+        final List<Post> posts = (cursorPostId == null) ?
+            postRepository.findAllByOrderByPostIdDesc(pageable) :
+            postRepository.findAllByPostIdLessThanOrderByPostIdDesc(cursorPostId, pageable);
 
         Long nextCursor = null;
         List<Post> responsePosts = posts;

@@ -29,8 +29,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByStoreInOrderByPostIdDesc(List<Store> stores, Pageable pageable);
 
     @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
-    @Query("select p from Post p " +
-        "where (:cursorPostId is null or p.id < :cursorPostId) " +
-        "order by p.id desc")
-    List<Post> findAllByCursor(@Param("cursorPostId") Long cursorPostId, Pageable pageable);
+    List<Post> findAllByOrderByPostIdDesc(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
+    List<Post> findAllByPostIdLessThanOrderByPostIdDesc(Long cursorPostId, Pageable pageable);
 }
