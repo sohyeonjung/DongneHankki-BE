@@ -26,6 +26,7 @@ class DongneHankkiBeApplicationTests {
 
 	@MockitoBean
 	private Client vertexClient;
+
 	@MockitoBean
 	private VertexAIService vertexAIService;
 

@@ -53,4 +53,4 @@ google:
     api-key: testkey
   cloud:
     project: test-project
-    cloud-key: googlecloudkeytest.json
+    cloud-key: test.json
