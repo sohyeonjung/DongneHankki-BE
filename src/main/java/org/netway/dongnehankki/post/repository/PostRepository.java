@@ -17,4 +17,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(Long storeId, Long cursorPostId, Pageable pageable);
 
     List<Post> findByStore_StoreIdOrderByPostIdDesc(Long storeId, Pageable pageable);
+
+    List<Post> findByStore_StoreIdAndRoleAndPostIdLessThanOrderByPostIdDesc(Long storeId, Post.Role role, Long cursorPostId, Pageable pageable);
+
+    List<Post> findByStore_StoreIdAndRoleOrderByPostIdDesc(Long storeId, Post.Role role, Pageable pageable);
+
+    List<Post> findByStoreInAndPostIdLessThanOrderByPostIdDesc(List<org.netway.dongnehankki.store.domain.Store> stores, Long cursorPostId, Pageable pageable);
+
+    List<Post> findByStoreInOrderByPostIdDesc(List<org.netway.dongnehankki.store.domain.Store> stores, Pageable pageable);
 }

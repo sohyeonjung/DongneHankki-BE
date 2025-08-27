@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.post.application;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,12 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
-import org.netway.dongnehankki.post.domain.Image;
 import org.netway.dongnehankki.post.domain.Post;
-import org.netway.dongnehankki.post.domain.PostHashtag;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
-import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UnregisteredPostException;
+import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -23,9 +23,6 @@ import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,7 +65,7 @@ class PostServiceTest {
         MultipartFile mockFile = mock(MultipartFile.class);
         PostCreateRequest request = new PostCreateRequest(storeId, "새 게시글", new MultipartFile[]{mockFile}, List.of("#맛집"));
 
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone", LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -77,7 +74,7 @@ class PostServiceTest {
         given(hashtagRepository.findByName(anyString())).willReturn(Optional.of(Hashtag.createHashtag("#맛집")));
 
         // when
-        postService.createPost(request, userId);
+        postService.createPost(request, userId, Post.Role.CUSTOMER);
 
         // then
         ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
@@ -95,9 +92,9 @@ class PostServiceTest {
     void getPost_success() {
         // given
         Long postId = 1L;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
-        Post post = Post.createPost("내용", store, user);
+        Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
 
@@ -119,7 +116,7 @@ class PostServiceTest {
 
         // when & then
         assertThatThrownBy(() -> postService.getPost(postId))
-                .isInstanceOf(PostNotFoundException.class)
+                .isInstanceOf(UnregisteredPostException.class)
                 .hasMessage("존재하지 않는 게시글 입니다.");
     }
 
@@ -129,14 +126,14 @@ class PostServiceTest {
         // given
         Long storeId = 1L;
         int pageSize = 5;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
 
         // pageSize + 1 만큼의 Mock 데이터 생성
         List<Post> posts = List.of(
-            Post.createPost("p6", store, user), Post.createPost("p5", store, user),
-            Post.createPost("p4", store, user), Post.createPost("p3", store, user),
-            Post.createPost("p2", store, user), Post.createPost("p1", store, user)
+            Post.createPost("p6", store, user, Post.Role.CUSTOMER), Post.createPost("p5", store, user, Post.Role.CUSTOMER),
+            Post.createPost("p4", store, user, Post.Role.CUSTOMER), Post.createPost("p3", store, user, Post.Role.CUSTOMER),
+            Post.createPost("p2", store, user, Post.Role.CUSTOMER), Post.createPost("p1", store, user, Post.Role.CUSTOMER)
         );
 
         // postId를 모킹하기 위해 리플렉션 사용 (실제로는 데이터베이스에서 자동 생성됨)
@@ -169,12 +166,12 @@ class PostServiceTest {
         Long storeId = 1L;
         Long cursorPostId = 10L;
         int pageSize = 5;
-        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone");
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
 
         // pageSize보다 적은 수의 Mock 데이터 생성
         List<Post> posts = List.of(
-            Post.createPost("p3", store, user), Post.createPost("p2", store, user)
+            Post.createPost("p3", store, user, Post.Role.CUSTOMER), Post.createPost("p2", store, user, Post.Role.CUSTOMER)
         );
 
         given(postRepository.findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(eq(storeId), eq(cursorPostId), any(Pageable.class)))
@@ -187,5 +184,57 @@ class PostServiceTest {
         assertThat(result.values()).hasSize(2);
         assertThat(result.nextCursor()).isNull();
         verify(postRepository).findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(eq(storeId), eq(cursorPostId), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 성공 테스트")
+    void deletePost_success() {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone", LocalDate.of(2025,8,22));
+        try {
+            java.lang.reflect.Field userIdField = User.class.getDeclaredField("userId");
+            userIdField.setAccessible(true);
+            userIdField.set(user, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
+        Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // when
+        postService.deletePost(postId, userId);
+
+        // then
+        assertThat(post.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 실패 - 유저가 일치하지 않음")
+    void deletePost_throwsException_whenUserNotMatched() {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        Long anotherUserId = 2L;
+        User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone", LocalDate.of(2025,8,22));
+        try {
+            java.lang.reflect.Field userIdField = User.class.getDeclaredField("userId");
+            userIdField.setAccessible(true);
+            userIdField.set(user, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
+        Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // when & then
+        assertThatThrownBy(() -> postService.deletePost(postId, anotherUserId))
+            .isInstanceOf(UserNotMatchedException.class)
+            .hasMessage("작성자와 일치하지 않습니다.");
     }
 }

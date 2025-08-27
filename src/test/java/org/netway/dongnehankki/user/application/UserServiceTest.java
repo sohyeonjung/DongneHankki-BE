@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -81,13 +82,14 @@ public class UserServiceTest {
         String nickname = "nickname";
         String name = "홍길동";
         String phoneNumber = "010-1234-5678";
+        LocalDate birth =  LocalDate.of(2025,8,22);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber));
+        when(userRepository.save(any())).thenReturn(CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber, birth));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
 
         // when & then
-        Assertions.assertDoesNotThrow(() -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname,name,phoneNumber)));
+        Assertions.assertDoesNotThrow(() -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname,name,phoneNumber,birth)));
     }
 
     @Test
@@ -99,16 +101,17 @@ public class UserServiceTest {
         String name = "김사장";
         String phoneNumber = "010-9876-5432";
         Long storeId = 1L;
+        LocalDate birth = LocalDate.of(2025,8,22);
         Store mockStore = mock(Store.class);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore));
+        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore, birth));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
         // when & then
-        Assertions.assertDoesNotThrow(() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
+        Assertions.assertDoesNotThrow(() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,name,phoneNumber,storeId,birth)));
     }
 
     @Test
@@ -120,15 +123,16 @@ public class UserServiceTest {
         String name = "김사장";
         String phoneNumber = "010-9876-5432";
         Long storeId = 1L;
+        LocalDate birth = LocalDate.of(2025,8,22);
         Store mockStore = mock(Store.class);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore));
+        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore, birth));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.empty());
 
         // when & then
-        Assertions.assertThrows(UnregisteredStoreException.class,() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
+        Assertions.assertThrows(UnregisteredStoreException.class,() -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,name,phoneNumber,storeId,birth)));
     }
 
     @Test
@@ -149,7 +153,7 @@ public class UserServiceTest {
     void 회원가입시_loginId_중복체크에서_중복이_있을경우() {
         // given
         String loginId = "existingId";
-        User existingUser = CustomerUserFixture.get(loginId, "password", "nickname", "name", "010-1111-1111");
+        User existingUser = CustomerUserFixture.get(loginId, "password", "nickname", "name", "010-1111-1111", LocalDate.of(2025,8,22));
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(existingUser));
 
@@ -178,7 +182,7 @@ public class UserServiceTest {
     void 회원가입시_nickname_중복체크에서_중복이_있을경우() {
         // given
         String nickname = "nickname";
-        User existingUser = CustomerUserFixture.get("loginId", "password", nickname, "name", "010-1111-1111");
+        User existingUser = CustomerUserFixture.get("loginId", "password", nickname, "name", "010-1111-1111", LocalDate.of(2025,8,22));
 
         when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(existingUser));
 
@@ -197,13 +201,14 @@ public class UserServiceTest {
         String nickname = "nickname";
         String name = "홍길동";
         String phoneNumber = "010-1234-5678";
+        LocalDate birth = LocalDate.of(2025,8,22);
 
-        User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber);
+        User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber,birth);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         // when & then
-        Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname,name,phoneNumber)));
+        Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.customerSignUp(new CustomerSignUpRequest(loginId,password,nickname,name,phoneNumber,birth)));
     }
 
     @Test
@@ -215,18 +220,19 @@ public class UserServiceTest {
         String name = "김사장";
         String phoneNumber = "010-9876-5432";
         Long storeId = 1L;
+        LocalDate birth = LocalDate.of(2025,8,22);
         Store mockStore = mock(Store.class);
 
-        User fixture = OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore);
+        User fixture = OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore,birth);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore));
+        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore,birth));
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
         when(mockStore.getStoreId()).thenReturn(storeId);
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
         // when & then
-        Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,nickname,name,phoneNumber,storeId)));
+        Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,name,phoneNumber,storeId,birth)));
     }
 
     @Test
@@ -237,9 +243,10 @@ public class UserServiceTest {
         String name = "name";
         String nickname = "nickname";
         String phoneNumber = "010-1111-1111";
+        LocalDate birth = LocalDate.of(2025,8,22);
         Long userId = 1L;
 
-        User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber);
+        User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber,birth);
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
@@ -278,8 +285,9 @@ public class UserServiceTest {
         String name = "name";
         String phoneNumber = "010-1111-1111";
         String wrongPassword = "wrong_password";
+        LocalDate birth = LocalDate.of(2025,8,22);
 
-        User fixture = CustomerUserFixture.get(loginId, password, nickname, name, phoneNumber);
+        User fixture = CustomerUserFixture.get(loginId, password, nickname, name, phoneNumber,birth);
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
@@ -300,7 +308,7 @@ public class UserServiceTest {
         String newAccessToken = "new_access_token";
         String newRefreshToken = "new_refresh_token";
 
-        User userFixture = CustomerUserFixture.get("loginId", "password", "nickname", "name", "010-1111-1111");
+        User userFixture = CustomerUserFixture.get("loginId", "password", "nickname", "name", "010-1111-1111", LocalDate.of(2025,8,22));
 
         RefreshToken storedRefreshToken = RefreshToken.builder()
                 .userId(userId)
@@ -359,7 +367,7 @@ public class UserServiceTest {
     void 고객_회원_수정이_성공적으로_동작하는_경우() {
 
         // given
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick" ,"oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick" ,"oldName", "010-1111-1111", LocalDate.of(2025,8,22));
         // anyLong() 사용
         given(userRepository.findById(anyLong()))
             .willReturn(Optional.of(existingUser));
@@ -383,7 +391,7 @@ public class UserServiceTest {
 
         // given
         Store mockStore = mock(Store.class);
-        User existingUser = User.ofOwner("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111", mockStore);
+        User existingUser = User.ofOwner("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111", mockStore,LocalDate.of(2025,8,22));
         // anyLong() 사용
         given(userRepository.findById(anyLong()))
             .willReturn(Optional.of(existingUser));
@@ -406,7 +414,7 @@ public class UserServiceTest {
     @Test
     void 다른_유저가_사용중인_닉네임을_사용하는_경우() {
         // given
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111",LocalDate.of(2025,8,22));
         try {
             Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
@@ -415,7 +423,7 @@ public class UserServiceTest {
             throw new RuntimeException(e);
         }
 
-        User anotherUser = User.ofCustomer("anotherLoginId", "pass", "newNick", "newName", "010-2222-2222");
+        User anotherUser = User.ofCustomer("anotherLoginId", "pass", "newNick", "newName", "010-2222-2222",LocalDate.of(2025,8,22));
         try {
             Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
@@ -439,7 +447,7 @@ public class UserServiceTest {
         // given
         long userId = 999L;
         String nickname = "myNick";
-        User existingUser = User.ofCustomer("loginId", "oldPass", nickname, "oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", nickname, "oldName", "010-1111-1111",LocalDate.of(2025,8,22));
         try {
             Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
@@ -462,7 +470,7 @@ public class UserServiceTest {
     void 고객_회원_닉네임만_수정이_성공적으로_동작하는_경우() {
 
         // given
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick", "oldName", "010-1111-1111",LocalDate.of(2025,8,22));
         // anyLong() 사용
         given(userRepository.findById(anyLong()))
             .willReturn(Optional.of(existingUser));
@@ -484,7 +492,7 @@ public class UserServiceTest {
     void 고객_회원_패스워드만_수정이_성공적으로_동작하는_경우() {
 
         // given
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111",LocalDate.of(2025,8,22));
         // anyLong() 사용
         given(userRepository.findById(anyLong()))
             .willReturn(Optional.of(existingUser));
@@ -507,7 +515,7 @@ public class UserServiceTest {
     void 고객_회원_패스워드만_수정하려고_할때_닉네임은_기존_닉네임을_입력하는_경우_성공적으로_동작하는_경우() {
 
         // given
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111",LocalDate.of(2025,8,22));
         // anyLong() 사용
         given(userRepository.findById(anyLong()))
             .willReturn(Optional.of(existingUser));
@@ -530,7 +538,7 @@ public class UserServiceTest {
     void 유저_softDelete가_성공적으로_동작하는_경우(){
         // given
         long userId = 1L;
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111",LocalDate.of(2025,8,22));
 
         given(userRepository.findById(userId)).willReturn(Optional.of(existingUser));
 
@@ -561,7 +569,7 @@ public class UserServiceTest {
     void userId로_유저_정보_찾기_성공하는_경우(){
         // given
         long userId = 1L;
-        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111");
+        User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111",LocalDate.of(2025,8,22));
         given(userRepository.findById(userId))
             .willReturn(Optional.of(existingUser));
 

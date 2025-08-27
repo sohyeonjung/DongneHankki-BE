@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.user.dto.response;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
@@ -14,6 +15,7 @@ public class UserResponse {
     private String phoneNumber;
     private Role role;
     private Long storeId;
+    private LocalDate birth;
 
     public Long getUserId() { return userId; }
     public String getLoginId() { return loginId; }
@@ -22,6 +24,7 @@ public class UserResponse {
     public String getPhoneNumber() { return phoneNumber; }
     public Role getRole() { return role; }
     public Long getStoreId() { return storeId; }
+    public LocalDate getBirth() {return birth;}
 
 
     public static UserResponse fromEntity(User user){
@@ -38,7 +41,8 @@ public class UserResponse {
             user.getName(),
             user.getPhoneNumber(),
             user.getRole(),
-            userStoreId
+            userStoreId,
+            user.getBirth()
         );
     }
 }

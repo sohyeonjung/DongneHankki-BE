@@ -29,17 +29,32 @@ public class MapService {
 		List<Store> stores;
 
 		Integer industryCode = mapRequest.getIndustryCode();
-		if (industryCode == null) {
-			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+		//TODO: 검색 필터링 querydsl로 변경
+		String keyword = mapRequest.getKeyword();
+
+		if (keyword != null && !keyword.isBlank() && industryCode != null) {
+			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCodeAndNameContaining(
 				boundingBox.getMinLat(), boundingBox.getMaxLat(),
-				boundingBox.getMinLon(), boundingBox.getMaxLon()
+				boundingBox.getMinLon(), boundingBox.getMaxLon(),
+				industryCode,
+				keyword
 			);
-		}
-		else{
+		} else if (keyword != null && !keyword.isBlank()) {
+			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndNameContaining(
+				boundingBox.getMinLat(), boundingBox.getMaxLat(),
+				boundingBox.getMinLon(), boundingBox.getMaxLon(),
+				keyword
+			);
+		} else if (industryCode != null) {
 			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetweenAndIndustryCode(
 				boundingBox.getMinLat(), boundingBox.getMaxLat(),
 				boundingBox.getMinLon(), boundingBox.getMaxLon(),
-				mapRequest.getIndustryCode()
+				industryCode
+			);
+		} else {
+			stores = storeRepository.findByLatitudeBetweenAndLongitudeBetween(
+				boundingBox.getMinLat(), boundingBox.getMaxLat(),
+				boundingBox.getMinLon(), boundingBox.getMaxLon()
 			);
 		}
 

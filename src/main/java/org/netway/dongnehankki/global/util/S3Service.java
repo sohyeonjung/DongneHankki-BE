@@ -44,4 +44,14 @@ public class S3Service {
 
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
+
+    public void deleteFile(String fileUrl) {
+        try {
+            String key = fileUrl.substring(fileUrl.indexOf(bucket) + bucket.length() + 1);
+            amazonS3Client.deleteObject(bucket, key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {}", e.getMessage());
+            throw new RuntimeException("S3 파일 삭제 실패", e);
+        }
+    }
 }

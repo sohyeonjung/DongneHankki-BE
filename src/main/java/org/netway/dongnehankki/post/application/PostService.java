@@ -1,16 +1,20 @@
 package org.netway.dongnehankki.post.application;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+
+import org.netway.dongnehankki.follow.repository.FollowRepository;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
 import org.netway.dongnehankki.post.domain.Post;
+import org.netway.dongnehankki.post.domain.Post.Role;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
+import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
-import org.netway.dongnehankki.post.exception.PostNotFoundException;
+import org.netway.dongnehankki.post.exception.UnregisteredPostException;
+import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -39,16 +43,17 @@ public class PostService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final S3Service s3Service;
+    private final FollowRepository followRepository;
     private final VertexAIService vertexAIService;
 
     @Transactional
-    public void createPost(PostCreateRequest request, Long userId) {
+    public void createPost(PostCreateRequest request, Long userId, Post.Role role) {
         User user = userRepository.findById(userId)
             .orElseThrow(UnregisteredUserException::new);
         Store store = storeRepository.findById(request.getStoreId())
             .orElseThrow(UnregisteredStoreException::new);
 
-        Post post = Post.createPost(request.getContent(), store, user);
+        Post post = Post.createPost(request.getContent(), store, user, role);
 
         if (request.getImages() != null) {
             for (int i = 0; i < request.getImages().length; i++) {
@@ -70,7 +75,7 @@ public class PostService {
     public PostResponse getPost(Long postId) {
         return postRepository.findById(postId)
                 .map(PostResponse::fromEntity)
-                .orElseThrow(() -> new PostNotFoundException());
+                .orElseThrow(() -> new UnregisteredPostException());
     }
 
     @Transactional(readOnly = true)
@@ -91,6 +96,91 @@ public class PostService {
         List<PostResponse> response = responsePosts.stream()
             .map(PostResponse::fromEntity)
             .toList();
+
+        return new CursorResult<>(response, nextCursor);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResult<PostResponse> getPostsByStoreAndRole(Long storeId, Role role, Long cursorPostId, int pageSize) {
+        final Pageable pageable = PageRequest.of(0, pageSize + 1);
+        final List<Post> posts = (cursorPostId == null) ?
+            postRepository.findByStore_StoreIdAndRoleOrderByPostIdDesc(storeId, role, pageable) :
+            postRepository.findByStore_StoreIdAndRoleAndPostIdLessThanOrderByPostIdDesc(storeId, role, cursorPostId, pageable);
+
+        Long nextCursor = null;
+        List<Post> responsePosts = posts;
+
+        if (posts.size() > pageSize) {
+            nextCursor = posts.get(pageSize).getPostId();
+            responsePosts = posts.subList(0, pageSize);
+        }
+
+        List<PostResponse> response = responsePosts.stream()
+            .map(PostResponse::fromEntity)
+            .toList();
+
+        return new CursorResult<>(response, nextCursor);
+    }
+
+    @Transactional
+    public void deletePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+            .orElseThrow(UnregisteredPostException::new);
+        if(!post.getUser().getUserId().equals(userId)){
+            throw new UserNotMatchedException();
+        }
+        post.markAsDeleted();
+    }
+
+    @Transactional
+    public void updatePost(Long postId, PostUpdateRequest request, Long userId) {
+        Post post = postRepository.findById(postId)
+            .orElseThrow(UnregisteredPostException::new);
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new UserNotMatchedException();
+        }
+
+        if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
+            List<org.netway.dongnehankki.post.domain.Image> imagesToDelete = post.getImages().stream()
+                .filter(image -> request.getDeleteImageIds().contains(image.getImageId()))
+                .toList();
+
+            imagesToDelete.forEach(image -> {
+                s3Service.deleteFile(image.getUrl());
+                post.getImages().remove(image);
+            });
+        }
+
+        List<Hashtag> newHashtags = request.getHashtags().stream()
+            .map(tagName -> hashtagRepository.findByName(tagName)
+                .orElseGet(() -> hashtagRepository.save(Hashtag.createHashtag(tagName))))
+            .toList();
+
+        post.update(request.getContent(), newHashtags);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResult<PostResponse> getPostsFromFollowedStores(Long userId, Long cursorPostId, int pageSize) {
+        final Pageable pageable = PageRequest.of(0, pageSize + 1);
+        List<Store> followedStores = followRepository.findByUser_UserId(userId).stream()
+                .map(follow -> follow.getStore())
+                .toList();
+
+        final List<Post> posts = (cursorPostId == null) ?
+                postRepository.findByStoreInOrderByPostIdDesc(followedStores, pageable) :
+                postRepository.findByStoreInAndPostIdLessThanOrderByPostIdDesc(followedStores, cursorPostId, pageable);
+
+        Long nextCursor = null;
+        List<Post> responsePosts = posts;
+
+        if (posts.size() > pageSize) {
+            nextCursor = posts.get(pageSize).getPostId();
+            responsePosts = posts.subList(0, pageSize);
+        }
+
+        List<PostResponse> response = responsePosts.stream()
+                .map(PostResponse::fromEntity)
+                .toList();
 
         return new CursorResult<>(response, nextCursor);
     }
