@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Override
@@ -25,4 +27,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByStoreInAndPostIdLessThanOrderByPostIdDesc(List<org.netway.dongnehankki.store.domain.Store> stores, Long cursorPostId, Pageable pageable);
 
     List<Post> findByStoreInOrderByPostIdDesc(List<org.netway.dongnehankki.store.domain.Store> stores, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
+    @Query("select p from Post p " +
+        "where (:cursorPostId is null or p.id < :cursorPostId) " +
+        "order by p.id desc")
+    List<Post> findAllByCursor(@Param("cursorPostId") Long cursorPostId, Pageable pageable);
 }

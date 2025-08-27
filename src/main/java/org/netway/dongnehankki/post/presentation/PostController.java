@@ -86,6 +86,15 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @GetMapping("/recommendPosts")
+    public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsByStore(
+        @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
+        @RequestParam(defaultValue = "10") int size) {
+        // TODO : 추후 유저 기반 추천 게시글로 변경 예정
+        CursorResult<PostResponse> response = postService.latestPosts(cursorPostId, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
         @PathVariable Long postId,
