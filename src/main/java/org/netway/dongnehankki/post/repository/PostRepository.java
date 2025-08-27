@@ -1,6 +1,7 @@
 package org.netway.dongnehankki.post.repository;
 
 import org.netway.dongnehankki.post.domain.Post;
+import org.netway.dongnehankki.store.domain.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.domain.Pageable;
@@ -23,10 +24,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByStore_StoreIdAndRoleAndPostIdLessThanOrderByPostIdDesc(Long storeId, Post.Role role, Long cursorPostId, Pageable pageable);
 
     List<Post> findByStore_StoreIdAndRoleOrderByPostIdDesc(Long storeId, Post.Role role, Pageable pageable);
+    List<Post> findByStoreInAndPostIdLessThanOrderByPostIdDesc(List<Store> stores, Long cursorPostId, Pageable pageable);
 
-    List<Post> findByStoreInAndPostIdLessThanOrderByPostIdDesc(List<org.netway.dongnehankki.store.domain.Store> stores, Long cursorPostId, Pageable pageable);
-
-    List<Post> findByStoreInOrderByPostIdDesc(List<org.netway.dongnehankki.store.domain.Store> stores, Pageable pageable);
+    List<Post> findByStoreInOrderByPostIdDesc(List<Store> stores, Pageable pageable);
 
     @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
     @Query("select p from Post p " +
