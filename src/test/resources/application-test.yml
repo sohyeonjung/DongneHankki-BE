@@ -47,3 +47,9 @@ cloud:
 
 fcm:
   secret: test.json
+
+google:
+  gemini:
+    api-key: testkey
+  cloud:
+    project: test-project
