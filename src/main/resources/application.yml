@@ -2,7 +2,7 @@ spring:
   profiles:
     active: local
   datasource:
-    url: jdbc:mysql://localhost:3306/dongnehankki?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/dongnehankki?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -43,6 +43,17 @@ coolsms:
     key: ${COOLSMS_API_KEY}
     secret: ${COOLSMS_SECRET_KEY}
     number: ${COOLSMS_SENDER_NUMBER}
+
+fcm:
+  secret: ${FCM_FILE_NAME}
+
+google:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+  cloud:
+    project: ${GOOGLE_PROJECT_ID}
+    location: global
+    cloud-key: ${GOOGLE_CLOUD_KEY}
 ---
 spring:
   config:

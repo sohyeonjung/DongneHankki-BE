@@ -14,9 +14,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.genai.Client;
+
 import java.time.LocalDate;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.junit.jupiter.api.Test;
+import org.netway.dongnehankki.post.application.VertexAIService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.user.application.CoolSmsService;
 import org.netway.dongnehankki.user.domain.User;
@@ -63,6 +66,13 @@ public class UserControllerTest {
 
     @MockitoBean
     private CoolSmsService coolSmsService;
+
+    @MockitoBean
+    private Client vertexClient;
+
+    @MockitoBean
+    private VertexAIService vertexAIService;
+
     @Test
     public void 일반회원_회원가입() throws Exception{
         //given

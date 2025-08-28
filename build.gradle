@@ -51,6 +51,12 @@ dependencies {
 
 	implementation 'net.nurigo:sdk:4.3.2'
 
+	implementation 'com.google.firebase:firebase-admin:9.3.0'
+
+	implementation 'com.google.genai:google-genai:1.6.0'
+	implementation(platform("com.google.cloud:libraries-bom:26.66.0"))
+	implementation("com.google.cloud:google-cloud-aiplatform")
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'

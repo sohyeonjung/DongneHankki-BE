@@ -45,6 +45,8 @@ public class User extends BaseEntity {
 
 	private String phoneNumber;
 
+	private String fcmToken;
+
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
@@ -87,5 +89,9 @@ public class User extends BaseEntity {
 
 	public void updatePassword(String password) {
 		this.password = password;
+	}
+
+	public void updateFcmToken(String fcmToken) {
+		this.fcmToken = fcmToken;
 	}
 }

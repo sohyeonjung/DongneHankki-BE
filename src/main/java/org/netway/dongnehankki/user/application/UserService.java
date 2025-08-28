@@ -5,6 +5,7 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
+import org.netway.dongnehankki.notification.dto.request.FCMTokenRequest;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.DuplicateLoginIdException;
@@ -170,4 +171,10 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
         user.markAsDeleted();
     }
+
+    @Transactional
+	public void updateFcmToken(Long userId, FCMTokenRequest fcmTokenRequest) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+        user.updateFcmToken(fcmTokenRequest.getToken());
+	}
 }

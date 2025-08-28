@@ -39,3 +39,5 @@ out/
 ### env file ###
 application-local.yml
 application-prod.yml
+dongnehankki-firebase-adminsdk-fbsvc-91e172f41b.json
+googlecloudkey.json
