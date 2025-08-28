@@ -1,25 +1,32 @@
 package org.netway.dongnehankki.store.dto.response;
 
+import java.time.LocalDateTime;
+
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 public class ReviewResponse {
 	private Long reviewId;
 	private String content;
 	private Integer scope;
-	private UserResponse reviewUser;
+	private LocalDateTime createdAt;
+	private Long userId;
+	private String userName;
 
 	public static ReviewResponse fromEntity(Review review) {
-		UserResponse user = UserResponse.fromEntity(review.getUser());
 
 		return ReviewResponse.builder()
 			.reviewId(review.getReviewId())
 			.content(review.getContent())
 			.scope(review.getScope())
-			.reviewUser(user)
+			.createdAt(review.getCreatedAt())
+			.userId(review.getUser().getUserId())
+			.userName(review.getUser().getName())
 			.build();
 	}
 }
