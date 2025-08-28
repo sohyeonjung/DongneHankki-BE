@@ -186,6 +186,28 @@ public class PostService {
         return new CursorResult<>(response, nextCursor);
     }
 
+    @Transactional(readOnly = true)
+    public CursorResult<PostResponse> latestPosts(Long cursorPostId, int pageSize) {
+        final Pageable pageable = PageRequest.of(0, pageSize + 1);
+        final List<Post> posts = (cursorPostId == null) ?
+            postRepository.findAllByOrderByPostIdDesc(pageable) :
+            postRepository.findAllByPostIdLessThanOrderByPostIdDesc(cursorPostId, pageable);
+
+        Long nextCursor = null;
+        List<Post> responsePosts = posts;
+
+        if (posts.size() > pageSize) {
+            nextCursor = posts.get(pageSize).getPostId();
+            responsePosts = posts.subList(0, pageSize);
+        }
+
+        List<PostResponse> response = responsePosts.stream()
+            .map(PostResponse::fromEntity)
+            .toList();
+
+        return new CursorResult<>(response, nextCursor);
+    }
+
     @Transactional
     public String generatePost(Long storeId, String text, MultipartFile image) throws IOException {
         Store store = storeRepository.findById(storeId).orElseThrow(UnregisteredStoreException::new);

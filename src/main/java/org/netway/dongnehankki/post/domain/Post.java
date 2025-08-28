@@ -4,7 +4,9 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.store.domain.Store;
@@ -49,13 +51,13 @@ public class Post extends BaseEntity {
 	private List<Image> images= new ArrayList<>();
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<PostHashtag> postHashtags = new ArrayList<>();
+	private Set<PostHashtag> postHashtags = new HashSet<>();
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Comment> comments = new ArrayList<>();
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<PostLike> postLikes = new ArrayList<>();
+	private Set<PostLike> postLikes = new HashSet<>();
 
 	@Enumerated(EnumType.STRING)
 	private Role role;

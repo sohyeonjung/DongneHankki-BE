@@ -84,7 +84,7 @@ class PostServiceTest {
         assertThat(savedPost.getImages()).hasSize(1);
         assertThat(savedPost.getImages().get(0).getUrl()).isEqualTo("s3-image-url");
         assertThat(savedPost.getPostHashtags()).hasSize(1);
-        assertThat(savedPost.getPostHashtags().get(0).getHashtag().getName()).isEqualTo("#맛집");
+        assertThat(savedPost.getPostHashtags()).extracting(postHashtag -> postHashtag.getHashtag().getName()).containsExactly("#맛집");
     }
 
     @Test
