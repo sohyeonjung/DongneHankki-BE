@@ -16,6 +16,7 @@ public class UserResponse {
     private Role role;
     private Long storeId;
     private LocalDate birth;
+    private String profileImageUrl;
 
     public Long getUserId() { return userId; }
     public String getLoginId() { return loginId; }
@@ -25,6 +26,7 @@ public class UserResponse {
     public Role getRole() { return role; }
     public Long getStoreId() { return storeId; }
     public LocalDate getBirth() {return birth;}
+    public String getProfileImageUrl() { return profileImageUrl; }
 
 
     public static UserResponse fromEntity(User user){
@@ -42,7 +44,8 @@ public class UserResponse {
             user.getPhoneNumber(),
             user.getRole(),
             userStoreId,
-            user.getBirth()
+            user.getBirth(),
+            user.getProfileImageUrl()
         );
     }
 }

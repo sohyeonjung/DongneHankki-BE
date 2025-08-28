@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.user.application.CoolSmsService;
 import org.netway.dongnehankki.user.application.UserService;
@@ -16,6 +17,7 @@ import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "유저", description = "유저 회원가입, 로그인, 정보 관리 API")
 @RestController
@@ -100,6 +103,15 @@ public class UserController {
 
         UserResponse userResponse = userService.updateUser(userId, updateUserRequest);
         return ResponseEntity.ok(ApiResponse.success(userResponse));
+    }
+
+    @Operation(summary = "유저 프로필 이미지 수정", description = "유저의 프로필 이미지를 수정합니다.")
+    @PatchMapping(value = "/users/{userId}/profile-image", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<Void>> updateProfileImage(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @Parameter(description = "새로운 프로필 이미지 파일") @RequestParam("profileImage") MultipartFile profileImage) {
+        userService.updateProfileImage(userDetails.getUser().getUserId(), profileImage);
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @Operation(summary = "회원 탈퇴", description = "유저 ID로 특정 유저를 탈퇴 처리합니다.")

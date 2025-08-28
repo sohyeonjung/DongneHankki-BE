@@ -47,6 +47,8 @@ public class User extends BaseEntity {
 
 	private String fcmToken;
 
+	private String profileImageUrl;
+
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
@@ -93,5 +95,9 @@ public class User extends BaseEntity {
 
 	public void updateFcmToken(String fcmToken) {
 		this.fcmToken = fcmToken;
+	}
+
+	public void updateProfileImage(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
 	}
 }
