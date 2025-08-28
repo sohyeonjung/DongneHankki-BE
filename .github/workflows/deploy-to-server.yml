@@ -81,7 +81,9 @@ jobs:
             # 2. Create application-prod.yml on the server
             mkdir -p src/main/resources
             echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
-
+            echo "${{ secrets.FIREBASE_SDK }}" > src/main/resources/dongnehankki-firebase-adminsdk-fbsvc-91e172f41b.json
+            echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > src/main/resources/googlecloudkey.json
+            
             # 3. Build the application on the server to create the JAR
             chmod +x gradlew
             
