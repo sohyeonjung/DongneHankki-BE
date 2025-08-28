@@ -15,6 +15,7 @@ public class ReviewResponse {
 	private String content;
 	private Integer scope;
 	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 	private Long userId;
 	private String userName;
 
@@ -25,6 +26,7 @@ public class ReviewResponse {
 			.content(review.getContent())
 			.scope(review.getScope())
 			.createdAt(review.getCreatedAt())
+			.updatedAt(review.getUpdatedAt())
 			.userId(review.getUser().getUserId())
 			.userName(review.getUser().getName())
 			.build();
