@@ -106,7 +106,7 @@ public class UserController {
     }
 
     @Operation(summary = "유저 프로필 이미지 수정", description = "유저의 프로필 이미지를 수정합니다.")
-    @PatchMapping(value = "/users/{userId}/profile-image", consumes = "multipart/form-data")
+    @PatchMapping(value = "/users/profile-image", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<Void>> updateProfileImage(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @Parameter(description = "새로운 프로필 이미지 파일") @RequestParam("profileImage") MultipartFile profileImage) {
