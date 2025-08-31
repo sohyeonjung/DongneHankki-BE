@@ -5,6 +5,7 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
+import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.notification.dto.request.FCMTokenRequest;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
@@ -31,6 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final StoreRepository storeRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final S3Service s3Service;
 
     public UserResponse customerSignUp(CustomerSignUpRequest customerSignUpRequest){
         userRepository.findByLoginId(customerSignUpRequest.getLoginId()).ifPresent(it -> {
@@ -177,4 +180,18 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
         user.updateFcmToken(fcmTokenRequest.getToken());
 	}
+
+    @Transactional
+    public void updateProfileImage(Long userId, MultipartFile profileImage) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UnregisteredUserException::new);
+
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isBlank()) {
+            s3Service.deleteFile(user.getProfileImageUrl());
+        }
+
+        String profileImageUrl = s3Service.uploadFile(profileImage, "profile-images");
+
+        user.updateProfileImage(profileImageUrl);
+    }
 }

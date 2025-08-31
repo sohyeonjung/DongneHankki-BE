@@ -46,7 +46,6 @@ public class PostController {
     private final CommentService commentService;
 
     @Operation(summary = "사장님 게시글 작성", description = "사장님이 게시글을 작성합니다. (form-data)")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping(value = "/owners", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createOwnerPost(
         @ModelAttribute PostCreateRequest request,
@@ -56,7 +55,6 @@ public class PostController {
     }
 
     @Operation(summary = "일반 유저 게시글 작성", description = "일반 유저가 게시글을 작성합니다. (form-data)")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping(value = "/customers", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Void>> createCustomerPost(
         @ModelAttribute PostCreateRequest request,
@@ -66,7 +64,6 @@ public class PostController {
     }
 
     @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> updatePost(
         @PathVariable Long postId,
@@ -116,7 +113,6 @@ public class PostController {
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
         @PathVariable Long postId,
@@ -126,7 +122,6 @@ public class PostController {
     }
 
     @Operation(summary = "댓글 작성", description = "특정 게시글에 댓글을 작성합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping("/{postId}/comments")
     public ResponseEntity<ApiResponse<Void>> createComment(
         @PathVariable Long postId,
@@ -144,7 +139,6 @@ public class PostController {
     }
 
     @Operation(summary = "팔로우한 가게 게시글 조회", description = "로그인한 유저가 팔로우한 가게들의 게시글을 최신순으로 조회합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @GetMapping("/followed")
     public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsFromFollowedStores(
         @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -156,7 +150,6 @@ public class PostController {
     }
 
     @Operation(summary = "AI 마케팅 게시글 생성", description = "이미지와 키워드를 기반으로 AI가 마케팅 게시글을 생성합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping(value = "/generate/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> generateMarketingPost(
         @PathVariable Long storeId,
