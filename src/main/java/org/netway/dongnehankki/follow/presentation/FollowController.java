@@ -21,7 +21,6 @@ public class FollowController {
     private final FollowService followService;
 
     @Operation(summary = "가게 팔로우", description = "사용자가 특정 가게를 팔로우합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping("/store/{storeId}")
     public ResponseEntity<ApiResponse<Void>> follow(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -31,7 +30,6 @@ public class FollowController {
     }
 
     @Operation(summary = "가게 언팔로우", description = "사용자가 팔로우했던 가게를 언팔로우합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/store/{storeId}")
     public ResponseEntity<ApiResponse<Void>> unfollow(
             @AuthenticationPrincipal CustomUserDetails userDetails,
