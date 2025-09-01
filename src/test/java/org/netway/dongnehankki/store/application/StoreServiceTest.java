@@ -313,7 +313,7 @@ public class StoreServiceTest {
 	}
 
 	@Test
-	@DisplayName("deleteStoreMenu - 유효한 입력값에서 정상 작동")
+	@DisplayName("deleteStoreReview - 유효한 입력값에서 정상 작동")
 	void deleteStoreReview_success() {
 		// Given
 		Long storeId = 1L;
@@ -331,8 +331,8 @@ public class StoreServiceTest {
 
 		// Then
 		verify(storeRepository, times(1)).findById(storeId);
-		verify(reviewRepository, times(1)).delete(any(Review.class));
 		verify(storeRepository, times(1)).save(testStore);
+		verify(testReview, times(1)).markAsDeleted();
 		assertFalse(testStore.getReviews().contains(testReview));
 	}
 

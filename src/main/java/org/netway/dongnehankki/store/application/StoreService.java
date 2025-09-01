@@ -94,7 +94,7 @@ public class StoreService {
 			.findFirst().orElseThrow(() -> new UnregisteredReviewException());
 
 		store.getReviews().remove(reviewToDelete);
-		reviewRepository.delete(reviewToDelete);
+		reviewToDelete.markAsDeleted();
 		storeRepository.save(store);
 	}
 

@@ -3,7 +3,6 @@ package org.netway.dongnehankki.store.dto.response;
 import java.time.LocalDateTime;
 
 import org.netway.dongnehankki.store.domain.Review;
-import org.netway.dongnehankki.user.dto.response.UserResponse;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +19,6 @@ public class ReviewResponse {
 	private String userName;
 
 	public static ReviewResponse fromEntity(Review review) {
-
 		return ReviewResponse.builder()
 			.reviewId(review.getReviewId())
 			.content(review.getContent())

@@ -1,5 +1,7 @@
 package org.netway.dongnehankki.user.application;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
@@ -7,6 +9,8 @@ import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.notification.dto.request.FCMTokenRequest;
+import org.netway.dongnehankki.store.domain.Review;
+import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
 import org.netway.dongnehankki.user.exception.DuplicateLoginIdException;
@@ -45,6 +49,7 @@ public class UserService {
     private final StoreRepository storeRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final S3Service s3Service;
+    private final ReviewRepository reviewRepository;
 
     public UserResponse customerSignUp(CustomerSignUpRequest customerSignUpRequest){
         userRepository.findByLoginId(customerSignUpRequest.getLoginId()).ifPresent(it -> {
@@ -172,6 +177,10 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
+
+        List<Review> reviews = reviewRepository.findAllByUser(user);
+        reviews.forEach(Review::markAsDeleted);
+
         user.markAsDeleted();
     }
 
