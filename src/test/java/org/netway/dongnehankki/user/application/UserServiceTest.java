@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
 import org.netway.dongnehankki.post.application.VertexAIService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
+import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.exception.DuplicateNickNameException;
@@ -54,6 +56,9 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @MockitoBean
+    private ReviewRepository reviewRepository;
 
     @MockitoBean
     private UserRepository userRepository;
@@ -549,6 +554,7 @@ public class UserServiceTest {
         User existingUser = User.ofCustomer("loginId", "oldPass", "oldNick","oldName", "010-1111-1111",LocalDate.of(2025,8,22));
 
         given(userRepository.findById(userId)).willReturn(Optional.of(existingUser));
+        given(reviewRepository.findAllByUser(existingUser)).willReturn(Collections.emptyList());
 
         // when
         userService.deleteUser(userId);

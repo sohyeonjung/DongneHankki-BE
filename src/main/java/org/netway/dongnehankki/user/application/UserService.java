@@ -177,12 +177,11 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UnregisteredUserException());
-        user.markAsDeleted();
 
         List<Review> reviews = reviewRepository.findAllByUser(user);
-        for (Review review : reviews) {
-            review.markAsDeleted();
-        }
+        reviews.forEach(Review::markAsDeleted);
+
+        user.markAsDeleted();
     }
 
     @Transactional
