@@ -4,12 +4,9 @@ import java.time.LocalDateTime;
 
 import org.netway.dongnehankki.store.domain.Review;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Getter
 @Builder
 public class ReviewResponse {
