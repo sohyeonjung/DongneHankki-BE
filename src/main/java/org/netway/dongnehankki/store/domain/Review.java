@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.store.domain;
 
+import org.hibernate.annotations.Where;
 import org.netway.dongnehankki.global.common.BaseEntity;
 import org.netway.dongnehankki.user.domain.User;
 
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Where(clause = "deleted_at is NULL")
 @NoArgsConstructor
 public class Review extends BaseEntity {
 	@Id
