@@ -22,16 +22,6 @@ public class ReviewResponse {
 	private String userName;
 
 	public static ReviewResponse fromEntity(Review review) {
-		// Long userId = null;
-		// String userName = "탈퇴한 사용자";
-		//
-		// try{
-		// 	userId = review.getUser().getUserId();
-		// 	userName = review.getUser().getNickname();
-		// }catch(EntityNotFoundException e){
-		// 	log.info("유저 탈퇴 에러:");
-		// }
-
 		return ReviewResponse.builder()
 			.reviewId(review.getReviewId())
 			.content(review.getContent())
