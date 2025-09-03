@@ -75,8 +75,9 @@ public class PostController {
 
     @Operation(summary = "게시글 단건 조회", description = "게시글 ID로 특정 게시글을 조회합니다.")
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable Long postId) {
-        PostResponse response = postService.getPost(postId);
+    public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable Long postId,
+    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        PostResponse response = postService.getPost(postId, userDetails.getUser().getUserId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

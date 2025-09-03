@@ -22,7 +22,6 @@ public class CommentController {
     private final CommentService commentService;
 
     @Operation(summary = "댓글 수정", description = "사용자가 작성한 댓글을 수정합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @PatchMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Void>> updateComment(
             @Parameter(description = "수정할 댓글 ID") @PathVariable Long commentId,
@@ -33,7 +32,6 @@ public class CommentController {
     }
 
     @Operation(summary = "댓글 삭제", description = "사용자가 작성한 댓글을 삭제합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
             @Parameter(description = "삭제할 댓글 ID") @PathVariable Long commentId,

@@ -44,4 +44,13 @@ public class FollowService {
                 .orElseThrow(() -> new NotFollowedException());
         followRepository.delete(follow);
     }
+
+    public boolean followCheck(Long userId, Long storeId) {
+        return followRepository.existsByUser_UserIdAndStore_StoreId(userId, storeId);
+    }
+
+    public Long followerCount(Long storeId) {
+        Store store = storeRepository.findById(storeId).orElseThrow(UnregisteredStoreException::new);
+        return followRepository.countByStore_StoreId(store.getStoreId());
+    }
 }
