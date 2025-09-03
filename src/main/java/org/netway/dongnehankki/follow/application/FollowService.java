@@ -44,4 +44,8 @@ public class FollowService {
                 .orElseThrow(() -> new NotFollowedException());
         followRepository.delete(follow);
     }
+
+    public boolean followCheck(Long userId, Long storeId) {
+        return followRepository.existsByUser_UserIdAndStore_StoreId(userId, storeId);
+    }
 }

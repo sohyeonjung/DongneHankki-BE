@@ -20,6 +20,14 @@ public class FollowController {
 
     private final FollowService followService;
 
+    @Operation(summary = "가게 팔로우 여부 확인", description = "사용자가 특정 가게를 팔로우합니다.")
+    @GetMapping("/store/{storeId}")
+    public ResponseEntity<ApiResponse<Boolean>> followCheck(
+        @Parameter(description = "팔로우 여부 확인할 가게 ID") @PathVariable Long storeId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        boolean isFollowed =  followService.followCheck(userDetails.getUser().getUserId(), storeId);
+        return ResponseEntity.ok(ApiResponse.success(isFollowed));
+    }
+
     @Operation(summary = "가게 팔로우", description = "사용자가 특정 가게를 팔로우합니다.")
     @PostMapping("/store/{storeId}")
     public ResponseEntity<ApiResponse<Void>> follow(
