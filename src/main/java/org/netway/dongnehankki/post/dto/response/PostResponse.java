@@ -26,13 +26,14 @@ public class PostResponse {
     private final List<String> hashtags;
     private final int likeCount;
     private final boolean isLiked;
+    private final int commentCount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createdAt;
 
     @Builder
     public PostResponse(Long postId, String content, Long storeId, String storeName, Long userId, String userNickname,
-        Role uploderRole, List<ImageResponse> images, List<String> hashtags, int likeCount, LocalDateTime createdAt, boolean isLiked) {
+        Role uploderRole, List<ImageResponse> images, List<String> hashtags, int likeCount, LocalDateTime createdAt, boolean isLiked, int commentCount) {
         this.postId = postId;
         this.content = content;
         this.storeId = storeId;
@@ -45,6 +46,7 @@ public class PostResponse {
         this.likeCount = likeCount;
         this.createdAt = createdAt;
         this.isLiked = isLiked;
+        this.commentCount = commentCount;
     }
 
     public static PostResponse fromEntity(Post post) {
@@ -68,7 +70,7 @@ public class PostResponse {
                 .build();
     }
 
-    public static PostResponse fromEntity(Post post, boolean isLiked) {
+    public static PostResponse fromEntity(Post post, boolean isLiked, int commentCount) {
         return PostResponse.builder()
             .postId(post.getPostId())
             .content(post.getContent())
@@ -87,6 +89,7 @@ public class PostResponse {
             .likeCount(post.getPostLikes().size())
             .createdAt(post.getCreatedAt())
             .isLiked(isLiked)
+            .commentCount(commentCount)
             .build();
     }
 

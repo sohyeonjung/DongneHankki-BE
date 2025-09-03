@@ -19,6 +19,7 @@ import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.exception.UnregisteredPostException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
+import org.netway.dongnehankki.post.repository.CommentRepository;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -51,6 +52,7 @@ public class PostService {
     private final S3Service s3Service;
     private final FollowRepository followRepository;
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
     private final VertexAIService vertexAIService;
 
 
@@ -84,7 +86,8 @@ public class PostService {
         Post post =
             postRepository.findById(postId).orElseThrow(UnregisteredPostException::new);
         boolean postLike = postLikeRepository.existsByUser_UserIdAndPost_PostId(userId, post.getPostId());
-        return PostResponse.fromEntity(post,postLike);
+        int commentCount = commentRepository.countByPost_PostId(post.getPostId());
+        return PostResponse.fromEntity(post,postLike, commentCount);
     }
 
     @Transactional(readOnly = true)

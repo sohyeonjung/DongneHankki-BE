@@ -16,6 +16,7 @@ import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.netway.dongnehankki.post.exception.UnregisteredPostException;
 import org.netway.dongnehankki.post.exception.UserNotMatchedException;
+import org.netway.dongnehankki.post.repository.CommentRepository;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
@@ -57,9 +58,10 @@ class PostServiceTest {
     private StoreRepository storeRepository;
     @Mock
     private S3Service s3Service;
-
     @Mock
     private PostLikeRepository postLikeRepository;
+    @Mock
+    private CommentRepository commentRepository;
 
     @Test
     @DisplayName("게시글 생성 테스트")
