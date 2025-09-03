@@ -3,6 +3,8 @@ name: CI/CD with Docker Registry
 on:
   push:
     branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
 
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/dongnehankki-be # Docker Hub 사용자이름/이미지이름
