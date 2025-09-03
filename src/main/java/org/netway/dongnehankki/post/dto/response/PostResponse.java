@@ -25,13 +25,14 @@ public class PostResponse {
     private final List<ImageResponse> images;
     private final List<String> hashtags;
     private final int likeCount;
+    private final boolean isLiked;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createdAt;
 
     @Builder
     public PostResponse(Long postId, String content, Long storeId, String storeName, Long userId, String userNickname,
-        Role uploderRole, List<ImageResponse> images, List<String> hashtags, int likeCount, LocalDateTime createdAt) {
+        Role uploderRole, List<ImageResponse> images, List<String> hashtags, int likeCount, LocalDateTime createdAt, boolean isLiked) {
         this.postId = postId;
         this.content = content;
         this.storeId = storeId;
@@ -43,6 +44,7 @@ public class PostResponse {
         this.hashtags = hashtags;
         this.likeCount = likeCount;
         this.createdAt = createdAt;
+        this.isLiked = isLiked;
     }
 
     public static PostResponse fromEntity(Post post) {
@@ -65,6 +67,30 @@ public class PostResponse {
                 .createdAt(post.getCreatedAt())
                 .build();
     }
+
+    public static PostResponse fromEntity(Post post, boolean isLiked) {
+        return PostResponse.builder()
+            .postId(post.getPostId())
+            .content(post.getContent())
+            .storeId(post.getStore().getStoreId())
+            .storeName(post.getStore().getName())
+            .userId(post.getUser().getUserId())
+            .userNickname(post.getUser().getNickname())
+            .uploderRole(post.getRole())
+            .images(post.getImages().stream()
+                .sorted(Comparator.comparingInt(Image::getDisplayOrder))
+                .map(ImageResponse::fromEntity)
+                .collect(Collectors.toList()))
+            .hashtags(post.getPostHashtags().stream()
+                .map(postHashtag -> postHashtag.getHashtag().getName())
+                .collect(Collectors.toList()))
+            .likeCount(post.getPostLikes().size())
+            .createdAt(post.getCreatedAt())
+            .isLiked(isLiked)
+            .build();
+    }
+
+
 
     @Getter
     public static class ImageResponse {

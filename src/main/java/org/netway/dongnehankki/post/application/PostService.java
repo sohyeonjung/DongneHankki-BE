@@ -2,15 +2,18 @@ package org.netway.dongnehankki.post.application;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.netway.dongnehankki.follow.repository.FollowRepository;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.domain.Post.Role;
+import org.netway.dongnehankki.post.domain.PostLike;
 import org.netway.dongnehankki.post.dto.request.PostCreateRequest;
 import org.netway.dongnehankki.post.dto.request.PostUpdateRequest;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
@@ -19,6 +22,7 @@ import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
+import org.netway.dongnehankki.post.repository.PostLikeRepository;
 import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
@@ -33,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -45,7 +50,9 @@ public class PostService {
     private final StoreRepository storeRepository;
     private final S3Service s3Service;
     private final FollowRepository followRepository;
+    private final PostLikeRepository postLikeRepository;
     private final VertexAIService vertexAIService;
+
 
     @Transactional
     public void createPost(PostCreateRequest request, Long userId, Post.Role role) {
@@ -73,10 +80,11 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponse getPost(Long postId) {
-        return postRepository.findById(postId)
-                .map(PostResponse::fromEntity)
-                .orElseThrow(() -> new UnregisteredPostException());
+    public PostResponse getPost(Long postId, Long userId) {
+        Post post =
+            postRepository.findById(postId).orElseThrow(UnregisteredPostException::new);
+        boolean postLike = postLikeRepository.existsByUser_UserIdAndPost_PostId(userId, post.getPostId());
+        return PostResponse.fromEntity(post,postLike);
     }
 
     @Transactional(readOnly = true)

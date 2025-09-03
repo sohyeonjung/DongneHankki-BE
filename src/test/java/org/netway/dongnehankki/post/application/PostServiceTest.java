@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.post.application;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.netway.dongnehankki.post.exception.UserNotMatchedException;
 import org.netway.dongnehankki.post.repository.HashtagRepository;
 import org.netway.dongnehankki.post.repository.ImageRepository;
 import org.netway.dongnehankki.post.repository.PostHashtagRepository;
+import org.netway.dongnehankki.post.repository.PostLikeRepository;
 import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
@@ -56,6 +58,9 @@ class PostServiceTest {
     @Mock
     private S3Service s3Service;
 
+    @Mock
+    private PostLikeRepository postLikeRepository;
+
     @Test
     @DisplayName("게시글 생성 테스트")
     void createPost_success() {
@@ -88,23 +93,35 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("단일 게시글 조회 성공 테스트")
-    void getPost_success() {
+    @DisplayName("단일 게시글 조회 성공 테스트 - 좋아요 누름")
+    void getPost_success_when_liked() {
         // given
         Long postId = 1L;
+        Long userId = 1L;
         User user = User.ofCustomer("loginId", "password", "nickname", "name", "phone",LocalDate.of(2025,8,22));
         Store store = Store.createStore("가게", 1.0, 1.0, "주소", "시군", 1, 1L);
         Post post = Post.createPost("내용", store, user, Post.Role.CUSTOMER);
 
+        // Post 객체에 ID를 수동으로 설정
+        try {
+            Field postIdField = Post.class.getDeclaredField("postId");
+            postIdField.setAccessible(true);
+            postIdField.set(post, postId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(postLikeRepository.existsByUser_UserIdAndPost_PostId(userId, postId)).willReturn(true);
 
         // when
-        PostResponse response = postService.getPost(postId);
+        PostResponse response = postService.getPost(postId, userId);
 
         // then
         assertThat(response.getContent()).isEqualTo("내용");
         assertThat(response.getStoreName()).isEqualTo("가게");
         assertThat(response.getUserNickname()).isEqualTo("nickname");
+        assertThat(response.isLiked()).isTrue();
     }
 
     @Test
@@ -112,10 +129,11 @@ class PostServiceTest {
     void getPost_throwsException_whenPostNotFound() {
         // given
         Long postId = 1L;
+        Long userId = 1L;
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> postService.getPost(postId))
+        assertThatThrownBy(() -> postService.getPost(postId, userId))
                 .isInstanceOf(UnregisteredPostException.class)
                 .hasMessage("존재하지 않는 게시글 입니다.");
     }

@@ -21,7 +21,6 @@ public class PostLikeController {
     private final PostLikeService postLikeService;
 
     @Operation(summary = "게시글 좋아요", description = "사용자가 특정 게시글에 '좋아요'를 누릅니다.")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> likePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -31,7 +30,6 @@ public class PostLikeController {
     }
 
     @Operation(summary = "게시글 좋아요 취소", description = "사용자가 특정 게시글에 눌렀던 '좋아요'를 취소합니다.")
-    @SecurityRequirement(name = "bearer-key")
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> unlikePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,

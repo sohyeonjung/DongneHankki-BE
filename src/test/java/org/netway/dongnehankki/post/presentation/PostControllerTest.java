@@ -11,6 +11,7 @@ import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
 import org.netway.dongnehankki.user.domain.User;
+import org.netway.dongnehankki.user.domain.User.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -88,31 +89,44 @@ class PostControllerTest {
     }
 
     @Test
-    @WithMockUser
     @DisplayName("단일 게시글 조회 성공 테스트")
     void getPost_success() throws Exception {
         // given
         long postId = 1L;
-        PostResponse response = PostResponse.builder()
-                .postId(postId)
-                .content("게시글 내용")
-                .storeId(1L)
-                .storeName("가게이름")
-                .userId(1L)
-                .userNickname("작성자")
-                .images(Collections.emptyList())
-                .hashtags(Collections.emptyList())
-                .createdAt(LocalDateTime.now())
-                .build();
+        long userId = 1L;
 
-        given(postService.getPost(anyLong())).willReturn(response);
+        // 1. 인증된 사용자 정보 생성
+        User mockUser = mock(User.class);
+        given(mockUser.getUserId()).willReturn(userId);
+        given(mockUser.getRole()).willReturn(Role.CUSTOMER);
+        CustomUserDetails mockUserDetails = new CustomUserDetails(mockUser);
+        UsernamePasswordAuthenticationToken authenticationToken =
+            new UsernamePasswordAuthenticationToken(mockUserDetails, null, mockUserDetails.getAuthorities());
+
+        PostResponse response = PostResponse.builder()
+            .postId(postId)
+            .content("게시글 내용")
+            .storeId(1L)
+            .storeName("가게이름")
+            .userId(userId)
+            .userNickname("작성자")
+            .isLiked(true)
+            .images(Collections.emptyList())
+            .hashtags(Collections.emptyList())
+            .createdAt(LocalDateTime.now())
+            .build();
+
+        given(postService.getPost(postId, userId)).willReturn(response);
 
         // when & then
-        mockMvc.perform(get("/api/posts/{postId}", postId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.postId").value(postId))
-                .andExpect(jsonPath("$.data.content").value("게시글 내용"))
-                .andDo(print());
+        // 2. `.with(authentication(authenticationToken))` 추가
+        mockMvc.perform(get("/api/posts/{postId}", postId)
+                .with(authentication(authenticationToken)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.postId").value(postId))
+            .andExpect(jsonPath("$.data.content").value("게시글 내용"))
+            .andExpect(jsonPath("$.data.liked").value(true))
+            .andDo(print());
     }
 
     @Test
