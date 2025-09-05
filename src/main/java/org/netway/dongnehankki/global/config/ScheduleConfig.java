@@ -1,7 +1,5 @@
 package org.netway.dongnehankki.global.config;
 
-import jakarta.annotation.PostConstruct;
-
 import org.netway.dongnehankki.store.application.ChunCheonStoreService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
