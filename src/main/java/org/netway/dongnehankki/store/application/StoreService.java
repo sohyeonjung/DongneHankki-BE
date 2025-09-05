@@ -122,7 +122,7 @@ public class StoreService {
 
 	@Transactional(readOnly = true)
 	public List<StoreResponse> searchStoresByName(String name) {
-		List<Store> stores = storeRepository.findByNameContaining(name);
+		List<Store> stores = storeRepository.findTop5ByNameContaining(name);
 		return stores.stream()
 			.map(StoreResponse::fromEntity)
 			.toList();
