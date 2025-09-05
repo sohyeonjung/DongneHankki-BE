@@ -8,6 +8,8 @@ import org.netway.dongnehankki.store.dto.request.UpdateStoreOperatingHoursReques
 import org.netway.dongnehankki.store.dto.request.UpdateStoreReviewRequest;
 import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -109,6 +111,15 @@ public class StoreController {
 	){
 		storeService.updateStoreReview(storeId, reviewId, updateStoreReviewRequest);
 		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@Operation(summary = "가게 이름으로 검색", description = "가게 이름으로 가게 목록을 검색합니다.")
+	@GetMapping("/search")
+	public ResponseEntity<ApiResponse<List<StoreResponse>>> searchStoresByName(
+		@Parameter(description = "검색할 가게 이름") @RequestParam String name
+	) {
+		List<StoreResponse> stores = storeService.searchStoresByName(name);
+		return ResponseEntity.ok(ApiResponse.success(stores));
 	}
 
 }

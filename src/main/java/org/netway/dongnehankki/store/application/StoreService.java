@@ -119,4 +119,12 @@ public class StoreService {
 		store.updateOperatingHours(operatingHours);
 		storeRepository.save(store);
 	}
+
+	@Transactional(readOnly = true)
+	public List<StoreResponse> searchStoresByName(String name) {
+		List<Store> stores = storeRepository.findByNameContaining(name);
+		return stores.stream()
+			.map(StoreResponse::fromEntity)
+			.toList();
+	}
 }

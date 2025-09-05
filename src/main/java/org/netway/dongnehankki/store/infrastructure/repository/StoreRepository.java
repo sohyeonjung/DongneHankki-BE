@@ -27,4 +27,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 		Integer industryCode,
 		String name
 	);
+
+	List<Store> findByNameContaining(String name);
 }
