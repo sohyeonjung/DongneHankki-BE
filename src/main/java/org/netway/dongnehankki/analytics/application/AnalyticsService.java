@@ -59,7 +59,7 @@ public class AnalyticsService {
         Map<DayOfWeek, Map<Integer, Map<ActivityType, Long>>> statsMap = new EnumMap<>(DayOfWeek.class);
 
         for (Object[] row : rawCounts) {
-            DayOfWeek dayOfWeek = DayOfWeek.of(((Number) row[0]).intValue() % 7 + 1); // Adjust for DB (e.g., Sunday=1)
+            DayOfWeek dayOfWeek = DayOfWeek.of(((Number) row[0]).intValue() == 1 ? 7 : ((Number) row[0]).intValue() - 1); // Adjust for DB (e.g., Sunday=1 to Java Sunday=7)
             int hour = ((Number) row[1]).intValue();
             ActivityType type = (ActivityType) row[2];
             Long count = (Long) row[3];
@@ -103,6 +103,7 @@ public class AnalyticsService {
         String prompt = buildMarketingReportPrompt(
             store.getName(),
             store.getAddress(),
+            store.getIndustryCode(),
             weeklyHourlyStats,
             csvContent
         );
@@ -113,6 +114,7 @@ public class AnalyticsService {
     private String buildMarketingReportPrompt(
         String storeName,
         String storeAddress,
+        Integer industryCode,
         List<WeeklyHourlyStatsResponse> weeklyHourlyStats,
         String csvContent
     ) {
@@ -121,30 +123,17 @@ public class AnalyticsService {
         너는 전문적인 마케팅 분석가이자 컨설턴트야.
         주어진 가게 정보, 고객 활동 통계, 추가 데이터를 바탕으로 마케팅 분석 리포트를 작성해 줘.
         리포트는 다음 형식에 맞춰 한국어로 작성해야 해. 모든 [ ] 안의 내용은 데이터 기반으로 채워야 해.
-
-        [가게명] 고객 활동 분석 리포트 (최근 한 달)
-
-        요약:
+        아래와 같은 내용을 참고해서 너무 길게는 말고 400자 내로 작성해줘
+        아래의 내용을 무조건 사용할 필요는 없고 해당 가게 유형에 맞는 추천 문구를 작성해줘
+        가게 유형은 아래에 적혀있어 
+        아무런 마크다운 양식도 추가하지말고 그냥 문자열로만 리턴해 "\n" 이런 거도 적지마 
+        그냥 단순히 리포트 본문내용만 리턴해
+        
+        
         최근 한 달간 고객들의 [가게명] 활동 데이터를 분석한 결과, 특정 요일과 시간대에 고객들의 관심이 집중되는 경향을 보였습니다. 이 리포트를 통해 고객들이 가장 활발하게 활동하는 시점을
         파악하고, 마케팅 효율을 높여보세요!
 
-        ---
-
-        1. 주요 활동 시간대 (히트맵 참조)
-
-
-        * 최고 피크 시간대:
-            * 고객 활동이 가장 활발한 시간대는 [가장 높은 요일] [가장 높은 시간대] 입니다. (총 [해당 시간대 총 조회수]회: 가게 조회수 [가게 조회수]회, 게시글 조회수 [게시글 조회수]회)
-            * 이 시간대는 고객들이 [가게명]에 가장 높은 관심을 보이는 시점이므로, 중요한 정보나 프로모션을 게시하기에 가장 적합합니다.
-
-
-        * 요일별 특징:
-            * 주중: 주로 [가장 높은 주중 요일]의 [가장 높은 주중 시간대]에 활동이 많았습니다. 점심시간 전후([예: 11시~13시])와 퇴근 후([예: 18시~20시])에 꾸준한 유입이 보입니다.
-            * 주말: [가장 높은 주말 요일]의 [가장 높은 주말 시간대]에 활동이 집중됩니다. [예: 주말 점심/저녁 식사 계획을 세우는 시간대]로 보입니다.
-
-        ---
-
-        2. 마케팅 활용 제안
+        1. 마케팅 활용 제안
 
 
         * 최적의 게시물 업로드 시간:
@@ -158,8 +147,8 @@ public class AnalyticsService {
 
 
         * 비활성 시간대 활용:
-            * 상대적으로 고객 활동이 적은 시간대([예: 평일 오전])에는 특정 고객층을 위한 게릴라성 이벤트([예: '오전 방문 고객 아메리카노 할인'])나 '야식 메뉴' 등 틈새 마케팅을 시도해 볼 수 있습니다.
-
+            * 상대적으로 고객 활동이 적은 시간대([예: 평일 오전])에는 특정 고객층을 위한 게릴라성 이벤트([예: '오전 방문 고객 아메리카노 할인', '디저트메뉴추천', '야식 메뉴 추천', '틈새 이벤트'])나  등 틈새 마케팅을 시도해 볼 수 있습니다.
+            위 내용을 무조건 사용할 필요는 없고 해당 가게 유형에 맞을만한 추천 문구를 작성해줘
         ---
         [추가 정보]
         가게 이름: """).append(storeName).append("""
@@ -168,8 +157,27 @@ public class AnalyticsService {
         """).append(weeklyHourlyStats.stream().map(WeeklyHourlyStatsResponse::toString).collect(Collectors.joining("\n"))).append("""
         추가 데이터 (CSV 내용):
         """).append(csvContent).append("""
-        * 혹시 너가 csv 파일을 읽고 데이터를 응답한거라면 csv 데이터 읽었음 이라는 멘트를 마지막에 달아줘
-        """);
+        **[참고 가게 종류 표]**
+            | 업종명 | 업종코드 |
+            | --- | --- |
+            | (축산물, 정육점/축산물, 정육점) | 2102 |
+            | (수산물, 건어물/수산물, 건어물) | 2103 |
+            | (농산물, 청과물/농산물, 청과물) | 2104 |
+            | (기타식음료품/기타식음료품) | 2105 |
+            | (건강보조식품/건강보조식품) | 2201 |
+            | (일반음식점/일반음식점) | 2301 |
+            | (중식전문점/중식전문점) | 2302 |
+            | (일식전문점/일식전문점) | 2303 |
+            | (서양식전문점/서양식전문점) | 2305 |
+            | (치킨전문점/치킨전문점) | 2309 |
+            | (식음료(기타)/식음료(기타)) | 2310 |
+            | (제과, 제빵/제과, 제빵) | 2501 |
+            | (커피전문점/커피전문점 | 2502 |
+            | (일반주점/일반주점) | 2601 |
+            | (슈퍼마켓, 마트/슈퍼마켓, 마트) | 5201 |
+            | (편의점/편의점) | 5202 |
+        
+        """).append(industryCode);
 
         return promptBuilder.toString();
     }
