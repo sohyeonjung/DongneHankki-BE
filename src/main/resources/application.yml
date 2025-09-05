@@ -19,7 +19,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
@@ -41,6 +41,9 @@ openapi:
     key: ${GG_OPEN_API_KEY}
     url: https://openapi.gg.go.kr/RegionMnyFacltStus
     sigun-nm: 광명시
+  cc:
+    key: ${CC_OPEN_API_KEY}
+    url: https://api.odcloud.kr/api/15033669/v1/uddi:e9a0dfe2-e4d8-4bb4-8474-e65db0df3aa7
 
 coolsms:
   api:
