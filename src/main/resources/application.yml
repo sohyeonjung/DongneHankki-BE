@@ -44,7 +44,9 @@ openapi:
   cc:
     key: ${CC_OPEN_API_KEY}
     url: https://api.odcloud.kr/api/15033669/v1/uddi:e9a0dfe2-e4d8-4bb4-8474-e65db0df3aa7
-
+  vworld:
+    key: ${VW_OPEN_API_KEY}
+    url: https://api.vworld.kr/req/address
 coolsms:
   api:
     key: ${COOLSMS_API_KEY}
