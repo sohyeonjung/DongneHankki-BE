@@ -26,10 +26,6 @@ public class ChunCheonStoreService {
 	private final StoreRepository storeRepository;
 	private final AddressApiClient addressApiClient;
 
-	private static final Set<String> VALID_INDU_TYPE_CODES = Set.of(
-		"2502", "2301", "2105", "5201"
-	);
-
 	private static final Map<String, Integer> INDUSTRY_CODE_MAP = Map.of(
 		"음ㆍ식료품 위주 종합 소매업", 5201,
 		"식료품 소매업", 5201,
