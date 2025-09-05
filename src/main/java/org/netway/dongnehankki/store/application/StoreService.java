@@ -1,8 +1,10 @@
 package org.netway.dongnehankki.store.application;
 
 
+import java.util.Collections;
 import java.util.List;
-
+import org.netway.dongnehankki.post.domain.Post;
+import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Review;
 import org.netway.dongnehankki.store.domain.Store;
@@ -35,23 +37,36 @@ public class StoreService {
 	private final ReviewRepository reviewRepository;
 	private final MenuRepository menuRepository;
 	private final UserRepository userRepository;
+	private final PostRepository postRepository;
 
 	@Transactional(readOnly = true)
 	public StoreResponse getStoreById(Long storeId) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
-		return StoreResponse.fromEntity(store);
+		List<Post> posts = postRepository.findTop5ByStoreAndRoleOrderByCreatedAtDesc(store, Post.Role.CUSTOMER);
+		List<String> recentReviewImageUrls = posts.stream()
+			.flatMap(post -> post.getImages().stream())
+			.map(image -> image.getUrl())
+			.toList();
+		return StoreResponse.fromEntity(store, recentReviewImageUrls);
 	}
 
 	@Transactional(readOnly = true)
 	public StoreResponse getStoreByBusinessNum(Long businessNum) {
-		Store store = storeRepository.findByBusinessRegistrationNumber(businessNum).orElseThrow(() -> new UnregisteredStoreException());
-		return StoreResponse.fromEntity(store);
+		Store store = storeRepository.findByBusinessRegistrationNumber(businessNum)
+			.orElseThrow(() -> new UnregisteredStoreException());
+		List<Post> posts = postRepository.findTop5ByStoreAndRoleOrderByCreatedAtDesc(store, Post.Role.CUSTOMER);
+		List<String> recentReviewImageUrls = posts.stream()
+			.flatMap(post -> post.getImages().stream())
+			.map(image -> image.getUrl())
+			.toList();
+		return StoreResponse.fromEntity(store, recentReviewImageUrls);
 	}
 
 	@Transactional
 	public void writeStoreReview(Long storeId, CreateStoreReviewRequest createStoreReviewRequest) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
-		User user = userRepository.findById(createStoreReviewRequest.getUserId()).orElseThrow(() -> new UnregisteredUserException());
+		User user = userRepository.findById(createStoreReviewRequest.getUserId())
+			.orElseThrow(() -> new UnregisteredUserException());
 		Review review = Review.createReview(
 			createStoreReviewRequest.getContent(), createStoreReviewRequest.getScope(), user, store
 		);
@@ -66,7 +81,8 @@ public class StoreService {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
 		User user = userRepository.findById(storeMenuRequest.getUserId()).orElseThrow(() -> new UnregisteredUserException());
 		Menu menu = Menu.createMenu(
-			storeMenuRequest.getName(), storeMenuRequest.getDescription(), storeMenuRequest.getImage(), storeMenuRequest.getPrice(), store, user
+			storeMenuRequest.getName(), storeMenuRequest.getDescription(), storeMenuRequest.getImage(),
+			storeMenuRequest.getPrice(), store, user
 		);
 
 		store.getMenus().add(menu);
@@ -78,7 +94,7 @@ public class StoreService {
 	public void deleteStoreMenu(Long storeId, Long menuId) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
 		Menu menuToDelete = store.getMenus().stream()
-			.filter(it->it.getMenuId().equals(menuId))
+			.filter(it -> it.getMenuId().equals(menuId))
 			.findFirst().orElseThrow(() -> new UnregisteredMenuException());
 
 		store.getMenus().remove(menuToDelete);
@@ -90,7 +106,7 @@ public class StoreService {
 	public void deleteStoreReview(Long storeId, Long reviewId) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
 		Review reviewToDelete = store.getReviews().stream()
-			.filter(it->it.getReviewId().equals(reviewId))
+			.filter(it -> it.getReviewId().equals(reviewId))
 			.findFirst().orElseThrow(() -> new UnregisteredReviewException());
 
 		store.getReviews().remove(reviewToDelete);
@@ -102,7 +118,8 @@ public class StoreService {
 	public void updateStoreReview(Long storeId, Long reviewId, UpdateStoreReviewRequest updateStoreReviewRequest) {
 		storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
 		Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new UnregisteredReviewException());
-		if(!review.getStore().getStoreId().equals(storeId)) throw new ReviewStoreMismatchException();
+		if (!review.getStore().getStoreId().equals(storeId))
+			throw new ReviewStoreMismatchException();
 
 		review.updateReview(updateStoreReviewRequest.getContent(), updateStoreReviewRequest.getScope());
 
@@ -110,13 +127,23 @@ public class StoreService {
 	}
 
 	@Transactional
-	public void updateStoreOperatingHours(Long storeId, UpdateStoreOperatingHoursRequest updateStoreOperatingHoursRequest) {
+	public void updateStoreOperatingHours(Long storeId,
+		UpdateStoreOperatingHoursRequest updateStoreOperatingHoursRequest) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
 
 		List<OperatingHour> operatingHours = updateStoreOperatingHoursRequest.getOperatingHours().stream()
-			.map(it->OperatingHour.createOperatingHour(it.getDayOfWeek(), it.getOpenTime(), it.getCloseTime())).toList();
+			.map(it -> OperatingHour.createOperatingHour(it.getDayOfWeek(), it.getOpenTime(), it.getCloseTime()))
+			.toList();
 
 		store.updateOperatingHours(operatingHours);
 		storeRepository.save(store);
+	}
+
+	@Transactional(readOnly = true)
+	public List<StoreResponse> searchStoresByName(String name) {
+		List<Store> stores = storeRepository.findTop5ByNameContaining(name);
+		return stores.stream()
+			.map(store -> StoreResponse.fromEntity(store, Collections.emptyList()))
+			.toList();
 	}
 }

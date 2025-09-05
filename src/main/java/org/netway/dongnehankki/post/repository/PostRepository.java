@@ -13,24 +13,62 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+
     @Override
-    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag"})
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags",
+        "postHashtags.hashtag"})
     Optional<Post> findById(Long postId);
 
-    List<Post> findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(Long storeId, Long cursorPostId, Pageable pageable);
+    List<Post> findByStore_StoreIdAndPostIdLessThanOrderByPostIdDesc(Long storeId,
+        Long cursorPostId, Pageable pageable);
 
     List<Post> findByStore_StoreIdOrderByPostIdDesc(Long storeId, Pageable pageable);
 
-    List<Post> findByStore_StoreIdAndRoleAndPostIdLessThanOrderByPostIdDesc(Long storeId, Post.Role role, Long cursorPostId, Pageable pageable);
+    List<Post> findByStore_StoreIdAndRoleAndPostIdLessThanOrderByPostIdDesc(Long storeId,
+        Post.Role role, Long cursorPostId, Pageable pageable);
 
-    List<Post> findByStore_StoreIdAndRoleOrderByPostIdDesc(Long storeId, Post.Role role, Pageable pageable);
-    List<Post> findByStoreInAndPostIdLessThanOrderByPostIdDesc(List<Store> stores, Long cursorPostId, Pageable pageable);
+    List<Post> findByStore_StoreIdAndRoleOrderByPostIdDesc(Long storeId, Post.Role role,
+        Pageable pageable);
+
+    List<Post> findByStoreInAndPostIdLessThanOrderByPostIdDesc(List<Store> stores,
+        Long cursorPostId, Pageable pageable);
 
     List<Post> findByStoreInOrderByPostIdDesc(List<Store> stores, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags",
+        "postHashtags.hashtag", "postLikes"})
     List<Post> findAllByOrderByPostIdDesc(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags",
+        "postHashtags.hashtag", "postLikes"})
     List<Post> findAllByPostIdLessThanOrderByPostIdDesc(Long cursorPostId, Pageable pageable);
+
+    // --- 새로 추가되는 메소드 ---
+
+    // 콜드 스타트용: 최신 게시글 N개 조회
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags",
+        "postHashtags.hashtag", "postLikes"})
+    List<Post> findTopByOrderByCreatedAtDesc(Pageable pageable);
+
+    // 해시태그 기반 추천: 관심 해시태그를 포함하고, 이미 좋아요 누른 게시글은 제외
+    @Query("SELECT p FROM Post p JOIN p.postHashtags ph JOIN ph.hashtag h " +
+        "WHERE h.name IN :hashtags AND p.postId NOT IN :excludePostIds " +
+        "ORDER BY p.createdAt DESC")
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags",
+        "postHashtags.hashtag", "postLikes"})
+    List<Post> findRecommendedPostsByHashtags(@Param("hashtags") List<String> hashtags,
+        @Param("excludePostIds") List<Long> excludePostIds,
+        Pageable pageable);
+
+    // 인기 게시글 ID 조회: 좋아요 수 기준으로 정렬 (ONLY_FULL_GROUP_BY 호환)
+    @Query("SELECT p.postId FROM Post p LEFT JOIN p.postLikes pl GROUP BY p.postId ORDER BY COUNT(pl) DESC")
+    List<Long> findTopNPopularPostIds(Pageable pageable);
+
+    // findAllById 오버라이드: images 컬렉션을 함께 가져오도록 EntityGraph 적용
+    @Override
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
+    List<Post> findAllById(Iterable<Long> ids);
+
+    List<Post> findTop5ByStoreAndRoleOrderByCreatedAtDesc(Store store, Post.Role role);
+
 }

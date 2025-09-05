@@ -27,4 +27,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 		Integer industryCode,
 		String name
 	);
+
+		List<Store> findTop5ByNameContaining(String name);
+
 }
