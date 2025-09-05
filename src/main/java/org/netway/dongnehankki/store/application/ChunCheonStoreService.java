@@ -33,8 +33,8 @@ public class ChunCheonStoreService {
 	private static final Map<String, Integer> INDUSTRY_CODE_MAP = Map.of(
 		"음ㆍ식료품 위주 종합 소매업", 5201,
 		"식료품 소매업", 5201,
-		"기타 간이 음식점업", 2502,
-		"한식 음식점업", 2502
+		"기타 간이 음식점업", 2301,
+		"한식 음식점업", 2301
 	);
 	private final SwaggerIndexTransformer indexPageTransformer;
 
