@@ -26,15 +26,11 @@ public class ChunCheonStoreService {
 	private final StoreRepository storeRepository;
 	private final AddressApiClient addressApiClient;
 
-	private static final Set<String> VALID_INDU_TYPE_CODES = Set.of(
-		"2502", "2301", "2105", "5201"
-	);
-
 	private static final Map<String, Integer> INDUSTRY_CODE_MAP = Map.of(
 		"음ㆍ식료품 위주 종합 소매업", 5201,
 		"식료품 소매업", 5201,
-		"기타 간이 음식점업", 2502,
-		"한식 음식점업", 2502
+		"기타 간이 음식점업", 2301,
+		"한식 음식점업", 2301
 	);
 	private final SwaggerIndexTransformer indexPageTransformer;
 
@@ -63,17 +59,31 @@ public class ChunCheonStoreService {
 				Double longitude = coords[1];
 				if(latitude==0||longitude==0) continue;
 
-				Store store = Store.createStore(
-					name,
-					latitude,
-					longitude,
-					address,
-					sigun,
-					industryCode,
-					null    // businessRegistrationNumber
-				);
-				stores.add(store);
+				Store existingStore = storeRepository.findByNameAndAddress(name, address);
 
+				if (existingStore != null) {
+					existingStore.updateStore(
+						name,
+						latitude,
+						longitude,
+						address,
+						sigun,
+						industryCode
+					);
+					stores.add(existingStore);
+				} else {
+					// 신규 저장
+					Store newStore = Store.createStore(
+						name,
+						latitude,
+						longitude,
+						address,
+						sigun,
+						industryCode,
+						null
+					);
+					stores.add(newStore);
+				}
 			}
 		}
 
