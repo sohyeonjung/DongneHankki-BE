@@ -72,7 +72,6 @@ public class ChunCheonStoreService {
 					);
 					stores.add(existingStore);
 				} else {
-					// 신규 저장
 					Store newStore = Store.createStore(
 						name,
 						latitude,
