@@ -63,6 +63,9 @@ google:
     project: ${GOOGLE_PROJECT_ID}
     location: global
     cloud-key: ${GOOGLE_CLOUD_KEY}
+
+analytics:
+  csv: ${S3_CSV_LINK}
 ---
 spring:
   config:

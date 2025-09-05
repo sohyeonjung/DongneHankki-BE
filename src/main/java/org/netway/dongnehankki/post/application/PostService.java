@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.netway.dongnehankki.analytics.application.AnalyticsService;
+import org.netway.dongnehankki.analytics.domain.ActivityType;
 import org.netway.dongnehankki.follow.repository.FollowRepository;
 import org.netway.dongnehankki.global.util.S3Service;
 import org.netway.dongnehankki.post.domain.Hashtag;
@@ -54,6 +56,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final VertexAIService vertexAIService;
+    private final AnalyticsService analyticsService;
 
 
     @Transactional
@@ -81,10 +84,14 @@ public class PostService {
         postRepository.save(post);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostResponse getPost(Long postId, Long userId) {
         Post post =
             postRepository.findById(postId).orElseThrow(UnregisteredPostException::new);
+        User user = userRepository.findById(userId).orElseThrow(UnregisteredUserException::new);
+
+        analyticsService.logActivity(user, post.getStore(), ActivityType.VIEW_POST, postId);
+
         boolean postLike = postLikeRepository.existsByUser_UserIdAndPost_PostId(userId, post.getPostId());
         int commentCount = commentRepository.countByPost_PostId(post.getPostId());
         return PostResponse.fromEntity(post,postLike, commentCount);
