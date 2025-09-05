@@ -53,6 +53,9 @@ public class StoreServiceTest {
 	@Mock
 	private MenuRepository menuRepository;
 
+	@Mock
+	private PostRepository postRepository;
+
 	@InjectMocks
 	private StoreService storeService;
 
