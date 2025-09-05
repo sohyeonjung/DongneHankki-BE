@@ -61,7 +61,11 @@ public class ChunCheonStoreService {
 				Double longitude = coords[1];
 				if(latitude==0||longitude==0) continue;
 
-				Store existingStore = storeRepository.findByNameAndAddress(name, address);
+				List<Store> existingStores = storeRepository.findByNameAndAddress(name, address);
+				Store existingStore = null;
+				if (!existingStores.isEmpty()) {
+					existingStore = existingStores.get(0);
+				}
 
 				if (existingStore != null) {
 					existingStore.updateStore(
