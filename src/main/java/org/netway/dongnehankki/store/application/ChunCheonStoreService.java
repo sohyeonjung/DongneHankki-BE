@@ -2,12 +2,14 @@ package org.netway.dongnehankki.store.application;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.infrastructure.external.AddressApiClient;
 import org.netway.dongnehankki.store.infrastructure.external.ChunCheonOpenApiClient;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
+import org.springdoc.webmvc.ui.SwaggerIndexTransformer;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,6 +30,14 @@ public class ChunCheonStoreService {
 		"2502", "2301", "2105", "5201"
 	);
 
+	private static final Map<String, Integer> INDUSTRY_CODE_MAP = Map.of(
+		"음ㆍ식료품 위주 종합 소매업", 5201,
+		"식료품 소매업", 5201,
+		"기타 간이 음식점업", 2502,
+		"한식 음식점업", 2502
+	);
+	private final SwaggerIndexTransformer indexPageTransformer;
+
 	public void fetchAndSaveStores(int pageIndex, int pageSize) throws Exception {
 		String response = openApiClient.fetchStoreData(pageIndex, pageSize);
 
@@ -41,6 +51,11 @@ public class ChunCheonStoreService {
 				String sigun = node.get("시군").asText();
 				if(!"춘천시".equals(sigun)) continue;
 
+				String type = node.get("업종").asText();
+				Integer industryCode = INDUSTRY_CODE_MAP.get(type);
+				if (industryCode == null) continue;
+
+
 				String name = node.get("업체명").asText();
 				String address = node.get("소재지주소").asText();
 
@@ -48,14 +63,13 @@ public class ChunCheonStoreService {
 				Double latitude = coords[0];
 				Double longitude = coords[1];
 
-				//TODO 업체분류를 industryCode로 변경하는 코드 추가
 				Store store = Store.createStore(
 					name,
-					latitude,   // latitude (위도)
-					longitude,   // longitude (경도)
+					latitude,
+					longitude,
 					address,
 					sigun,
-					2301,   // industryCode
+					industryCode,
 					null    // businessRegistrationNumber
 				);
 				stores.add(store);
