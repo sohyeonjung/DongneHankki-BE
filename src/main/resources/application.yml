@@ -19,7 +19,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -82,3 +82,6 @@ cloud:
       secret-key: ${AWS_SECRET_KEY}
     region:
       static: ${AWS_REGION}
+
+analytics:
+  csv: https://dongnae.s3.ap-northeast-2.amazonaws.com/newspring/july.csv
