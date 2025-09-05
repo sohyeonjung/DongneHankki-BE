@@ -3,6 +3,8 @@ package org.netway.dongnehankki.store.application;
 
 import java.util.Collections;
 import java.util.List;
+import org.netway.dongnehankki.analytics.application.AnalyticsService;
+import org.netway.dongnehankki.analytics.domain.ActivityType;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.store.domain.OperatingHour;
@@ -38,10 +40,15 @@ public class StoreService {
 	private final MenuRepository menuRepository;
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
+	private final AnalyticsService analyticsService;
 
-	@Transactional(readOnly = true)
-	public StoreResponse getStoreById(Long storeId) {
+	@Transactional
+	public StoreResponse getStoreById(Long storeId, Long loginId) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
+		User user = userRepository.findById(loginId).orElseThrow(UnregisteredUserException::new);
+
+		analyticsService.logActivity(user, store, ActivityType.VIEW_STORE, storeId);
+
 		List<Post> posts = postRepository.findTop5ByStoreAndRoleOrderByCreatedAtDesc(store, Post.Role.CUSTOMER);
 		List<String> recentReviewImageUrls = posts.stream()
 			.flatMap(post -> post.getImages().stream())

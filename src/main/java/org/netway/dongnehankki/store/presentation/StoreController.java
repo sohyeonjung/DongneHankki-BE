@@ -1,5 +1,6 @@
 package org.netway.dongnehankki.store.presentation;
 
+import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.store.application.StoreService;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
@@ -10,6 +11,7 @@ import org.netway.dongnehankki.store.dto.response.StoreResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,12 +36,13 @@ public class StoreController {
 
 	private final StoreService storeService;
 
-	@Operation(summary = "아아디로 가게 조회", description = "아이디를 통해 가게의 세부 정보를 조회합니다.")
+	@Operation(summary = "아이디로 가게 조회", description = "아이디를 통해 가게의 세부 정보를 조회합니다.")
 	@GetMapping("/{storeId}")
 	public ResponseEntity<ApiResponse<StoreResponse>> getStoreById(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Parameter(description = "가게 ID") @PathVariable Long storeId
 	){
-		StoreResponse store = storeService.getStoreById(storeId);
+		StoreResponse store = storeService.getStoreById(storeId, userDetails.getUser().getUserId());
 		return ResponseEntity.ok(ApiResponse.success(store));
 	}
 
