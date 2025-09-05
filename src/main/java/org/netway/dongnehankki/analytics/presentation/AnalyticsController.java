@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "통계", description = "통계 관련 API")
@@ -29,5 +30,14 @@ public class AnalyticsController {
     ) {
         List<WeeklyHourlyStatsResponse> response = analyticsService.getWeeklyHourlyStats(storeId);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "마케팅 분석 리포트 생성", description = "가게 활동 통계와 추가 데이터를 기반으로 AI 마케팅 분석 리포트를 생성합니다.")
+    @GetMapping("/stores/{storeId}/marketing-report")
+    public ResponseEntity<ApiResponse<String>> generateMarketingReport(
+        @Parameter(description = "가게 ID") @PathVariable Long storeId
+    ) {
+        String report = analyticsService.generateMarketingReport(storeId);
+        return ResponseEntity.ok(ApiResponse.success(report));
     }
 }

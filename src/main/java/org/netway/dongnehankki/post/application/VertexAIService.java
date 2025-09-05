@@ -41,4 +41,14 @@ public class VertexAIService {
 		}
 	}
 
+	public String generateText(String prompt) {
+		Content content = Content.fromParts(Part.fromText(prompt));
+		GenerateContentResponse response = vertexClient.models.generateContent(
+			modelId,
+			content,
+			null
+		);
+		return response.text();
+	}
+
 }
