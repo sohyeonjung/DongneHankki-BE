@@ -69,4 +69,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
     List<Post> findAllById(Iterable<Long> ids);
 
+    List<Post> findTop5ByStoreAndRoleOrderByCreatedAtDesc(Store store, Post.Role role);
+
 }

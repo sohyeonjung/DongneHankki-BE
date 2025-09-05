@@ -28,12 +28,13 @@ public class StoreResponse {
 	private UserResponse owner;
 	private List<MenuResponse> menus;
 	private List<ReviewResponse> reviews;
+	private List<String> recentReviewImageUrls;
 
 	// TODO
 	// private List<PostResponse> posts = new ArrayList<>();
 	// private List<FollowResponse> follows = new ArrayList<>();
 
-	public static StoreResponse fromEntity(Store store) {
+	public static StoreResponse fromEntity(Store store, List<String> recentReviewImageUrls) {
 		UserResponse user = store.getUser() != null ? UserResponse.fromEntity(store.getUser()) : null;
 		List<MenuResponse> menus = store.getMenus().stream().map(MenuResponse::fromEntity).toList();
 		List<ReviewResponse> reviews = store.getReviews().stream().map(ReviewResponse::fromEntity).toList();
@@ -54,6 +55,7 @@ public class StoreResponse {
 			.owner(user)
 			.menus(menus)
 			.reviews(reviews)
+			.recentReviewImageUrls(recentReviewImageUrls)
 			.build();
 	}
 }
