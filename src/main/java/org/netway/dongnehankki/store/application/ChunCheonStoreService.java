@@ -59,17 +59,31 @@ public class ChunCheonStoreService {
 				Double longitude = coords[1];
 				if(latitude==0||longitude==0) continue;
 
-				Store store = Store.createStore(
-					name,
-					latitude,
-					longitude,
-					address,
-					sigun,
-					industryCode,
-					null    // businessRegistrationNumber
-				);
-				stores.add(store);
+				Store existingStore = storeRepository.findByNameAndAddress(name, address);
 
+				if (existingStore != null) {
+					existingStore.updateStore(
+						name,
+						latitude,
+						longitude,
+						address,
+						sigun,
+						industryCode
+					);
+					stores.add(existingStore);
+				} else {
+					// 신규 저장
+					Store newStore = Store.createStore(
+						name,
+						latitude,
+						longitude,
+						address,
+						sigun,
+						industryCode,
+						null
+					);
+					stores.add(newStore);
+				}
 			}
 		}
 
