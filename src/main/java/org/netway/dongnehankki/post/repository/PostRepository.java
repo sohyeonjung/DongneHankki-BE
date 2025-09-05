@@ -60,4 +60,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @Param("excludePostIds") List<Long> excludePostIds,
         Pageable pageable);
 
+    // 인기 게시글 ID 조회: 좋아요 수 기준으로 정렬 (ONLY_FULL_GROUP_BY 호환)
+    @Query("SELECT p.postId FROM Post p LEFT JOIN p.postLikes pl GROUP BY p.postId ORDER BY COUNT(pl) DESC")
+    List<Long> findTopNPopularPostIds(Pageable pageable);
+
+    // findAllById 오버라이드: images 컬렉션을 함께 가져오도록 EntityGraph 적용
+    @Override
+    @EntityGraph(attributePaths = {"user", "store", "images", "postHashtags", "postHashtags.hashtag", "postLikes"})
+    List<Post> findAllById(Iterable<Long> ids);
+
 }
