@@ -29,7 +29,7 @@ public class ScheduleConfig {
 	public void onApplicationReady() throws Exception {
 		log.info("[서버 시작 완료 후 1회 실행] 매장 데이터 동기화 시작");
 		//storeSyncService.sync();
-		chunCheonStoreService.fetchAndSaveStores(1, 50);
+		chunCheonStoreService.fetchAndSaveAllStores(50);
 	}
 
 	// @Scheduled(cron = "0 0 0 * * *", zone = TIME_ZONE)

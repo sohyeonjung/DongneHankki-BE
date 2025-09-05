@@ -55,13 +55,13 @@ public class ChunCheonStoreService {
 				Integer industryCode = INDUSTRY_CODE_MAP.get(type);
 				if (industryCode == null) continue;
 
-
 				String name = node.get("업체명").asText();
 				String address = node.get("소재지주소").asText();
 
 				double[] coords = addressApiClient.getCoordinates(address);
 				Double latitude = coords[0];
 				Double longitude = coords[1];
+				if(latitude==0||longitude==0) continue;
 
 				Store store = Store.createStore(
 					name,
@@ -78,5 +78,17 @@ public class ChunCheonStoreService {
 		}
 
 		storeRepository.saveAll(stores);
+	}
+
+	public void fetchAndSaveAllStores(int pageSize) throws Exception {
+		String firstPageResponse = openApiClient.fetchStoreData(1, pageSize);
+		JsonNode root = objectMapper.readTree(firstPageResponse);
+		int totalCount = root.get("totalCount").asInt();
+		int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+		for (int page = 1; page <= totalPages; page++) {
+			Thread.sleep(300); // API 호출 딜레이
+			fetchAndSaveStores(page, pageSize);
+		}
 	}
 }
