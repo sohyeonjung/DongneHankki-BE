@@ -40,7 +40,9 @@ public class ChunCheonStoreService {
 		JsonNode root = objectMapper.readTree(response);
 		JsonNode dataNode = root.get("data");
 
-		List<Store> stores = new ArrayList<>();
+
+		List<Store> newStores = new ArrayList<>();
+		List<Store> updatedStores = new ArrayList<>();
 
 		if (dataNode.isArray()) {
 			for (JsonNode node : dataNode) {
@@ -70,7 +72,7 @@ public class ChunCheonStoreService {
 						sigun,
 						industryCode
 					);
-					stores.add(existingStore);
+					updatedStores.add(existingStore);
 				} else {
 					Store newStore = Store.createStore(
 						name,
@@ -81,12 +83,13 @@ public class ChunCheonStoreService {
 						industryCode,
 						null
 					);
-					stores.add(newStore);
+					newStores.add(newStore);
 				}
 			}
 		}
 
-		storeRepository.saveAll(stores);
+		storeRepository.saveAll(newStores);
+		storeRepository.saveAll(updatedStores);
 	}
 
 	public void fetchAndSaveAllStores(int pageSize) throws Exception {
