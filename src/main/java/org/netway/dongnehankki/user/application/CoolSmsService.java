@@ -54,7 +54,7 @@ public class CoolSmsService {
         redisTemplate.opsForValue().set(SMS_AUTH_PREFIX + phoneNumber, authCode, SMS_AUTH_EXPIRATION);
     }
 
-    @Async
+    @Async("smsExecutor")
     public void sendSms(String to) {
         String authCode = generateAuthCode();
         saveAuthCodeToRedis(to, authCode);
