@@ -37,16 +37,17 @@
 ![Image](https://github.com/user-attachments/assets/1070f354-df5d-4da2-b3e5-70de6959fffa)
 
 
-**(3) 유저는 자신의 행위를 기반으로 한 식당 추천**
-- 사용자의 활동(게시글 작성, 좋아요, 팔로우 등)을 기반 알고리즘을 통해 취향에 맞는 식당을 추천합니다. 개인화된 추천을 통해 사용자는 새로운 맛집을 발견하고, 더욱 만족스러운 미식 경험을 누릴 수 있습니다.
-
-![Image](https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939)
-
-**(4) 현재 위치 기반 식당 조회**
+**(3) 현재 위치 기반 식당 조회**
 - 현재 위치를 기반으로 근처 식당, 카페, 소매점등을 조회합니다.
 
 ![Image](https://github.com/user-attachments/assets/1de53cf5-390f-4486-9d19-4abf82da59a7)
 
+**(4) 유저는 자신의 행위를 기반으로 한 식당 추천**
+- 사용자의 활동(게시글 작성, 좋아요, 팔로우 등)을 기반 알고리즘을 통해 취향에 맞는 식당을 추천합니다. 개인화된 추천을 통해 사용자는 새로운 맛집을 발견하고, 더욱 만족스러운 미식 경험을 누릴 수 있습니다.
+
+![Image](https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939)
+
+<img src="https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939" width="85%">
 
 <br>
 
