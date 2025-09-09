@@ -28,24 +28,20 @@
 **(1) 간단한 SNS 마케팅**
 - 사용자는 사진과 키워드를 업로드하면 AI가 자동으로 매력적인 SNS 홍보 글을 생성해줍니다. 이를 통해 소상공인은 별도의 마케팅 전문 지식 없이도 손쉽게 온라인 홍보를 진행할 수 있으며, 시간과 비용을 절감할 수 있습니다.
 
-![Image](https://github.com/user-attachments/assets/2dca2ee3-b26d-425e-9302-2b11b5b9fc70)
-
+<img src="https://github.com/user-attachments/assets/2dca2ee3-b26d-425e-9302-2b11b5b9fc70" width="70%">
 
 **(2) AI 기반의 매장 분석 및 유저 행동을 반영한 마케팅 리포트 생성**
 - AI가 유저의 방문, 좋아요, 댓글 등 다양한 행위 데이터를 분석하여 매장별 맞춤형 마케팅 리포트를 제공합니다. 소상공인은 이를 통해 고객의 선호도와 행동 패턴을 파악하고, 효과적인 마케팅 전략을 수립할 수 있습니다.
 
-![Image](https://github.com/user-attachments/assets/1070f354-df5d-4da2-b3e5-70de6959fffa)
-
+<img src="https://github.com/user-attachments/assets/1070f354-df5d-4da2-b3e5-70de6959fffa" width="70%">
 
 **(3) 현재 위치 기반 식당 조회**
 - 현재 위치를 기반으로 근처 식당, 카페, 소매점등을 조회합니다.
 
-![Image](https://github.com/user-attachments/assets/1de53cf5-390f-4486-9d19-4abf82da59a7)
+<img src="https://github.com/user-attachments/assets/1de53cf5-390f-4486-9d19-4abf82da59a7" width="70%">
 
 **(4) 유저는 자신의 행위를 기반으로 한 식당 추천**
 - 사용자의 활동(게시글 작성, 좋아요, 팔로우 등)을 기반 알고리즘을 통해 취향에 맞는 식당을 추천합니다. 개인화된 추천을 통해 사용자는 새로운 맛집을 발견하고, 더욱 만족스러운 미식 경험을 누릴 수 있습니다.
-
-![Image](https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939)
 
 <img src="https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939" width="70%">
 
