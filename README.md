@@ -47,7 +47,7 @@
 
 ![Image](https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939)
 
-<img src="https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939" width="85%">
+<img src="https://github.com/user-attachments/assets/8cad44a3-0996-4735-807b-95dcf7018939" width="70%">
 
 <br>
 
