@@ -34,9 +34,6 @@ public class AnalyticsService {
     private final VertexAIService vertexAIService;
     private final RestTemplate restTemplate;
 
-    @Value("${analytics.csv}")
-    private String csvFileUrl;
-
     @Transactional
     public void logActivity(User user, Store store, ActivityType activityType, Long targetId) {
         ActivityLog activityLog = ActivityLog.builder()
@@ -55,7 +52,6 @@ public class AnalyticsService {
 
         List<Object[]> rawCounts = activityLogRepository.findWeeklyHourlyActivityCounts(store, startDate);
 
-        // Map<DayOfWeek, Map<Hour, Map<ActivityType, Count>>>
         Map<DayOfWeek, Map<Integer, Map<ActivityType, Long>>> statsMap = new EnumMap<>(DayOfWeek.class);
 
         for (Object[] row : rawCounts) {
@@ -90,22 +86,16 @@ public class AnalyticsService {
         return result;
     }
 
-    public String fetchCsvContent(String csvFileUrl) {
-        return restTemplate.getForObject(csvFileUrl, String.class);
-    }
-
     @Transactional(readOnly = true)
     public String generateMarketingReport(Long storeId) {
         Store store = storeRepository.findById(storeId).orElseThrow(UnregisteredStoreException::new);
         List<WeeklyHourlyStatsResponse> weeklyHourlyStats = getWeeklyHourlyStats(storeId);
-        String csvContent = fetchCsvContent(this.csvFileUrl);
 
         String prompt = buildMarketingReportPrompt(
             store.getName(),
             store.getAddress(),
             store.getIndustryCode(),
-            weeklyHourlyStats,
-            csvContent
+            weeklyHourlyStats
         );
 
         return vertexAIService.generateText(prompt);
@@ -115,8 +105,7 @@ public class AnalyticsService {
         String storeName,
         String storeAddress,
         Integer industryCode,
-        List<WeeklyHourlyStatsResponse> weeklyHourlyStats,
-        String csvContent
+        List<WeeklyHourlyStatsResponse> weeklyHourlyStats
     ) {
         StringBuilder promptBuilder = new StringBuilder();
         promptBuilder.append("""
@@ -159,8 +148,6 @@ public class AnalyticsService {
         가게 주소: """).append(storeAddress).append("""
         고객 활동 통계 (요일별 시간대별 조회수):
         """).append(weeklyHourlyStats.stream().map(WeeklyHourlyStatsResponse::toString).collect(Collectors.joining("\n"))).append("""
-        추가 데이터 (CSV 내용):
-        """).append(csvContent).append("""
         **[참고 가게 종류 표]**
             | 업종명 | 업종코드 |
             | --- | --- |
