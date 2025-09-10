@@ -55,7 +55,7 @@ import com.google.genai.Client;
 public class UserServiceTest {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @MockitoBean
     private ReviewRepository reviewRepository;

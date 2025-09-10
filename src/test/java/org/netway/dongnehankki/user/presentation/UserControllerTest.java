@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 
 import java.time.LocalDate;
-import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.post.application.VertexAIService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
@@ -32,7 +31,7 @@ import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
-import org.netway.dongnehankki.user.application.UserService;
+import org.netway.dongnehankki.user.application.UserServiceImpl;
 import org.netway.dongnehankki.user.dto.request.LoginResponse;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
@@ -59,7 +58,7 @@ public class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @MockitoBean
     private StoreSyncService storeSyncService;

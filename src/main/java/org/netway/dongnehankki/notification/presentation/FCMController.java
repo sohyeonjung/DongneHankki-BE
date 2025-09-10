@@ -3,7 +3,7 @@ package org.netway.dongnehankki.notification.presentation;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.notification.dto.request.FCMTokenRequest;
-import org.netway.dongnehankki.user.application.UserService;
+import org.netway.dongnehankki.user.application.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FCMController {
 
-	private final UserService userService;
+	private final UserServiceImpl userService;
 
 	@Operation(summary = "fcm 토큰 등록", description = "발급받은 fcm 토큰을 등록합니다.")
 	@PatchMapping("/token")
