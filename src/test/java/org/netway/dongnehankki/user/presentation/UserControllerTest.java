@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.post.application.VertexAIService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
-import org.netway.dongnehankki.user.application.CoolSmsService;
+import org.netway.dongnehankki.user.application.CoolSmsServiceImpl;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
 import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
@@ -64,7 +64,7 @@ public class UserControllerTest {
     private StoreSyncService storeSyncService;
 
     @MockitoBean
-    private CoolSmsService coolSmsService;
+    private CoolSmsServiceImpl coolSmsService;
 
     @MockitoBean
     private Client vertexClient;

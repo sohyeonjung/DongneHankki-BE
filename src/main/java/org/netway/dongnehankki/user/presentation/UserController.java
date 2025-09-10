@@ -9,7 +9,6 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.user.application.CoolSmsService;
 import org.netway.dongnehankki.user.application.UserService;
-import org.netway.dongnehankki.user.application.UserServiceImpl;
 import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
 import org.netway.dongnehankki.user.dto.request.LoginResponse;
