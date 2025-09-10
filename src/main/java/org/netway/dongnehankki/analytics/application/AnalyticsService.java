@@ -20,7 +20,6 @@ import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.netway.dongnehankki.user.domain.User;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;

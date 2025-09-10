@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
-import org.netway.dongnehankki.post.application.VertexAIService;
+import org.netway.dongnehankki.post.application.VertexAIServiceImpl;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
@@ -85,7 +85,7 @@ public class UserServiceTest {
     private Client vertexClient;
 
     @MockitoBean
-    private VertexAIService vertexAIService;
+    private VertexAIServiceImpl vertexAIService;
 
     @Test
     void 일반회원_회원가입이_정상적으로_동작하는경우() {

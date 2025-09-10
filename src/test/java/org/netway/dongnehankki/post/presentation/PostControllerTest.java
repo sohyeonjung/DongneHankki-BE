@@ -5,8 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
-import org.netway.dongnehankki.post.application.CommentService;
-import org.netway.dongnehankki.post.application.PostService;
+import org.netway.dongnehankki.post.application.CommentServiceImpl;
+import org.netway.dongnehankki.post.application.PostServiceImpl;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.dto.response.CursorResult;
 import org.netway.dongnehankki.post.dto.response.PostResponse;
@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -50,10 +49,10 @@ class PostControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private PostService postService;
+    private PostServiceImpl postService;
 
     @MockitoBean
-    private CommentService commentService;
+    private CommentServiceImpl commentService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;

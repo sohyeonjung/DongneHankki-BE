@@ -18,7 +18,7 @@ import com.google.genai.Client;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
-import org.netway.dongnehankki.post.application.VertexAIService;
+import org.netway.dongnehankki.post.application.VertexAIServiceImpl;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.user.application.CoolSmsServiceImpl;
 import org.netway.dongnehankki.user.domain.User;
@@ -70,7 +70,7 @@ public class UserControllerTest {
     private Client vertexClient;
 
     @MockitoBean
-    private VertexAIService vertexAIService;
+    private VertexAIServiceImpl vertexAIService;
 
     @Test
     public void 일반회원_회원가입() throws Exception{

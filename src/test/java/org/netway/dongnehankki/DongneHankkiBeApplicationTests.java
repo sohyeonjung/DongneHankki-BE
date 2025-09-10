@@ -2,7 +2,7 @@ package org.netway.dongnehankki;
 
 import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.notification.application.NotificationSchedulingService;
-import org.netway.dongnehankki.post.application.VertexAIService;
+import org.netway.dongnehankki.post.application.VertexAIServiceImpl;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,7 +28,7 @@ class DongneHankkiBeApplicationTests {
 	private Client vertexClient;
 
 	@MockitoBean
-	private VertexAIService vertexAIService;
+	private VertexAIServiceImpl vertexAIService;
 
 	@Test
 	void contextLoads() {

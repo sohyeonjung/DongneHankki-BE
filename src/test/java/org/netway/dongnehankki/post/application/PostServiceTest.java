@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 class PostServiceTest {
 
     @InjectMocks
-    private PostService postService;
+    private PostServiceImpl postService;
 
     @Mock
     private PostRepository postRepository;
