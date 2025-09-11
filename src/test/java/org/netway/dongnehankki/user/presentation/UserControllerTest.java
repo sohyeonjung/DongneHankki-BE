@@ -523,7 +523,7 @@ public class UserControllerTest {
         String receiverNumber = "01012345678";
 
         // when
-        when(coolSmsService.sendSms(any(String.class))).thenReturn(mock(SingleMessageSentResponse.class));
+//        when(coolSmsService.sendSms(any(String.class))).thenReturn(mock(SingleMessageSentResponse.class));
 
         // then
         mockMvc.perform(post("/api/sendAuthCode")

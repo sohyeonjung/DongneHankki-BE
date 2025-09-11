@@ -53,6 +53,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(SWAGGER_URLS).permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/", "/api/login", "/api/refresh","/api/users/check/loginId", "/api/users/check/nickname","/api/sendAuthCode", "/api/checkAuthCode", "/api/stores/search").permitAll()
                 .requestMatchers("/api/customers").permitAll()
                 .requestMatchers("/api/owners").permitAll()

@@ -82,3 +82,9 @@ cloud:
       secret-key: ${AWS_SECRET_KEY}
     region:
       static: ${AWS_REGION}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, httpexchanges, metrics

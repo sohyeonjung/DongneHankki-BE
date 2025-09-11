@@ -10,6 +10,7 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -53,7 +54,8 @@ public class CoolSmsService {
         redisTemplate.opsForValue().set(SMS_AUTH_PREFIX + phoneNumber, authCode, SMS_AUTH_EXPIRATION);
     }
 
-    public SingleMessageSentResponse sendSms(String to) {
+    @Async("smsExecutor")
+    public void sendSms(String to) {
         String authCode = generateAuthCode();
         saveAuthCodeToRedis(to, authCode);
 
@@ -64,8 +66,7 @@ public class CoolSmsService {
 
         SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
 
-        SingleMessageSentResponse response = this.messageService.sendOne(request);
-        return response;
+        this.messageService.sendOne(request);
     }
 
     public boolean verifyAuthCode(String phoneNumber, String authCode) {
