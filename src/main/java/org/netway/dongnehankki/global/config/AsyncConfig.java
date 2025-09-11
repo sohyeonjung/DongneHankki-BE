@@ -6,6 +6,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@EnableAsync
 @Configuration
 public class AsyncConfig {
 
