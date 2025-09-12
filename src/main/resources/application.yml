@@ -66,6 +66,15 @@ google:
 
 analytics:
   csv: ${S3_CSV_LINK}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, httpexchanges, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
 ---
 spring:
   config:
@@ -82,12 +91,3 @@ cloud:
       secret-key: ${AWS_SECRET_KEY}
     region:
       static: ${AWS_REGION}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, httpexchanges, metrics, prometheus
-  endpoint:
-    health:
-      show-details: always
