@@ -21,7 +21,7 @@ class ScheduleConfigTest {
 
 	@Test
 	@DisplayName("어플리케이션 실행 시 함수 호출")
-	void syncStoreOpenData_shouldCallSyncService() {
+	void syncStoreOpenData_shouldCallSyncService() throws Exception {
 		// When
 		scheduleConfig.onApplicationReady();
 
