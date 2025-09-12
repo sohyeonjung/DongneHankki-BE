@@ -18,9 +18,13 @@ import com.google.genai.Client;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
-import org.netway.dongnehankki.post.application.VertexAIServiceImpl;
+import org.netway.dongnehankki.post.application.VertexAIService;
+import org.netway.dongnehankki.store.application.ChunCheonStoreService;
 import org.netway.dongnehankki.store.application.StoreSyncService;
-import org.netway.dongnehankki.user.application.CoolSmsServiceImpl;
+import org.netway.dongnehankki.store.infrastructure.external.AddressApiClient;
+import org.netway.dongnehankki.store.infrastructure.external.ChunCheonOpenApiClient;
+import org.netway.dongnehankki.user.application.CoolSmsService;
+import org.netway.dongnehankki.user.application.UserService;
 import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.domain.User.Role;
 import org.netway.dongnehankki.user.dto.request.RefreshTokenRequest;
@@ -31,7 +35,6 @@ import org.netway.dongnehankki.user.exception.InvalidAuthCodeException;
 import org.netway.dongnehankki.user.exception.InvalidPasswordException;
 import org.netway.dongnehankki.user.exception.InvalidRefreshTokenException;
 import org.netway.dongnehankki.user.exception.UnregisteredUserException;
-import org.netway.dongnehankki.user.application.UserServiceImpl;
 import org.netway.dongnehankki.user.dto.request.LoginResponse;
 import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
@@ -58,19 +61,28 @@ public class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @MockitoBean
     private StoreSyncService storeSyncService;
 
     @MockitoBean
-    private CoolSmsServiceImpl coolSmsService;
+    private CoolSmsService coolSmsService;
 
     @MockitoBean
     private Client vertexClient;
 
     @MockitoBean
-    private VertexAIServiceImpl vertexAIService;
+    private VertexAIService vertexAIService;
+
+    @MockitoBean
+    private ChunCheonStoreService chunCheonStoreService;
+
+    @MockitoBean
+    private ChunCheonOpenApiClient chunCheonOpenApiClient;
+
+    @MockitoBean
+    private AddressApiClient addressApiClient;
 
     @Test
     public void 일반회원_회원가입() throws Exception{

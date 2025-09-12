@@ -17,6 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.netway.dongnehankki.analytics.application.AnalyticsService;
+import org.netway.dongnehankki.post.repository.PostRepository;
 import org.netway.dongnehankki.store.domain.Menu;
 import org.netway.dongnehankki.store.domain.OperatingHour;
 import org.netway.dongnehankki.store.domain.Review;
@@ -56,20 +58,25 @@ public class StoreServiceTest {
 	@Mock
 	private PostRepository postRepository;
 
+	@Mock
+	private AnalyticsService analyticsService;
+
 	@InjectMocks
 	private StoreService storeService;
+
 
 	@Test
 	@DisplayName("getStoreById - 해당하는 store가 없을시 UnregisterException 반환")
 	void testGetStore_nullReturn() {
 		//Given
 		Long storeId = 1L;
+		Long loginId = 1L;
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
 
 		// Then
-		assertThrows(UnregisteredStoreException.class, () -> storeService.getStoreById(storeId));
+		assertThrows(UnregisteredStoreException.class, () -> storeService.getStoreById(storeId, loginId));
 	}
 
 	@Test
@@ -78,11 +85,14 @@ public class StoreServiceTest {
 		//Given
 		Store store = Store.createStore("storeA", 127.1535, 52.123, "경기도 광명시 A",
 			"광명시", 2316, 12356102561L);
+		User user = User.ofCustomer("login", "paa", "nickname", "name", "0101561561", LocalDate.of(2000, 01, 01));
 		Long storeId = 1L;
+		Long loginId = 1L;
 
 		// When
 		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
-		StoreResponse result = storeService.getStoreById(storeId);
+		when(userRepository.findById(loginId)).thenReturn(Optional.of(user));
+		StoreResponse result = storeService.getStoreById(storeId, loginId);
 
 		// Then
 		assertThat(result.getName()).isEqualTo("storeA");
