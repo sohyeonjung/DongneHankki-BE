@@ -7,11 +7,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.store.application.StoreService;
 import org.netway.dongnehankki.store.dto.request.StoreMenuRequest;
 import org.netway.dongnehankki.store.dto.request.CreateStoreReviewRequest;
@@ -22,6 +24,7 @@ import org.netway.dongnehankki.store.exception.ReviewStoreMismatchException;
 import org.netway.dongnehankki.store.exception.UnregisteredMenuException;
 import org.netway.dongnehankki.store.exception.UnregisteredReviewException;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
+import org.netway.dongnehankki.user.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -51,10 +54,12 @@ public class StoreControllerTest {
 		Long notExistStoreId = 999L;
 
 		//when
-		when(storeService.getStoreById(notExistStoreId)).thenThrow(new UnregisteredStoreException());
+		when(storeService.getStoreById(eq(notExistStoreId), any())).thenThrow(new UnregisteredStoreException());
 
 		//then
-		mockMvc.perform(get("/api/stores/{storeId}", notExistStoreId))
+		mockMvc.perform(get("/api/stores/{storeId}", notExistStoreId)
+				.with(user(new CustomUserDetails(User.ofCustomer("id", "paa", "nick", "name", "0101231231", LocalDate.parse("2022-02-22")))))
+			)
 			.andExpect(status().isNotFound());
 	}
 
@@ -66,11 +71,12 @@ public class StoreControllerTest {
 		Long storeId = 1L;
 
 		//when
-		when(storeService.getStoreById(storeId)).thenReturn(store);
+		when(storeService.getStoreById(eq(storeId), any())).thenReturn(store);
 
 		//then
 		mockMvc.perform(get("/api/stores/{storeId}", 1L)
 				.contentType(MediaType.APPLICATION_JSON)
+				.with(user(new CustomUserDetails(User.ofCustomer("id", "paa", "nick", "name", "0101231231", LocalDate.parse("2022-02-22")))))
 			)
 			.andDo(print())
 			.andExpect(status().isOk())
@@ -83,7 +89,7 @@ public class StoreControllerTest {
 			.andExpect(jsonPath("$.data.name").value("store a"))
 			.andExpect(jsonPath("$.data.sigun").value("광명시"));
 
-		verify(storeService, times(1)).getStoreById(storeId);
+		verify(storeService, times(1)).getStoreById(eq(storeId), any());
 	}
 
 	@DisplayName("GET /stores?businessNum={businessNum} - 존재하지 않는 businessNum 에러 반환")
