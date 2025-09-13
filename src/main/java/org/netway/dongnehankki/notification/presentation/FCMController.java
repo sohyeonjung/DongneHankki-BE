@@ -4,6 +4,7 @@ import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
 import org.netway.dongnehankki.notification.dto.request.FCMTokenRequest;
 import org.netway.dongnehankki.user.application.UserService;
+import org.netway.dongnehankki.user.application.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;

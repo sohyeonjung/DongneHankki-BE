@@ -13,11 +13,13 @@ import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.RefreshToken;
 import org.netway.dongnehankki.global.auth.jwt.RefreshTokenRepository;
-import org.netway.dongnehankki.post.application.VertexAIService;
-import org.netway.dongnehankki.store.application.StoreSyncService;
 import org.netway.dongnehankki.store.exception.UnregisteredStoreException;
 import org.netway.dongnehankki.store.infrastructure.repository.ReviewRepository;
 import org.netway.dongnehankki.user.dto.request.UpdateUserRequest;
@@ -37,55 +39,40 @@ import org.netway.dongnehankki.user.domain.User;
 import org.netway.dongnehankki.user.fixture.CustomerUserFixture;
 import org.netway.dongnehankki.user.fixture.OwnerUserFixture;
 import org.netway.dongnehankki.user.infrastructure.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import com.google.genai.Client;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-    @Autowired
-    private UserService userService;
+    @InjectMocks
+    private UserServiceImpl userService;
 
-    @MockitoBean
+    @Mock
     private ReviewRepository reviewRepository;
 
-    @MockitoBean
+    @Mock
     private UserRepository userRepository;
 
-    @MockitoBean
+    @Mock
     private StoreRepository storeRepository;
 
-    @MockitoBean
+    @Mock
     private PasswordEncoder passwordEncoder;
 
-    @MockitoBean
+    @Mock
     private AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    @MockitoBean
+    @Mock
     private JwtTokenProvider jwtTokenProvider;
 
-    @MockitoBean
+    @Mock
     private RefreshTokenRepository refreshTokenRepository;
-
-    @MockitoBean
-    private StoreSyncService storeSyncService;
-
-    @MockitoBean
-    private Client vertexClient;
-
-    @MockitoBean
-    private VertexAIService vertexAIService;
 
     @Test
     void 일반회원_회원가입이_정상적으로_동작하는경우() {
@@ -140,8 +127,6 @@ public class UserServiceTest {
         Store mockStore = mock(Store.class);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.empty());
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore, birth));
-        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
         when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.empty());
 
         // when & then
@@ -239,10 +224,6 @@ public class UserServiceTest {
         User fixture = OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore,birth);
 
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
-        when(userRepository.save(any())).thenReturn(OwnerUserFixture.get(loginId, password, name, phoneNumber, mockStore,birth));
-        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-        when(mockStore.getStoreId()).thenReturn(storeId);
-        when(storeRepository.findByStoreId(storeId)).thenReturn(Optional.of(mockStore));
 
         // when & then
         Assertions.assertThrows(DuplicateLoginIdException.class, () -> userService.ownerSignUp(new OwnerSignUpRequest(loginId,password,name,phoneNumber,storeId,birth)));
@@ -260,6 +241,15 @@ public class UserServiceTest {
         Long userId = 1L;
 
         User fixture = CustomerUserFixture.get(loginId, password,nickname, name, phoneNumber,birth);
+        // userId 설정 (Reflection 사용)
+        try {
+            java.lang.reflect.Field field = User.class.getDeclaredField("userId");
+            field.setAccessible(true);
+            field.set(fixture, userId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
         when(userRepository.findByLoginId(loginId)).thenReturn(Optional.of(fixture));
 
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
@@ -447,7 +437,6 @@ public class UserServiceTest {
 
         given(userRepository.findById(999L)).willReturn(Optional.of(existingUser));
         given(userRepository.findByNickname("newNick")).willReturn(Optional.of(anotherUser));
-        given(passwordEncoder.encode("newPass")).willReturn("encodedNewPass");
 
         UpdateUserRequest req = new UpdateUserRequest("newPass", "newNick");
 

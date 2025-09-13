@@ -2,9 +2,9 @@ package org.netway.dongnehankki.post.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.netway.dongnehankki.global.auth.CustomUserDetails;
 import org.netway.dongnehankki.global.common.ApiResponse;
@@ -103,12 +103,11 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @Operation(summary = "최신 게시글 목록 조회 (추천)", description = "모든 게시글을 최신순으로 커서 기반 페이징하여 조회합니다.")
-    @GetMapping("/recommendPosts")
+    @Operation(summary = "최신 게시글 목록 조회", description = "모든 게시글을 최신순으로 커서 기반 페이징하여 조회합니다.")
+    @GetMapping("/newPosts")
     public ResponseEntity<ApiResponse<CursorResult<PostResponse>>> getPostsByStore(
         @Parameter(description = "이전 페이지 마지막 게시글 ID, 첫 페이지는 null") @RequestParam(name = "cursorPostId", required = false) Long cursorPostId,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
-        // TODO : 추후 유저 기반 추천 게시글로 변경 예정
         CursorResult<PostResponse> response = postService.latestPosts(cursorPostId, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -159,6 +158,23 @@ public class PostController {
     ) throws IOException {
         String generatedPost = postService.generatePost(storeId, text, image);
         return ResponseEntity.ok(generatedPost);
+    }
+
+    @Operation(summary = "추천 게시글 목록 조회", description = "유저의 좋아요 기록을 바탕으로 추천 게시글을 가져옵니다")
+    @GetMapping("/recommendPosts")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getRecommendedPosts(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @Parameter(description = "가져올 게시글 수") @RequestParam(defaultValue = "10") int limit) {
+
+        Long userId = userDetails.getUser().getUserId();
+
+        List<Post> recommendedPosts = postService.getRecommendedPosts(userId, limit);
+
+        List<PostResponse> response = recommendedPosts.stream()
+            .map(post -> PostResponse.fromEntity(post))
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
 }

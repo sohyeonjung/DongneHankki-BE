@@ -1,6 +1,5 @@
 package org.netway.dongnehankki.user.application;
 
-import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
@@ -17,7 +16,6 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +36,7 @@ class CoolSmsServiceTest {
     private DefaultMessageService defaultMessageService;
 
     @InjectMocks
-    private CoolSmsService coolSmsService;
+    private CoolSmsServiceImpl coolSmsService;
 
     @BeforeEach
     void 테스트_준비() {

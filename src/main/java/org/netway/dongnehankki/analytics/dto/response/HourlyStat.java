@@ -1,13 +1,19 @@
 package org.netway.dongnehankki.analytics.dto.response;
 
 import lombok.Builder;
+import lombok.Getter;
 
-public record HourlyStat(
-    int hour,
-    long viewStoreCount,
-    long viewPostCount
-) {
+@Getter
+public class HourlyStat {
+
+    private final int hour;
+    private final long viewStoreCount;
+    private final long viewPostCount;
+
     @Builder
-    public HourlyStat {
+    public HourlyStat(int hour, long viewStoreCount, long viewPostCount) {
+        this.hour = hour;
+        this.viewStoreCount = viewStoreCount;
+        this.viewPostCount = viewPostCount;
     }
 }
