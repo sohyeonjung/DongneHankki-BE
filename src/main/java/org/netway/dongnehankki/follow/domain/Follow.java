@@ -29,10 +29,12 @@ public class Follow {
 	@JoinColumn(name="store_id", nullable = false)
 	private Store store;
 
+    private Follow(User user, Store store){
+        this.user = user;
+        this.store = store;
+    }
+
 	public static Follow of(User user, Store store) {
-		Follow follow = new Follow();
-		follow.user = user;
-		follow.store = store;
-		return follow;
+		return new Follow(user, store);
 	}
 }
