@@ -14,15 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.genai.Client;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
-import org.netway.dongnehankki.post.application.VertexAIService;
-import org.netway.dongnehankki.store.application.ChunCheonStoreService;
-import org.netway.dongnehankki.store.application.StoreSyncService;
-import org.netway.dongnehankki.store.infrastructure.external.AddressApiClient;
-import org.netway.dongnehankki.store.infrastructure.external.ChunCheonOpenApiClient;
 import org.netway.dongnehankki.user.application.CoolSmsService;
 import org.netway.dongnehankki.user.application.UserService;
 import org.netway.dongnehankki.user.domain.User;
@@ -40,17 +34,19 @@ import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
 import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
 import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
+import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
+import org.netway.dongnehankki.global.auth.jwt.JwtAuthenticationHandler;
+import org.netway.dongnehankki.global.auth.jwt.JwtAuthorizationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(UserController.class)
 @ActiveProfiles("test")
 public class UserControllerTest {
 
@@ -64,25 +60,19 @@ public class UserControllerTest {
     private UserService userService;
 
     @MockitoBean
-    private StoreSyncService storeSyncService;
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean
+    private JwtAuthenticationHandler jwtAuthenticationHandler;
+
+    @MockitoBean
+    private JwtAuthorizationHandler jwtAuthorizationHandler;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @MockitoBean
     private CoolSmsService coolSmsService;
-
-    @MockitoBean
-    private Client vertexClient;
-
-    @MockitoBean
-    private VertexAIService vertexAIService;
-
-    @MockitoBean
-    private ChunCheonStoreService chunCheonStoreService;
-
-    @MockitoBean
-    private ChunCheonOpenApiClient chunCheonOpenApiClient;
-
-    @MockitoBean
-    private AddressApiClient addressApiClient;
 
     @Test
     public void 일반회원_회원가입() throws Exception{
@@ -585,7 +575,4 @@ public class UserControllerTest {
             .andExpect(jsonPath("$.code").value("401"))
             .andExpect(jsonPath("$.message").value("유효하지 않은 인증 번호입니다."));
     }
-
-
-
 }
