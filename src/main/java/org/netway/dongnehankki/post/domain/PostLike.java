@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.netway.dongnehankki.user.domain.User;
+import org.springframework.security.core.parameters.P;
 
 @Entity
 @Getter
@@ -23,10 +24,12 @@ public class PostLike {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    private PostLike(User user, Post post){
+        this.user = user;
+        this.post = post;
+    }
+
     public static PostLike of(User user, Post post) {
-        PostLike postLike = new PostLike();
-        postLike.user = user;
-        postLike.post = post;
-        return postLike;
+        return new PostLike(user, post);
     }
 }
