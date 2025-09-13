@@ -34,6 +34,7 @@ import org.netway.dongnehankki.user.dto.response.UserResponse;
 import org.netway.dongnehankki.user.dto.request.LoginRequest;
 import org.netway.dongnehankki.user.dto.request.CustomerSignUpRequest;
 import org.netway.dongnehankki.user.dto.request.OwnerSignUpRequest;
+import org.netway.dongnehankki.global.auth.SecurityConfig;
 import org.netway.dongnehankki.global.auth.jwt.JwtTokenProvider;
 import org.netway.dongnehankki.global.auth.jwt.JwtAuthenticationHandler;
 import org.netway.dongnehankki.global.auth.jwt.JwtAuthorizationHandler;
@@ -42,12 +43,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@ActiveProfiles("test")
+@Import({SecurityConfig.class})
 public class UserControllerTest {
 
     @Autowired
