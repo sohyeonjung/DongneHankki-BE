@@ -9,13 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.application.StoreChunCheonDataServiceImpl;
-import org.netway.dongnehankki.store.application.StoreSyncService;
+import org.netway.dongnehankki.store.application.StoreGwangmyeongDataService;
 
 @ExtendWith(MockitoExtension.class)
 class ScheduleConfigTest {
 
 	@Mock
-	private StoreSyncService storeSyncService;
+	private StoreGwangmyeongDataService gwangmyeongDataService;
 
 	@Mock
 	private StoreChunCheonDataServiceImpl chunCheonStoreService;
@@ -30,8 +30,8 @@ class ScheduleConfigTest {
 		scheduleConfig.onApplicationReady();
 
 		// Then
-		//verify(storeSyncService, times(1)).sync();
-		verify(chunCheonStoreService, times(1)).fetchAndSaveAllStores(50);
+		verify(gwangmyeongDataService, times(1)).saveAllStores(1000);
+		verify(chunCheonStoreService, times(1)).saveAllStores(1000);
 	}
 }
 

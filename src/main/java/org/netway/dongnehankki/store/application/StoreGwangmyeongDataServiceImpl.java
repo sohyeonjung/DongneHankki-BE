@@ -8,7 +8,7 @@ import org.netway.dongnehankki.store.application.parser.GMStoreOpenApiParser;
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.response.GMStoreOpenApiResponse;
 import org.netway.dongnehankki.store.exception.OpenApiException;
-import org.netway.dongnehankki.store.infrastructure.external.GwangmyeongStoreOpenApiClient;
+import org.netway.dongnehankki.store.infrastructure.external.GwangMyeongStoreOpenApiClient;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataService {
 
 	private final StoreRepository storeRepository;
-	private final GwangmyeongStoreOpenApiClient gwangmyeongStoreOpenApiClient;
+	private final GwangMyeongStoreOpenApiClient gwangmyeongStoreOpenApiClient;
 	private final GMStoreOpenApiParser gmStoreOpenApiParser;
 
 	private static final Set<String> VALID_INDU_TYPE_CODES = Set.of(

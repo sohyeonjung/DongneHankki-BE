@@ -18,13 +18,13 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 @ExtendWith(MockitoExtension.class) 
-class StoreOpenApiClientTest {
+class GwangMyeongStoreOpenApiClientTest {
 
 	@Mock 
 	private RestClient restClient;
 
 	@InjectMocks
-	private StoreOpenApiClient storeOpenApiClient;
+	private GwangMyeongStoreOpenApiClient gwangMyeongStoreOpenApiClient;
 
 
 	private String apiKey = "testApiKey";
@@ -35,9 +35,9 @@ class StoreOpenApiClientTest {
 	@BeforeEach
 	void setUp() {
 		// value 값 주입
-		ReflectionTestUtils.setField(storeOpenApiClient, "apiKey", apiKey);
-		ReflectionTestUtils.setField(storeOpenApiClient, "baseUrl", baseUrl);
-		ReflectionTestUtils.setField(storeOpenApiClient, "sigunNm", sigunNm);
+		ReflectionTestUtils.setField(gwangMyeongStoreOpenApiClient, "apiKey", apiKey);
+		ReflectionTestUtils.setField(gwangMyeongStoreOpenApiClient, "baseUrl", baseUrl);
+		ReflectionTestUtils.setField(gwangMyeongStoreOpenApiClient, "sigunNm", sigunNm);
 	}
 
 	@DisplayName("fetchStoreData 성공 시 API 호출 및 데이터 반환")
@@ -57,7 +57,7 @@ class StoreOpenApiClientTest {
 		when(responseSpec.body(String.class)).thenReturn(expectedResponse);
 
 		// When
-		String actualResponse = storeOpenApiClient.fetchStoreData(pageIndex, pageSize);
+		String actualResponse = gwangMyeongStoreOpenApiClient.fetchStoreData(pageIndex, pageSize);
 
 		// Then
 		assertEquals(expectedResponse, actualResponse);
@@ -85,7 +85,7 @@ class StoreOpenApiClientTest {
 
 		// When & Then
 		assertThrows(OpenApiException.class, () -> {
-			storeOpenApiClient.fetchStoreData(pageIndex, pageSize);
+			gwangMyeongStoreOpenApiClient.fetchStoreData(pageIndex, pageSize);
 		});
 
 		verify(restClient, times(1)).get();
