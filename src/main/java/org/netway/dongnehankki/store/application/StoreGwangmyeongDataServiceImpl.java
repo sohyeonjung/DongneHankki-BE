@@ -16,8 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StoreDataService {
-
+public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataService {
 	private final StoreRepository storeRepository;
 
 	private static final Set<String> VALID_INDU_TYPE_CODES = Set.of(
@@ -29,9 +28,8 @@ public class StoreDataService {
 		"5201", "5202"
 	);
 
-
 	@Transactional
-	public void processAndSaveStores(List<StoreOpenApiResponse.Row> apiRows) {
+	public void saveStores(List<StoreOpenApiResponse.Row> apiRows) {
 		if (apiRows == null || apiRows.isEmpty()) {
 			log.info("No store data to process.");
 			return;
