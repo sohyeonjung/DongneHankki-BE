@@ -6,4 +6,5 @@ import org.netway.dongnehankki.store.dto.response.StoreOpenApiResponse;
 
 public interface StoreGwangmyeongDataService {
 	void saveStores(List<StoreOpenApiResponse.Row> apiRows);
+	void saveAllStores(int pageSize);
 }

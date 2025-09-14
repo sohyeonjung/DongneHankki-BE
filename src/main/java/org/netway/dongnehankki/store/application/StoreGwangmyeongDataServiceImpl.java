@@ -6,6 +6,9 @@ import java.util.Set;
 
 import org.netway.dongnehankki.store.domain.Store;
 import org.netway.dongnehankki.store.dto.response.StoreOpenApiResponse;
+import org.netway.dongnehankki.store.exception.OpenApiException;
+import org.netway.dongnehankki.store.infrastructure.external.StoreOpenApiClient;
+import org.netway.dongnehankki.store.infrastructure.external.StoreOpenApiParser;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataService {
 	private final StoreRepository storeRepository;
+	private final StoreOpenApiClient storeOpenApiClient;
+	private final StoreOpenApiParser storeOpenApiParser;
 
 	private static final Set<String> VALID_INDU_TYPE_CODES = Set.of(
 		"2102", "2103", "2104", "2105",
@@ -75,6 +80,33 @@ public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataServ
 			storeRepository.save(store);
 		}
 		log.info("Store data processing complete. New stores: {}, Updated stores: {}", newStoresCount, updatedStoresCount);
+	}
+
+	public void saveAllStores(int pageSize) {
+		try {
+			String firstPageJson = storeOpenApiClient.fetchStoreData(1, pageSize);
+			StoreOpenApiResponse firstResponse = storeOpenApiParser.parse(firstPageJson);
+			if (!storeOpenApiParser.isSuccess(firstResponse)) {
+				throw new IllegalStateException();
+			}
+
+			int totalCount = storeOpenApiParser.extractTotalCount(firstResponse);
+			List<StoreOpenApiResponse.Row> firstPageRows = storeOpenApiParser.extractRows(firstResponse);
+			saveStores(firstPageRows);
+
+			int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+			for (int page = 2; page <= totalPages; page++) {
+				Thread.sleep(300);
+				String json = storeOpenApiClient.fetchStoreData(page, pageSize);
+				StoreOpenApiResponse response = storeOpenApiParser.parse(json);
+				if (!storeOpenApiParser.isSuccess(response)) continue;
+				saveStores(storeOpenApiParser.extractRows(response));
+			}
+
+		} catch (Exception e) {
+			log.error("Store sync error", e);
+			throw new OpenApiException();
+		}
 	}
 
 	private Double parseToDouble(String value) {
