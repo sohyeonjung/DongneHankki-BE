@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.netway.dongnehankki.analytics.application.AnalyticsService;
 import org.netway.dongnehankki.notification.application.NotificationSchedulingService;
 import org.netway.dongnehankki.post.application.VertexAIService;
-import org.netway.dongnehankki.store.application.ChunCheonStoreService;
-import org.netway.dongnehankki.store.application.StoreSyncService;
+import org.netway.dongnehankki.store.application.StoreChunCheonDataService;
+import org.netway.dongnehankki.store.application.StoreGwangmyeongDataService;
 import org.netway.dongnehankki.store.infrastructure.external.AddressApiClient;
 import org.netway.dongnehankki.store.infrastructure.external.ChunCheonOpenApiClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,10 +23,10 @@ class DongneHankkiBeApplicationTests {
 	private RefreshTokenRepository refreshTokenRepository;
 
 	@MockitoBean
-	private StoreSyncService storeSyncService;
+	private StoreGwangmyeongDataService gwangmyeongDataService;
 
 	@MockitoBean
-	private ChunCheonStoreService chunCheonStoreService;
+	private StoreChunCheonDataService chunCheonStoreService;
 
 	@MockitoBean
 	private NotificationSchedulingService notificationSchedulingService;

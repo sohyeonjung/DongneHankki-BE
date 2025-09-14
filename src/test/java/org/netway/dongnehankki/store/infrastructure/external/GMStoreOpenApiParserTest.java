@@ -15,33 +15,34 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.netway.dongnehankki.store.dto.response.StoreOpenApiResponse;
+import org.netway.dongnehankki.store.application.parser.GMStoreOpenApiParser;
+import org.netway.dongnehankki.store.dto.response.GMStoreOpenApiResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
-class StoreOpenApiParserTest {
+class GMStoreOpenApiParserTest {
 
 	@Mock
 	private ObjectMapper objectMapper;
 
 	@InjectMocks
-	private StoreOpenApiParser storeOpenApiParser;
+	private GMStoreOpenApiParser gmstoreOpenApiParser;
 
-	private StoreOpenApiResponse mockResponse;
-	private StoreOpenApiResponse successResponse;
-	private StoreOpenApiResponse failResponse;
+	private GMStoreOpenApiResponse mockResponse;
+	private GMStoreOpenApiResponse successResponse;
+	private GMStoreOpenApiResponse failResponse;
 
 	@BeforeEach
 	void setUp() {
-		mockResponse = new StoreOpenApiResponse();
-		StoreOpenApiResponse.RegionMnyFacltStus status1 = new StoreOpenApiResponse.RegionMnyFacltStus();
-		StoreOpenApiResponse.Head head1 = new StoreOpenApiResponse.Head();
+		mockResponse = new GMStoreOpenApiResponse();
+		GMStoreOpenApiResponse.RegionMnyFacltStus status1 = new GMStoreOpenApiResponse.RegionMnyFacltStus();
+		GMStoreOpenApiResponse.Head head1 = new GMStoreOpenApiResponse.Head();
 		head1.setListTotalCount(123);
 		status1.setHead(Collections.singletonList(head1));
 
-		StoreOpenApiResponse.RegionMnyFacltStus status2 = new StoreOpenApiResponse.RegionMnyFacltStus();
-		StoreOpenApiResponse.Row row1 = new StoreOpenApiResponse.Row();
+		GMStoreOpenApiResponse.RegionMnyFacltStus status2 = new GMStoreOpenApiResponse.RegionMnyFacltStus();
+		GMStoreOpenApiResponse.Row row1 = new GMStoreOpenApiResponse.Row();
 		row1.setBizregno("1234567890");
 		row1.setCmpnmNm("Test Store 1");
 		row1.setLeadTaxManStateCd("01");
@@ -51,7 +52,7 @@ class StoreOpenApiParserTest {
 		row1.setSigunNm("수원시");
 		row1.setIndutypeCd("2102");
 
-		StoreOpenApiResponse.Row row2 = new StoreOpenApiResponse.Row();
+		GMStoreOpenApiResponse.Row row2 = new GMStoreOpenApiResponse.Row();
 		row2.setBizregno("0987654321");
 		row2.setCmpnmNm("Test Store 2");
 		row2.setLeadTaxManStateCd("01");
@@ -66,25 +67,25 @@ class StoreOpenApiParserTest {
 
 
 		// isSuccess 테스트를 위한 성공 응답
-		successResponse = new StoreOpenApiResponse();
-		StoreOpenApiResponse.RegionMnyFacltStus successStatus1 = new StoreOpenApiResponse.RegionMnyFacltStus();
-		StoreOpenApiResponse.Head successHead1 = new StoreOpenApiResponse.Head();
-		StoreOpenApiResponse.Result successResult = new StoreOpenApiResponse.Result();
+		successResponse = new GMStoreOpenApiResponse();
+		GMStoreOpenApiResponse.RegionMnyFacltStus successStatus1 = new GMStoreOpenApiResponse.RegionMnyFacltStus();
+		GMStoreOpenApiResponse.Head successHead1 = new GMStoreOpenApiResponse.Head();
+		GMStoreOpenApiResponse.Result successResult = new GMStoreOpenApiResponse.Result();
 		successResult.setCode("INFO-000"); // 성공 코드
 		successHead1.setResult(successResult);
-		successStatus1.setHead(Arrays.asList(new StoreOpenApiResponse.Head(), successHead1)); // 두 번째 Head에 Result가 있도록 설정
-		successResponse.setRegionMnyFacltStus(Arrays.asList(successStatus1, new StoreOpenApiResponse.RegionMnyFacltStus()));
+		successStatus1.setHead(Arrays.asList(new GMStoreOpenApiResponse.Head(), successHead1)); // 두 번째 Head에 Result가 있도록 설정
+		successResponse.setRegionMnyFacltStus(Arrays.asList(successStatus1, new GMStoreOpenApiResponse.RegionMnyFacltStus()));
 
 
 		// isSuccess 테스트를 위한 실패 응답
-		failResponse = new StoreOpenApiResponse();
-		StoreOpenApiResponse.RegionMnyFacltStus failStatus1 = new StoreOpenApiResponse.RegionMnyFacltStus();
-		StoreOpenApiResponse.Head failHead1 = new StoreOpenApiResponse.Head();
-		StoreOpenApiResponse.Result failResult = new StoreOpenApiResponse.Result();
+		failResponse = new GMStoreOpenApiResponse();
+		GMStoreOpenApiResponse.RegionMnyFacltStus failStatus1 = new GMStoreOpenApiResponse.RegionMnyFacltStus();
+		GMStoreOpenApiResponse.Head failHead1 = new GMStoreOpenApiResponse.Head();
+		GMStoreOpenApiResponse.Result failResult = new GMStoreOpenApiResponse.Result();
 		failResult.setCode("ERROR-100");
 		failHead1.setResult(failResult);
-		failStatus1.setHead(Arrays.asList(new StoreOpenApiResponse.Head(), failHead1));
-		failResponse.setRegionMnyFacltStus(Arrays.asList(failStatus1, new StoreOpenApiResponse.RegionMnyFacltStus()));
+		failStatus1.setHead(Arrays.asList(new GMStoreOpenApiResponse.Head(), failHead1));
+		failResponse.setRegionMnyFacltStus(Arrays.asList(failStatus1, new GMStoreOpenApiResponse.RegionMnyFacltStus()));
 	}
 
 
@@ -93,15 +94,15 @@ class StoreOpenApiParserTest {
 	void testParse_success() throws IOException {
 		// Given
 		String json = "{\"key\": \"value\"}";
-		when(objectMapper.readValue(anyString(), eq(StoreOpenApiResponse.class))).thenReturn(mockResponse);
+		when(objectMapper.readValue(anyString(), eq(GMStoreOpenApiResponse.class))).thenReturn(mockResponse);
 
 		// When
-		StoreOpenApiResponse result = storeOpenApiParser.parse(json);
+		GMStoreOpenApiResponse result = gmstoreOpenApiParser.parse(json);
 
 		// Then
 		assertNotNull(result);
 		assertEquals(mockResponse, result);
-		verify(objectMapper, times(1)).readValue(json, StoreOpenApiResponse.class);
+		verify(objectMapper, times(1)).readValue(json, GMStoreOpenApiResponse.class);
 	}
 
 	@Test
@@ -110,7 +111,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 mockResponse)
 
 		// When
-		int totalCount = storeOpenApiParser.extractTotalCount(mockResponse);
+		int totalCount = gmstoreOpenApiParser.extractTotalCount(mockResponse);
 
 		// Then
 		assertEquals(123, totalCount);
@@ -123,7 +124,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 mockResponse)
 
 		// When
-		List<StoreOpenApiResponse.Row> rows = storeOpenApiParser.extractRows(mockResponse);
+		List<GMStoreOpenApiResponse.Row> rows = gmstoreOpenApiParser.extractRows(mockResponse);
 
 		// Then
 		assertNotNull(rows);
@@ -139,7 +140,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 mockResponse)
 
 		// When
-		boolean success = storeOpenApiParser.isSuccess(successResponse);
+		boolean success = gmstoreOpenApiParser.isSuccess(successResponse);
 
 		// Then
 		assertTrue(success);
@@ -151,7 +152,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 failResponse)
 
 		// When
-		boolean success = storeOpenApiParser.isSuccess(failResponse);
+		boolean success = gmstoreOpenApiParser.isSuccess(failResponse);
 
 		// Then
 		assertFalse(success);
