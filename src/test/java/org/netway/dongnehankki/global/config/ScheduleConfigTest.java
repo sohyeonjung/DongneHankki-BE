@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.netway.dongnehankki.store.application.ChunCheonStoreService;
+import org.netway.dongnehankki.store.application.StoreChunCheonDataServiceImpl;
 import org.netway.dongnehankki.store.application.StoreSyncService;
 
 @ExtendWith(MockitoExtension.class)
@@ -18,7 +18,7 @@ class ScheduleConfigTest {
 	private StoreSyncService storeSyncService;
 
 	@Mock
-	private ChunCheonStoreService chunCheonStoreService;
+	private StoreChunCheonDataServiceImpl chunCheonStoreService;
 
 	@InjectMocks
 	private ScheduleConfig scheduleConfig;
