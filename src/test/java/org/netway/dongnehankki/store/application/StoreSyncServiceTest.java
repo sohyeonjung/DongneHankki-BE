@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.netway.dongnehankki.store.dto.response.StoreOpenApiResponse;
 import org.netway.dongnehankki.store.exception.OpenApiException;
 import org.netway.dongnehankki.store.infrastructure.external.StoreOpenApiClient;
-import org.netway.dongnehankki.store.infrastructure.external.StoreOpenApiParser;
 
 @ExtendWith(MockitoExtension.class)
 class StoreSyncServiceTest {
@@ -26,7 +25,7 @@ class StoreSyncServiceTest {
 	private StoreOpenApiClient storeOpenApiClient;
 
 	@Mock
-	private StoreOpenApiParser storeOpenApiParser;
+	private org.netway.dongnehankki.store.application.parser.GMStoreOpenApiParser GMStoreOpenApiParser;
 
 	@Mock
 	private StoreDataService storeDataService;
@@ -75,20 +74,20 @@ class StoreSyncServiceTest {
 	void testSync_success() throws IOException {
 		// Given
 		when(storeOpenApiClient.fetchStoreData(1, PAGE_SIZE)).thenReturn("first page json");
-		when(storeOpenApiParser.parse("first page json")).thenReturn(mockSuccessResponse);
-		when(storeOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
-		when(storeOpenApiParser.extractTotalCount(mockSuccessResponse)).thenReturn(2500);
-		when(storeOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
+		when(GMStoreOpenApiParser.parse("first page json")).thenReturn(mockSuccessResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
+		when(GMStoreOpenApiParser.extractTotalCount(mockSuccessResponse)).thenReturn(2500);
+		when(GMStoreOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
 
 		when(storeOpenApiClient.fetchStoreData(2, PAGE_SIZE)).thenReturn("second page json");
-		when(storeOpenApiParser.parse("second page json")).thenReturn(mockSuccessResponse);
-		when(storeOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
-		when(storeOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
+		when(GMStoreOpenApiParser.parse("second page json")).thenReturn(mockSuccessResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
+		when(GMStoreOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
 
 		when(storeOpenApiClient.fetchStoreData(3, PAGE_SIZE)).thenReturn("third page json");
-		when(storeOpenApiParser.parse("third page json")).thenReturn(mockSuccessResponse);
-		when(storeOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
-		when(storeOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
+		when(GMStoreOpenApiParser.parse("third page json")).thenReturn(mockSuccessResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
+		when(GMStoreOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
 
 		// When
 		storeSyncService.sync();
@@ -98,10 +97,10 @@ class StoreSyncServiceTest {
 		verify(storeOpenApiClient, times(1)).fetchStoreData(2, PAGE_SIZE);
 		verify(storeOpenApiClient, times(1)).fetchStoreData(3, PAGE_SIZE);
 
-		verify(storeOpenApiParser, times(1)).parse("first page json");
-		verify(storeOpenApiParser, times(1)).extractTotalCount(mockSuccessResponse);
-		verify(storeOpenApiParser, times(3)).isSuccess(mockSuccessResponse);
-		verify(storeOpenApiParser, times(3)).extractRows(mockSuccessResponse);
+		verify(GMStoreOpenApiParser, times(1)).parse("first page json");
+		verify(GMStoreOpenApiParser, times(1)).extractTotalCount(mockSuccessResponse);
+		verify(GMStoreOpenApiParser, times(3)).isSuccess(mockSuccessResponse);
+		verify(GMStoreOpenApiParser, times(3)).extractRows(mockSuccessResponse);
 		verify(storeDataService, times(3)).processAndSaveStores(mockRows);
 	}
 
@@ -114,7 +113,7 @@ class StoreSyncServiceTest {
 		// When & Then
 		assertThrows(OpenApiException.class, () -> storeSyncService.sync());
 
-		verify(storeOpenApiParser, never()).parse(anyString());
+		verify(GMStoreOpenApiParser, never()).parse(anyString());
 		verifyNoInteractions(storeDataService);
 	}
 
@@ -124,14 +123,14 @@ class StoreSyncServiceTest {
 	void testSync_firstParseFails() throws IOException {
 		// Given
 		when(storeOpenApiClient.fetchStoreData(1, PAGE_SIZE)).thenReturn("invalid json");
-		when(storeOpenApiParser.parse(anyString())).thenThrow(new IOException("Parsing failed"));
+		when(GMStoreOpenApiParser.parse(anyString())).thenThrow(new IOException("Parsing failed"));
 
 		// When & Then
 		assertThrows(OpenApiException.class, () -> storeSyncService.sync());
 
 		// storeDataService는 호출되지 않았는지 검증
 		verifyNoInteractions(storeDataService);
-		verify(storeOpenApiParser, never()).isSuccess(any(StoreOpenApiResponse.class));
+		verify(GMStoreOpenApiParser, never()).isSuccess(any(StoreOpenApiResponse.class));
 	}
 
 
@@ -140,14 +139,14 @@ class StoreSyncServiceTest {
 	void testSync_firstResponseNotSuccess() throws IOException {
 		// Given
 		when(storeOpenApiClient.fetchStoreData(1, PAGE_SIZE)).thenReturn("some json");
-		when(storeOpenApiParser.parse(anyString())).thenReturn(mockFailureResponse);
-		when(storeOpenApiParser.isSuccess(mockFailureResponse)).thenReturn(false);
+		when(GMStoreOpenApiParser.parse(anyString())).thenReturn(mockFailureResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockFailureResponse)).thenReturn(false);
 
 		// When & Then
 		assertThrows(OpenApiException.class, () -> storeSyncService.sync());
 
-		verify(storeOpenApiParser, never()).extractTotalCount(any());
-		verify(storeOpenApiParser, never()).extractRows(any());
+		verify(GMStoreOpenApiParser, never()).extractTotalCount(any());
+		verify(GMStoreOpenApiParser, never()).extractRows(any());
 		verifyNoInteractions(storeDataService);
 	}
 
@@ -157,19 +156,19 @@ class StoreSyncServiceTest {
 	void testSync_middlePageNotSuccessSkips() throws IOException {
 		// Given
 		when(storeOpenApiClient.fetchStoreData(1, PAGE_SIZE)).thenReturn("first page json");
-		when(storeOpenApiParser.parse("first page json")).thenReturn(mockSuccessResponse);
-		when(storeOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
-		when(storeOpenApiParser.extractTotalCount(mockSuccessResponse)).thenReturn(2500);
-		when(storeOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
+		when(GMStoreOpenApiParser.parse("first page json")).thenReturn(mockSuccessResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
+		when(GMStoreOpenApiParser.extractTotalCount(mockSuccessResponse)).thenReturn(2500);
+		when(GMStoreOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
 
 		when(storeOpenApiClient.fetchStoreData(2, PAGE_SIZE)).thenReturn("second page json");
-		when(storeOpenApiParser.parse("second page json")).thenReturn(mockFailureResponse);
-		when(storeOpenApiParser.isSuccess(mockFailureResponse)).thenReturn(false);
+		when(GMStoreOpenApiParser.parse("second page json")).thenReturn(mockFailureResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockFailureResponse)).thenReturn(false);
 
 		when(storeOpenApiClient.fetchStoreData(3, PAGE_SIZE)).thenReturn("third page json");
-		when(storeOpenApiParser.parse("third page json")).thenReturn(mockSuccessResponse);
-		when(storeOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
-		when(storeOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
+		when(GMStoreOpenApiParser.parse("third page json")).thenReturn(mockSuccessResponse);
+		when(GMStoreOpenApiParser.isSuccess(mockSuccessResponse)).thenReturn(true);
+		when(GMStoreOpenApiParser.extractRows(mockSuccessResponse)).thenReturn(mockRows);
 
 		// When
 		storeSyncService.sync();
@@ -179,13 +178,13 @@ class StoreSyncServiceTest {
 		verify(storeOpenApiClient, times(1)).fetchStoreData(2, PAGE_SIZE);
 		verify(storeOpenApiClient, times(1)).fetchStoreData(3, PAGE_SIZE);
 
-		verify(storeOpenApiParser, times(2)).isSuccess(mockSuccessResponse);
-		verify(storeOpenApiParser, times(1)).isSuccess(mockFailureResponse);
+		verify(GMStoreOpenApiParser, times(2)).isSuccess(mockSuccessResponse);
+		verify(GMStoreOpenApiParser, times(1)).isSuccess(mockFailureResponse);
 
 		verify(storeDataService, times(2)).processAndSaveStores(mockRows);
 
-		verify(storeOpenApiParser, times(2)).extractRows(mockSuccessResponse);
-		verify(storeOpenApiParser, never()).extractRows(mockFailureResponse);
+		verify(GMStoreOpenApiParser, times(2)).extractRows(mockSuccessResponse);
+		verify(GMStoreOpenApiParser, never()).extractRows(mockFailureResponse);
 	}
 
 
@@ -195,7 +194,7 @@ class StoreSyncServiceTest {
 		// Given
 
 		when(storeOpenApiClient.fetchStoreData(1, PAGE_SIZE)).thenReturn("json");
-		when(storeOpenApiParser.parse(anyString())).thenThrow(new RuntimeException("Unexpected error during parsing")); // RuntimeException 발생
+		when(GMStoreOpenApiParser.parse(anyString())).thenThrow(new RuntimeException("Unexpected error during parsing")); // RuntimeException 발생
 
 		// When & Then
 		assertThrows(OpenApiException.class, () -> storeSyncService.sync());

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,14 +32,13 @@ public class StoreChunCheonDataServiceImpl implements StoreChunCheonDataService 
 		"기타 간이 음식점업", 2301,
 		"한식 음식점업", 2301
 	);
-	private static final int PAGE_SIZE = 1000;
 
+	@Transactional
 	public void saveStores(int pageIndex, int pageSize) throws Exception {
 		String response = openApiClient.fetchStoreData(pageIndex, pageSize);
 
 		JsonNode root = objectMapper.readTree(response);
 		JsonNode dataNode = root.get("data");
-
 
 		List<Store> newStores = new ArrayList<>();
 		List<Store> updatedStores = new ArrayList<>();
@@ -90,7 +90,6 @@ public class StoreChunCheonDataServiceImpl implements StoreChunCheonDataService 
 				}
 			}
 		}
-
 		storeRepository.saveAll(newStores);
 		storeRepository.saveAll(updatedStores);
 	}

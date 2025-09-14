@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class StoreOpenApiClient {
+public class GwangmyeongStoreOpenApiClient {
 	private final RestClient restClient;
 
 	@Value("${openapi.gg.key}")

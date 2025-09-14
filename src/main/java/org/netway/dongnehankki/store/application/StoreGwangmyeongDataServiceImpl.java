@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.netway.dongnehankki.store.application.parser.GMStoreOpenApiParser;
 import org.netway.dongnehankki.store.domain.Store;
-import org.netway.dongnehankki.store.dto.response.StoreOpenApiResponse;
+import org.netway.dongnehankki.store.dto.response.GMStoreOpenApiResponse;
 import org.netway.dongnehankki.store.exception.OpenApiException;
-import org.netway.dongnehankki.store.infrastructure.external.StoreOpenApiClient;
-import org.netway.dongnehankki.store.infrastructure.external.StoreOpenApiParser;
+import org.netway.dongnehankki.store.infrastructure.external.GwangmyeongStoreOpenApiClient;
 import org.netway.dongnehankki.store.infrastructure.repository.StoreRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataService {
+
 	private final StoreRepository storeRepository;
-	private final StoreOpenApiClient storeOpenApiClient;
-	private final StoreOpenApiParser storeOpenApiParser;
+	private final GwangmyeongStoreOpenApiClient gwangmyeongStoreOpenApiClient;
+	private final GMStoreOpenApiParser gmStoreOpenApiParser;
 
 	private static final Set<String> VALID_INDU_TYPE_CODES = Set.of(
 		"2102", "2103", "2104", "2105",
@@ -34,7 +35,7 @@ public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataServ
 	);
 
 	@Transactional
-	public void saveStores(List<StoreOpenApiResponse.Row> apiRows) {
+	public void saveStores(List<GMStoreOpenApiResponse.Row> apiRows) {
 		if (apiRows == null || apiRows.isEmpty()) {
 			log.info("No store data to process.");
 			return;
@@ -43,7 +44,7 @@ public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataServ
 		int newStoresCount = 0;
 		int updatedStoresCount = 0;
 
-		for (StoreOpenApiResponse.Row row : apiRows) {
+		for (GMStoreOpenApiResponse.Row row : apiRows) {
 			// null 값 확인
 			if(row.getLeadTaxManStateCd()==null || row.getCmpnmNm()==null|| row.getRefineWgs84Lat()==null ||
 				row.getRefineWgs84Logt()==null || row.getRefineRoadnmAddr()==null || row.getSigunNm()==null ||
@@ -84,23 +85,23 @@ public class StoreGwangmyeongDataServiceImpl implements StoreGwangmyeongDataServ
 
 	public void saveAllStores(int pageSize) {
 		try {
-			String firstPageJson = storeOpenApiClient.fetchStoreData(1, pageSize);
-			StoreOpenApiResponse firstResponse = storeOpenApiParser.parse(firstPageJson);
-			if (!storeOpenApiParser.isSuccess(firstResponse)) {
+			String firstPageJson = gwangmyeongStoreOpenApiClient.fetchStoreData(1, pageSize);
+			GMStoreOpenApiResponse firstResponse = gmStoreOpenApiParser.parse(firstPageJson);
+			if (!gmStoreOpenApiParser.isSuccess(firstResponse)) {
 				throw new IllegalStateException();
 			}
 
-			int totalCount = storeOpenApiParser.extractTotalCount(firstResponse);
-			List<StoreOpenApiResponse.Row> firstPageRows = storeOpenApiParser.extractRows(firstResponse);
+			int totalCount = gmStoreOpenApiParser.extractTotalCount(firstResponse);
+			List<GMStoreOpenApiResponse.Row> firstPageRows = gmStoreOpenApiParser.extractRows(firstResponse);
 			saveStores(firstPageRows);
 
 			int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 			for (int page = 2; page <= totalPages; page++) {
 				Thread.sleep(300);
-				String json = storeOpenApiClient.fetchStoreData(page, pageSize);
-				StoreOpenApiResponse response = storeOpenApiParser.parse(json);
-				if (!storeOpenApiParser.isSuccess(response)) continue;
-				saveStores(storeOpenApiParser.extractRows(response));
+				String json = gwangmyeongStoreOpenApiClient.fetchStoreData(page, pageSize);
+				GMStoreOpenApiResponse response = gmStoreOpenApiParser.parse(json);
+				if (!gmStoreOpenApiParser.isSuccess(response)) continue;
+				saveStores(gmStoreOpenApiParser.extractRows(response));
 			}
 
 		} catch (Exception e) {

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class StoreOpenApiResponse {
+public class GMStoreOpenApiResponse {
 	@JsonProperty("RegionMnyFacltStus")
 	private List<RegionMnyFacltStus> regionMnyFacltStus;
 

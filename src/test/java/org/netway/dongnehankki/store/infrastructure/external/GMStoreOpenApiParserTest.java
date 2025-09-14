@@ -20,13 +20,13 @@ import org.netway.dongnehankki.store.dto.response.StoreOpenApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
-class StoreOpenApiParserTest {
+class GMStoreOpenApiParserTest {
 
 	@Mock
 	private ObjectMapper objectMapper;
 
 	@InjectMocks
-	private StoreOpenApiParser storeOpenApiParser;
+	private org.netway.dongnehankki.store.application.parser.GMStoreOpenApiParser GMStoreOpenApiParser;
 
 	private StoreOpenApiResponse mockResponse;
 	private StoreOpenApiResponse successResponse;
@@ -96,7 +96,7 @@ class StoreOpenApiParserTest {
 		when(objectMapper.readValue(anyString(), eq(StoreOpenApiResponse.class))).thenReturn(mockResponse);
 
 		// When
-		StoreOpenApiResponse result = storeOpenApiParser.parse(json);
+		StoreOpenApiResponse result = GMStoreOpenApiParser.parse(json);
 
 		// Then
 		assertNotNull(result);
@@ -110,7 +110,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 mockResponse)
 
 		// When
-		int totalCount = storeOpenApiParser.extractTotalCount(mockResponse);
+		int totalCount = GMStoreOpenApiParser.extractTotalCount(mockResponse);
 
 		// Then
 		assertEquals(123, totalCount);
@@ -123,7 +123,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 mockResponse)
 
 		// When
-		List<StoreOpenApiResponse.Row> rows = storeOpenApiParser.extractRows(mockResponse);
+		List<StoreOpenApiResponse.Row> rows = GMStoreOpenApiParser.extractRows(mockResponse);
 
 		// Then
 		assertNotNull(rows);
@@ -139,7 +139,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 mockResponse)
 
 		// When
-		boolean success = storeOpenApiParser.isSuccess(successResponse);
+		boolean success = GMStoreOpenApiParser.isSuccess(successResponse);
 
 		// Then
 		assertTrue(success);
@@ -151,7 +151,7 @@ class StoreOpenApiParserTest {
 		// Given (setUp에서의 failResponse)
 
 		// When
-		boolean success = storeOpenApiParser.isSuccess(failResponse);
+		boolean success = GMStoreOpenApiParser.isSuccess(failResponse);
 
 		// Then
 		assertFalse(success);
