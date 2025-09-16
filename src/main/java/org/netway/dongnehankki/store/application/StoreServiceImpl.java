@@ -3,7 +3,7 @@ package org.netway.dongnehankki.store.application;
 import java.util.Collections;
 import java.util.List;
 
-import org.netway.dongnehankki.analytics.application.AnalyticsServiceImpl;
+import org.netway.dongnehankki.analytics.application.AnalyticsService;
 import org.netway.dongnehankki.analytics.domain.ActivityType;
 import org.netway.dongnehankki.post.domain.Post;
 import org.netway.dongnehankki.post.repository.PostRepository;
@@ -39,7 +39,7 @@ public class StoreServiceImpl implements StoreService{
 	private final MenuRepository menuRepository;
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
-	private final AnalyticsServiceImpl analyticsService;
+	private final AnalyticsService analyticsService;
 
 	@Transactional
 	public StoreResponse getStoreById(Long storeId, Long loginId) {
