@@ -1,4 +1,4 @@
-package org.netway.dongnehankki.store.infrastructure.external;
+package org.netway.dongnehankki.store.application.parser;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.netway.dongnehankki.store.application.parser.GMStoreOpenApiParser;
 import org.netway.dongnehankki.store.dto.response.GMStoreOpenApiResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
