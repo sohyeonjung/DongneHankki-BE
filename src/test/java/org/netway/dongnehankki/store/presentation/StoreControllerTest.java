@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -136,6 +137,52 @@ public class StoreControllerTest {
 		verify(storeService, times(1)).getStoreByBusinessNum(businessNum);
 	}
 
+	@DisplayName("GET /stores/byName/{name} - 존재하지 않는 name 검색 시 빈 리스트 반환")
+	@Test
+	void getStoresByName_NotFound() throws Exception {
+		//given
+		String name = "없는가게";
+
+		when(storeService.getStoresByName(name)).thenReturn(Collections.emptyList());
+
+		//then
+		mockMvc.perform(get("/api/stores/byName/{name}", name))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+
+		verify(storeService, times(1)).getStoresByName(name);
+	}
+
+	@DisplayName("GET /stores/byName/{name} - 존재하는 name 검색 시 결과 리스트 반환")
+	@Test
+	void getStoresByName_Success() throws Exception {
+		//given
+		String name = "store a";
+		List<StoreResponse> stores = List.of(
+			StoreResponse.builder().storeId(1L).name("store a").sigun("광명시").businessRegistrationNumber(1234567890L).build(),
+			StoreResponse.builder().storeId(2L).name("store a branch").sigun("서울시").businessRegistrationNumber(9876543210L).build()
+		);
+
+		when(storeService.getStoresByName(name)).thenReturn(stores);
+
+		//then
+		mockMvc.perform(get("/api/stores/byName/{name}", name)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data.length()").value(2))
+			.andExpect(jsonPath("$.data[0].name").value("store a"))
+			.andExpect(jsonPath("$.data[0].businessRegistrationNumber").value(1234567890L))
+			.andExpect(jsonPath("$.data[1].name").value("store a branch"))
+			.andExpect(jsonPath("$.data[1].sigun").value("서울시"));
+
+		verify(storeService, times(1)).getStoresByName(name);
+	}
 
 	@Test
 	@DisplayName("유효하지 않은 리뷰 요청시 400 Bad Request를 반환해야 한다")
