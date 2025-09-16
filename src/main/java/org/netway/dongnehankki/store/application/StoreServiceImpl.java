@@ -68,6 +68,14 @@ public class StoreServiceImpl implements StoreService{
 		return StoreResponse.fromEntity(store, recentReviewImageUrls);
 	}
 
+	@Transactional(readOnly = true)
+	public List<StoreResponse> getStoresByName(String name) {
+		List<Store> stores = storeRepository.findTop5ByNameContaining(name);
+		return stores.stream()
+			.map(store -> StoreResponse.fromEntity(store, Collections.emptyList()))
+			.toList();
+	}
+
 	@Transactional
 	public void writeStoreReview(Long storeId, CreateStoreReviewRequest createStoreReviewRequest) {
 		Store store = storeRepository.findById(storeId).orElseThrow(() -> new UnregisteredStoreException());
@@ -143,13 +151,5 @@ public class StoreServiceImpl implements StoreService{
 
 		store.updateOperatingHours(operatingHours);
 		storeRepository.save(store);
-	}
-
-	@Transactional(readOnly = true)
-	public List<StoreResponse> searchStoresByName(String name) {
-		List<Store> stores = storeRepository.findTop5ByNameContaining(name);
-		return stores.stream()
-			.map(store -> StoreResponse.fromEntity(store, Collections.emptyList()))
-			.toList();
 	}
 }

@@ -47,12 +47,21 @@ public class StoreController {
 	}
 
 	@Operation(summary = "사업자번호로 가게 조회", description = "사업자번호를 통회 가게 정보를 조회합니다.")
-	@GetMapping
+	@GetMapping("/byBusinessNumber/{businessNumber}")
 	public ResponseEntity<ApiResponse<StoreResponse>> getStoreByBusinessNum(
-		@Parameter(description = "조회할 가게 사업자번호") @RequestParam Long businessNumber
+		@Parameter(description = "조회할 가게 사업자번호") @PathVariable Long businessNumber
 	){
 		StoreResponse store = storeService.getStoreByBusinessNum(businessNumber);
 		return ResponseEntity.ok(ApiResponse.success(store));
+	}
+
+	@Operation(summary = "가게 이름으로 검색", description = "가게 이름으로 가게 목록을 검색합니다.")
+	@GetMapping("/byName/{name}")
+	public ResponseEntity<ApiResponse<List<StoreResponse>>> getStoresByName(
+		@Parameter(description = "검색할 가게 이름") @PathVariable String name
+	) {
+		List<StoreResponse> stores = storeService.getStoresByName(name);
+		return ResponseEntity.ok(ApiResponse.success(stores));
 	}
 
 	@Operation(summary = "가게 리뷰 작성", description = "가게 리뷰를 작성합니다.")
@@ -114,15 +123,6 @@ public class StoreController {
 	){
 		storeService.updateStoreReview(storeId, reviewId, updateStoreReviewRequest);
 		return ResponseEntity.ok(ApiResponse.success());
-	}
-
-	@Operation(summary = "가게 이름으로 검색", description = "가게 이름으로 가게 목록을 검색합니다.")
-	@GetMapping("/search")
-	public ResponseEntity<ApiResponse<List<StoreResponse>>> searchStoresByName(
-		@Parameter(description = "검색할 가게 이름") @RequestParam String name
-	) {
-		List<StoreResponse> stores = storeService.searchStoresByName(name);
-		return ResponseEntity.ok(ApiResponse.success(stores));
 	}
 
 }

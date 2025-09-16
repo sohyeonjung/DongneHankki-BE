@@ -10,11 +10,12 @@ import org.netway.dongnehankki.store.dto.response.StoreResponse;
 public interface StoreService {
 	StoreResponse getStoreById(Long storeId, Long loginId);
 	StoreResponse getStoreByBusinessNum(Long businessNum);
+	List<StoreResponse> getStoresByName(String name);
 	void writeStoreReview(Long storeId, CreateStoreReviewRequest createStoreReviewRequest);
 	void addStoreMenu(Long storeId, StoreMenuRequest storeMenuRequest);
 	void deleteStoreMenu(Long storeId, Long menuId);
 	void deleteStoreReview(Long storeId, Long reviewId);
 	void updateStoreReview(Long storeId, Long reviewId, UpdateStoreReviewRequest updateStoreReviewRequest);
 	void updateStoreOperatingHours(Long storeId, UpdateStoreOperatingHoursRequest updateStoreOperatingHoursRequest);
-	List<StoreResponse> searchStoresByName(String name);
+
 }
