@@ -92,23 +92,26 @@ public class StoreControllerTest {
 		verify(storeService, times(1)).getStoreById(eq(storeId), any());
 	}
 
-	@DisplayName("GET /stores?businessNum={businessNum} - 존재하지 않는 businessNum 에러 반환")
+	@DisplayName("GET /stores/byBusinessNumber/{businessNumber} - 존재하지 않는 businessNum 에러 반환")
 	@Test
 	void getStoreByBusinessNum_NotFound() throws Exception {
 		//given
 		Long notExistBusinessNum = 999L;
 
 		//when
-		when(storeService.getStoreByBusinessNum(notExistBusinessNum)).thenThrow(new UnregisteredStoreException());
+		when(storeService.getStoreByBusinessNum(notExistBusinessNum))
+			.thenThrow(new UnregisteredStoreException());
 
 		//then
-		mockMvc.perform(get("/api/stores").param("businessNumber", String.valueOf(notExistBusinessNum)))
+		mockMvc.perform(get("/api/stores/byBusinessNumber/{businessNumber}", notExistBusinessNum))
 			.andExpect(status().isNotFound());
+
+		verify(storeService, times(1)).getStoreByBusinessNum(notExistBusinessNum);
 	}
 
-	@DisplayName("GET /stores?businessNum={businessNum}  - 존재하는 businessNum 결과를 반환")
+	@DisplayName("GET /stores/byBusinessNumber/{businessNumber} - 존재하는 businessNum 결과를 반환")
 	@Test
-	void getStoreByBusinesNum_Success() throws Exception {
+	void getStoreByBusinessNum_Success() throws Exception {
 		//given
 		StoreResponse store = StoreResponse.builder().storeId(1L).name("store a").sigun("광명시").businessRegistrationNumber(1234567890L).build();
 		Long businessNum = 1234567890L;
@@ -117,9 +120,8 @@ public class StoreControllerTest {
 		when(storeService.getStoreByBusinessNum(businessNum)).thenReturn(store);
 
 		//then
-		mockMvc.perform(get("/api/stores").param("businessNumber", String.valueOf(businessNum))
-				.contentType(MediaType.APPLICATION_JSON)
-			)
+		mockMvc.perform(get("/api/stores/byBusinessNumber/{businessNumber}", businessNum)
+				.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -133,6 +135,7 @@ public class StoreControllerTest {
 
 		verify(storeService, times(1)).getStoreByBusinessNum(businessNum);
 	}
+
 
 	@Test
 	@DisplayName("유효하지 않은 리뷰 요청시 400 Bad Request를 반환해야 한다")
