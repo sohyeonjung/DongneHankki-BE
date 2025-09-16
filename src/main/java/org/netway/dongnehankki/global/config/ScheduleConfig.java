@@ -23,10 +23,14 @@ public class ScheduleConfig {
 	private final StoreChunCheonDataService storeCheoncheonDataService;
 
 	@EventListener(ApplicationReadyEvent.class)
-	public void onApplicationReady() throws Exception {
-		log.info("[서버 시작 완료 후 1회 실행] 매장 데이터 동기화 시작");
+	public void syncGwangmyeongDataOnStartup() {
+		log.info("[서버 시작 완료 후 1회 실행] 광명 매장 데이터 동기화 시작");
 		storeGwangmyeongDataService.saveAllStores(1000);
-		Thread.sleep(600000);
+	}
+
+	@Scheduled(initialDelay = 600000, fixedDelay = Long.MAX_VALUE)
+	public void syncChunCheonStoreDataOnStartup() throws Exception {
+		log.info("[서버 시작 후 10분 지연 1회 실행] 춘천 매장 데이터 동기화 시작");
 		storeCheoncheonDataService.saveAllStores(1000);
 	}
 
